@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="//cdn.staticfile.net/Primer/21.0.7/primer.css" rel="stylesheet" />
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/11980041"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="## 4 使用私有构造方法强化不可实例化
+
+有些类，不可实例化：
+
+- 只包含静态方法和静态字段
+- 比如java.lang.Math java.util.Arrays
+- java.util.Collections还把一些工厂方法放进去了，比如UnmodifiableCollection这种只读类型的类，可以通过Collections.unmodifiableCollection()方法获得实例
+
+这种不可以实例的类，通常是工具类
+
+> 这样的工具类（utility classes）不是设计用来被实例化的，因为实例化对它没有任何意义。">
+<meta property="og:title" content="EffectiveJava(2) 创建和销毁对象 Part2">
+<meta property="og:description" content="## 4 使用私有构造方法强化不可实例化
+
+有些类，不可实例化：
+
+- 只包含静态方法和静态字段
+- 比如java.lang.Math java.util.Arrays
+- java.util.Collections还把一些工厂方法放进去了，比如UnmodifiableCollection这种只读类型的类，可以通过Collections.unmodifiableCollection()方法获得实例
+
+这种不可以实例的类，通常是工具类
+
+> 这样的工具类（utility classes）不是设计用来被实例化的，因为实例化对它没有任何意义。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://andy1202go.github.io/post/EffectiveJava%282%29%20-chuang-jian-he-xiao-hui-dui-xiang-%20Part2.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
+<title>EffectiveJava(2) 创建和销毁对象 Part2</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">EffectiveJava(2) 创建和销毁对象 Part2</h1>
+<div class="title-right">
+    <a href="https://andy1202go.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/andy1202go/andy1202go.github.io/issues/18" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h2>4 使用私有构造方法强化不可实例化</h2>
+<p>有些类，不可实例化：</p>
+<ul>
+<li>只包含静态方法和静态字段</li>
+<li>比如java.lang.Math java.util.Arrays</li>
+<li>java.util.Collections还把一些工厂方法放进去了，比如UnmodifiableCollection这种只读类型的类，可以通过Collections.unmodifiableCollection()方法获得实例</li>
+</ul>
+<p>这种不可以实例的类，通常是工具类</p>
+<blockquote>
+<p>这样的工具类（utility classes）不是设计用来被实例化的，因为实例化对它没有任何意义。然而，在没有显式构造器的情况下，编译器提供了一个公共的、无参的默认构造器。对于用户来说，该构造器与其他构造器没有什么区别。在已发布的 API 中经常看到无意识的被实例的类。</p>
+</blockquote>
+<p>不应该试图去实例化这种工具类，所以在设计的时候就应该限制它不能被实例化，也不能被继承。</p>
+<p>一步实现上述两个要求，就是显式的写一个私有的构造器：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">UtilityClass</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">UtilityClass</span>() {
+    }
+}</pre></div>
+<p>一个类如果不能被继承，要满足下面某一点</p>
+<ul>
+<li>final的类</li>
+<li>构造器都是private的（所有的构造器都必须显式或隐式地调用父类构造器，而在这群情况下子类则没有可访问的父类构造器来调用。）</li>
+</ul>
+<p>更好的做法是加上注释；更更好的做法是在私有构造器中加上抛异常的逻辑，以防止类的内部调用私有构造器使用</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Noninstantiable utility class</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">UtilityClass</span> {
+    <span class="pl-c">// Suppress default constructor for noninstantiability</span>
+    <span class="pl-k">private</span> <span class="pl-smi">UtilityClass</span>() {
+        <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">AssertionError</span>();
+    }
+    ... <span class="pl-c">// Remainder omitted</span>
+}</pre></div>
+<h2>5 依赖注入优于硬连接资源</h2>
+<p>许多类依赖于一个或多个底层资源，这里的底层资源，可以理解为其他类的实例；</p>
+<p>这种类做单例的话是不合理的，最多做成静态工厂类可能。</p>
+<blockquote>
+<p><strong>静态工具类和单例类不适合需要引用底层资源的类。</strong></p>
+<p>满足这一需求的简单模式是，<strong>在创建新实例时将资源传递到构造器中。</strong> 这是依赖项注入（dependency injection）的一种形式</p>
+</blockquote>
+<p>就是把所需要的参数传入构造器，同样适用于</p>
+<blockquote>
+<p>构造器、静态工厂（详见第 1 条）和 builder 模式（详见第 2 条）。</p>
+</blockquote>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Dependency injection provides flexibility and testability</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">SpellChecker</span> {
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">Lexicon</span> <span class="pl-s1">dictionary</span>;
+
+    <span class="pl-k">public</span> <span class="pl-smi">SpellChecker</span>(<span class="pl-smi">Lexicon</span> <span class="pl-s1">dictionary</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">dictionary</span> = <span class="pl-smi">Objects</span>.<span class="pl-en">requireNonNull</span>(<span class="pl-s1">dictionary</span>);
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">isValid</span>(<span class="pl-smi">String</span> <span class="pl-s1">word</span>) { ... }
+    <span class="pl-k">public</span> <span class="pl-smi">List</span>&lt;<span class="pl-smi">String</span>&gt; <span class="pl-en">suggestions</span>(<span class="pl-smi">String</span> <span class="pl-s1">typo</span>) { ... }
+}</pre></div>
+<p>该模式的一个变体是把工厂传入构造器，比如</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Data</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Tile</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">x</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">y</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">color</span>;
+}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Mosaic</span> {
+    <span class="pl-k">public</span> <span class="pl-smi">Mosaic</span>(<span class="pl-smi">Tile</span> <span class="pl-s1">tile</span>){}
+    <span class="pl-k">public</span> <span class="pl-smi">Mosaic</span>(){}
+}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">MosaicFactory</span> {
+    <span class="pl-k">public</span> <span class="pl-smi">Mosaic</span> <span class="pl-en">create</span>(<span class="pl-smi">Supplier</span>&lt;? <span class="pl-k">extends</span> <span class="pl-smi">Tile</span>&gt; <span class="pl-s1">tileFactory</span>) {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">Mosaic</span>(<span class="pl-s1">tileFactory</span>.<span class="pl-en">get</span>());
+    }
+}
+
+        <span class="pl-smi">Mosaic</span> <span class="pl-s1">mosaic</span> = <span class="pl-k">new</span> <span class="pl-smi">MosaicFactory</span>().<span class="pl-en">create</span>(()-&gt;<span class="pl-k">new</span> <span class="pl-smi">Tile</span>());</pre></div>
+<blockquote>
+<p>Java 8 中引入的 <code class="notranslate">Supplier&lt;T&gt;</code> 接口非常适合代表工厂。 在输入上采用 <code class="notranslate">Supplier&lt;T&gt;</code> 的方法通常应该使用有界的通配符类型（bounded wildcard type）（详见第 31 条）约束工厂的类型参数，以便客户端能够传入一个工厂，来创建指定类型的任意子类型</p>
+</blockquote>
+<blockquote>
+<p>尽管依赖注入极大地提高了灵活性和可测试性，但它可能使大型项目变得混乱，这些项目通常包含数千个依赖项。使用依赖注入框架（如 Dagger [Dagger]、Guice [Guice] 或 Spring [Spring]）可以消除这些混乱。这些框架的使用超出了本书的范围，但是请注意，为手动依赖注入而设计的 API 非常适合这些框架的使用。</p>
+</blockquote>
+<h2>6 避免创建不必要的对象</h2>
+<p>就是说，创建对象怎么都是有开销的，所以尽量重用已有的对象。</p>
+<p>比如说不可变类，String。所以不要用 new String("shit")这样子创建String实例。</p>
+<p>所以避免创建的方法有以下几种：</p>
+<ul>
+<li>使用不可变类</li>
+<li>使用静态方法和构造器，减少创建对象数量，比如Boolean.valueOf()</li>
+<li>缓存创建开销昂贵的对象</li>
+</ul>
+<p>第三种有个典型case，比如正则匹配，如果使用String.matches的话，每次会创建一个Pattern实例，不如把Pattern静态final写好，每次使用就行了</p>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-s1">isRomanNumeral</span>(<span class="pl-smi">String</span> <span class="pl-s1">s</span>) {
+        <span class="pl-k">return</span> <span class="pl-s1">s</span>.<span class="pl-en">matches</span>(<span class="pl-s">"^(?=.)M*(C[MD]|D?C{0,3})"</span>
+                + <span class="pl-s">"(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"</span>);
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Pattern</span> <span class="pl-c1">ROMAN</span> = <span class="pl-smi">Pattern</span>.<span class="pl-en">compile</span>(
+            <span class="pl-s">"^(?=.)M*(C[MD]|D?C{0,3})"</span>
+                    + <span class="pl-s">"(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"</span>);
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-s1">isRomanNumeralGood</span>(<span class="pl-smi">String</span> <span class="pl-s1">s</span>) {
+        <span class="pl-k">return</span> <span class="pl-smi">ROMAN</span>.<span class="pl-en">matcher</span>(<span class="pl-s1">s</span>).<span class="pl-en">matches</span>();
+    }</pre></div>
+<p>实测差距可能在一倍。</p>
+<blockquote>
+<p>当一个对象是不可变的时，很明显它可以被安全地重用，但是在其他情况下，它远没有那么明显，甚至是违反直觉的。考虑适配器（adapters）的情况[Gamma95]，也称为视图（views）。一个适配器是一个对象，它委托一个支持对象（backing object），提供一个可替代的接口。由于适配器没有超出其支持对象的状态，因此不需要为给定对象创建多个给定适配器的实例。</p>
+</blockquote>
+<p>这里说的是，除了上述很明显的避免创建不必要对象的方法，有些已实现的也在践行这个理念，只是比较讨巧。核心是认准对象的使用场景，是否使用一个实例就够用了，虽然这个实例可以变，比如Map.keySet</p>
+<blockquote>
+<p>例如，Map 接口的 <code class="notranslate">keySet</code> 方法返回 Map 对象的 Set 视图，包含 Map 中的所有 key。 天真地说，似乎每次调用 <code class="notranslate">keySet</code> 都必须创建一个新的 Set 实例，但是对给定 Map 对象的 <code class="notranslate">keySet</code> 的每次调用都返回相同的 Set 实例。 尽管返回的 Set 实例通常是可变的，但是所有返回的对象在功能上都是相同的：当其中一个返回的对象发生变化时，所有其他对象也都变化，因为它们全部由相同的 Map 实例支持。 虽然创建 <code class="notranslate">keySet</code> 视图对象的多个实例基本上是无害的，但这是没有必要的，也没有任何好处。</p>
+</blockquote>
+<p>另一个需要注意会创建不必要对象的场景是自动装箱。本义是好的，但用不好，性能差距很大</p>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">long</span> <span class="pl-s1">autoBoxingElasps</span>() {
+        <span class="pl-smi">Long</span> <span class="pl-s1">sum</span> = <span class="pl-c1">0L</span>;
+        <span class="pl-k">for</span> (<span class="pl-smi">long</span> <span class="pl-s1">i</span> = <span class="pl-c1">0</span>; <span class="pl-s1">i</span> &lt;= <span class="pl-smi">Integer</span>.<span class="pl-c1">MAX_VALUE</span>; <span class="pl-s1">i</span>++)
+            <span class="pl-s1">sum</span> += <span class="pl-s1">i</span>;
+        <span class="pl-k">return</span> <span class="pl-s1">sum</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">long</span> <span class="pl-s1">autoBoxingElaspsGood</span>() {
+        <span class="pl-smi">long</span> <span class="pl-s1">sum</span> = <span class="pl-c1">0L</span>;
+        <span class="pl-k">for</span> (<span class="pl-smi">long</span> <span class="pl-s1">i</span> = <span class="pl-c1">0</span>; <span class="pl-s1">i</span> &lt;= <span class="pl-smi">Integer</span>.<span class="pl-c1">MAX_VALUE</span>; <span class="pl-s1">i</span>++)
+            <span class="pl-s1">sum</span> += <span class="pl-s1">i</span>;
+        <span class="pl-k">return</span> <span class="pl-s1">sum</span>;
+    }</pre></div>
+<p>性能差距在10倍左右。</p>
+<blockquote>
+<p><strong>优先使用基本类型而不是装箱的基本类型，也要注意无意识的自动装箱。</strong></p>
+</blockquote>
+<p>最后，有两点重要提示：</p>
+<ol>
+<li>这个条目不应该被误解为暗示对象创建是昂贵的，应该避免创建对象。 相反，使用构造方法创建和回收小的对象是非常廉价，构造方法只会做很少的显示工作，尤其是在现代 JVM 实现上</li>
+<li>不要自己维护对象池，比如数据库的连接池，交给专业的去做就好了</li>
+</ol>
+<p>总结编码中需要注意的是：</p>
+<ul>
+<li>考虑对象的创建，能不能是单例的</li>
+<li>考虑对象的构建，能不能是静态的</li>
+<li>考虑对象的使用，能不能复用</li>
+<li>基本类型多用，自动装箱注意循环创建</li>
+<li>对象池什么的不要搞</li>
+</ul></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+</div>
+    <div id="footer">Copyright © <span id="year"></span><a href="https://andy1202go.github.io"> Andy's Blog </a>
+<p>
+<span id="runday"></span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a>
+</p>
+
+<script>
+if(""!=""){
+    var now=new Date();
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("year").innerHTML=now.getFullYear();
+    if(""!=""){document.getElementById("runday").innerHTML=" • "+"网站运行"+diffDay+"天"+" • ";}
+    else{document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";}
+}
+</script>
+</div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n\n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","andy1202go/andy1202go.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+</script>
+
+
+</html>

@@ -1,5 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:38:05 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>EffectiveJava(1) 创建和销毁对象 Part1</title><link>https://andy1202go.github.io/post/EffectiveJava%281%29%20-chuang-jian-he-xiao-hui-dui-xiang-%20Part1.html</link><description>## 1 考虑使用静态工厂方法替代构造方法&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:38:45 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>EffectiveJava(2) 创建和销毁对象 Part2</title><link>https://andy1202go.github.io/post/EffectiveJava%282%29%20-chuang-jian-he-xiao-hui-dui-xiang-%20Part2.html</link><description>## 4 使用私有构造方法强化不可实例化&#13;
+&#13;
+有些类，不可实例化：&#13;
+&#13;
+- 只包含静态方法和静态字段&#13;
+- 比如java.lang.Math java.util.Arrays&#13;
+- java.util.Collections还把一些工厂方法放进去了，比如UnmodifiableCollection这种只读类型的类，可以通过Collections.unmodifiableCollection()方法获得实例&#13;
+&#13;
+这种不可以实例的类，通常是工具类&#13;
+&#13;
+&gt; 这样的工具类（utility classes）不是设计用来被实例化的，因为实例化对它没有任何意义。</description><guid isPermaLink="true">https://andy1202go.github.io/post/EffectiveJava%282%29%20-chuang-jian-he-xiao-hui-dui-xiang-%20Part2.html</guid><pubDate>Thu, 27 Jun 2024 07:38:20 +0000</pubDate></item><item><title>EffectiveJava(1) 创建和销毁对象 Part1</title><link>https://andy1202go.github.io/post/EffectiveJava%281%29%20-chuang-jian-he-xiao-hui-dui-xiang-%20Part1.html</link><description>## 1 考虑使用静态工厂方法替代构造方法&#13;
 &#13;
 静态工厂方法，指的是类中的静态方法，用于创建类的工厂方法；&#13;
 &#13;
