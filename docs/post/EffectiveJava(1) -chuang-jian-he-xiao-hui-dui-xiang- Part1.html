@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="//cdn.staticfile.net/Primer/21.0.7/primer.css" rel="stylesheet" />
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/11980041"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="## 1 考虑使用静态工厂方法替代构造方法
+
+静态工厂方法，指的是类中的静态方法，用于创建类的工厂方法；
+
+和设计模式中的工厂方法主要区别在于
+
+- 静态工厂方法创建的是同一个实例，比如Boolean.of()，返回的是TRUE和FALSE两个实例中的一个，没有更多的
+- 工厂方法，永远是new一个
+
+先看下Boolean的静态工厂方法实例吧
+
+```java
+public final class Boolean implements java.io.Serializable,
+                                      Comparable<Boolean>
+{
+    /**
+     * The {@code Boolean} object corresponding to the primitive
+     * value {@code true}.
+     */
+    public static final Boolean TRUE = new Boolean(true);
+
+    /**
+     * The {@code Boolean} object corresponding to the primitive
+     * value {@code false}.
+     */
+    public static final Boolean FALSE = new Boolean(false);
+                                   
+    public static Boolean valueOf(String s) {
+        return parseBoolean(s) ? TRUE : FALSE;
+    }                                      
+  }
+```
+
+工厂方法的简单工厂，抽象工厂就不写了；但是静态工厂方法和静态单例模式还是挺像的，比如
+
+```java
+public class Singleton{
+    //lazy
+    private static Singleton instance = null;
+    
+    //private防止直接构造
+    private Singleton(){}
+    
+    public static Singleton getInstance(){
+        if(instance == null){
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+```
+
+静态工厂方法的优点
+
+- 可读性更好：有名字，可以直接表示含义，比如Collections.emptyList()
+- 与构造方法不同，它们不需要每次调用时都创建一个新对象
+- 可以返回该类的任意子类：比如Collections.unmodifiableList();
+- 静态工厂的第四个优点是返回对象的类可以根据输入参数的不同而不同
+- 静态工厂的第五个优点是，在编写包含该方法的类时，返回的对象的类不需要存在
+
+缺点
+
+- 名字用于表示含义了，没有标识是实例化的方法：所以用getInstance，newInstance什么的命名，保留至少一个
+- 如果类不含public或protect的构造方法，将不能被继承：这也是单例模式的问题，分需要使用的情况来决定吧
+
+综上，给出两种较好的实现：一种是单例模式，线程安全的静态方法；一种如下
+
+```java
+public class RandomIntGenerator {
+    /**
+     * 最小值
+     */
+    private int min = Integer.MIN_VALUE;
+    /**
+     * 最大值
+     */
+    private int max = Integer.MAX_VALUE;
+
+    /**
+     * 大于min 小于max
+     * @param min
+     * @param max
+     */
+    public RandomIntGenerator(int min, int max)
+    {
+        this.min = min;
+        this.max = max;
+    }
+    
+    /**
+     * 大于min 小于max
+     * @param min
+     * @param max
+     */
+    public static RandomIntGenerator between(int min, int max)
+    {
+        return new RandomIntGenerator(min, max);
+    }
+    /**
+     * 大于min 小于Integer.MAX_VALUE
+     */
+    public static RandomIntGenerator biggerThan(int min)
+    {
+        return new RandomIntGenerator(min, Integer.MAX_VALUE);
+    }
+
+    /**
+     * 大于Integer.MIN_VALUE 小于max
+     */
+    public static RandomIntGenerator smallerThan(int max)
+    {
+        return new RandomIntGenerator(Integer.MIN_VALUE, max);
+    }
+
+    public static RandomIntGenerator getInstance(){
+        return new RandomIntGenerator(Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+}
+```
+
+### 使用体验
+
+- 感觉更多的是工具类可以这么去定义，毕竟都是单例
+- spring本身都是单例了，其实也不需要单独这个了
+
+## 2 当构造方法参数过多时使用builder模式
+
+构造方法比较多的时候，比较几种构造设计
+
+- 伸缩构造方法：就是构造方法中强行塞参数
+- JavaBeans：就是属性都是private，通过setter来构造
+- Builder模式
+
+使用Builder模式的优势
+
+- 可读性好
+- 更安全（相比于JavaBeans，因为JavaBeans的构造方法被割裂为了多次调用，可能导致实例不一致）
+- 可以有多个可变参数，其实就是递归使用builder的某个方法，微小优势，不常用
+
+缺点：
+
+- 代码冗长，因为要单独写builder
+
+综合考虑
+
+- 参数大于等于4个的时候，最好使用builder模式
+- 注意：需要估计类的参数数量，在一开始的时候，而不是从一种构造方法切换到builder模式，代价较大
+
+最佳实践1
+
+- 使用Lombok的@Builder
+
+  ```java
+  import lombok.Builder;
+  
+  @Builder
+  public class SingletonBuilder {
+      private String param1;
+      private String param2;
+      private String param3;
+      private String param4;
+  }
+  ```
+
+- 手写Builder
+
+  ```java
+  // Builder Pattern
+  public class NutritionFacts {
+      private final int servingSize;
+      private final int servings;
+      private final int calories;
+      private final int fat;
+      private final int sodium;
+      private final int carbohydrate;
+      public static class Builder {
+          // Required parameters
+          private final int servingSize;
+          private final int servings;
+          // Optional parameters - initialized to default values
+          private int calories      = 0;
+          private int fat           = 0;
+          private int sodium        = 0;
+          private int carbohydrate  = 0;
+          public Builder(int servingSize, int servings) {
+              this.servingSize = servingSize;
+              this.servings    = servings;
+          }
+          public Builder calories(int val) { 
+              calories = val;      
+          }
+          public Builder fat(int val) { 
+             fat = val;           
+             return this;
+          }
+          public Builder sodium(int val) { 
+             sodium = val;        
+             return this; 
+          }
+          public Builder carbohydrate(int val) { 
+             carbohydrate = val;  
+             return this; 
+          }
+          public NutritionFacts build() {
+              return new NutritionFacts(this);
+          }
+      }
+      private NutritionFacts(Builder builder) {
+          servingSize  = builder.servingSize;
+          servings     = builder.servings;
+          calories     = builder.calories;
+          fat          = builder.fat;
+          sodium       = builder.sodium;
+          carbohydrate = builder.carbohydrate;
+      }
+  }
+  ```
+
+- 抽象基类使用Builder实现可变参数构造
+
+  ```java
+  public abstract class Pizza {
+      public enum Topping {HAM,MUSHROOM,ONION,PEPPER,SAUSAGE}
+      final Set<Topping> toppings;
+  
+      abstract static class Builder<T extends Builder<T>> {
+          EnumSet<Topping> toppings = EnumSet.noneOf(Topping.class);
+          public T addTopping(Topping topping){
+              toppings.add(Objects.requireNonNull(topping));
+              return self();//模拟的self类型
+          }
+          abstract Pizza build();
+  
+          // Subclasses must override this method to return 'this'
+          protected abstract T self();
+      }
+  
+      Pizza(Builder<?> builder) {
+          toppings = builder.toppings.clone();
+      }
+  }
+  ```
+
+### 使用体验
+
+## 3 使用私有构造方法或枚举实现单例模式
+
+讨论了3种实现单例模式的优劣，分别是
+
+- 私有构造方法+公开的实例；
+
+  ```java
+  public class Singleton{
+      private Singleton(){}
+      public static final Singleton INSTANCE = new Singleton();
+  }
+  ```
+
+- 私有构造方法+私有的实例+公开的静态方法获取实例
+
+  ```java
+  public class Singleton{
+      private Singleton(){}
+      private static final Singleton INSTANCE = new Singleton();
+      public static Singleton getInstance(){
+          return INSTANCE;
+      }
+  }
+  ```
+
+- 枚举
+
+  ```java
+  public enum Singleton {
+      INSTANCE;
+  }
+  ```
+
+书中最倾向使用枚举来实现单例，原因如下：
+
+- 最简洁
+
+- 无偿地提供了序列化机制（还不怎么理解..https://www.jianshu.com/p/d3d797c3cd45）
+
+  > 绝对防止多次实例化，即使是在面对复杂的序列化或者反射攻击的时候
+
+其次是静态工厂的模式，优点在于
+
+- 通过API表示这是单例模式
+- 灵活
+  - 需要改变为每个调用该方法的线程返回一个唯一的实例，直接在静态工厂方法中 new instance()，但此时需要去掉单例对象中final修饰的关键字
+  - 如果应用程序需要他，我们可以将它改为一个泛型单例工厂（条目30）
+
+缺点在于，小心序列化问题（第11章有讨论）
+
+> 为了防止单例类变成可序列化的，仅仅将添加 *implements Serializable* 到声明中是不够的。">
+<meta property="og:title" content="EffectiveJava(1) 创建和销毁对象 Part1">
+<meta property="og:description" content="## 1 考虑使用静态工厂方法替代构造方法
+
+静态工厂方法，指的是类中的静态方法，用于创建类的工厂方法；
+
+和设计模式中的工厂方法主要区别在于
+
+- 静态工厂方法创建的是同一个实例，比如Boolean.of()，返回的是TRUE和FALSE两个实例中的一个，没有更多的
+- 工厂方法，永远是new一个
+
+先看下Boolean的静态工厂方法实例吧
+
+```java
+public final class Boolean implements java.io.Serializable,
+                                      Comparable<Boolean>
+{
+    /**
+     * The {@code Boolean} object corresponding to the primitive
+     * value {@code true}.
+     */
+    public static final Boolean TRUE = new Boolean(true);
+
+    /**
+     * The {@code Boolean} object corresponding to the primitive
+     * value {@code false}.
+     */
+    public static final Boolean FALSE = new Boolean(false);
+                                   
+    public static Boolean valueOf(String s) {
+        return parseBoolean(s) ? TRUE : FALSE;
+    }                                      
+  }
+```
+
+工厂方法的简单工厂，抽象工厂就不写了；但是静态工厂方法和静态单例模式还是挺像的，比如
+
+```java
+public class Singleton{
+    //lazy
+    private static Singleton instance = null;
+    
+    //private防止直接构造
+    private Singleton(){}
+    
+    public static Singleton getInstance(){
+        if(instance == null){
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+```
+
+静态工厂方法的优点
+
+- 可读性更好：有名字，可以直接表示含义，比如Collections.emptyList()
+- 与构造方法不同，它们不需要每次调用时都创建一个新对象
+- 可以返回该类的任意子类：比如Collections.unmodifiableList();
+- 静态工厂的第四个优点是返回对象的类可以根据输入参数的不同而不同
+- 静态工厂的第五个优点是，在编写包含该方法的类时，返回的对象的类不需要存在
+
+缺点
+
+- 名字用于表示含义了，没有标识是实例化的方法：所以用getInstance，newInstance什么的命名，保留至少一个
+- 如果类不含public或protect的构造方法，将不能被继承：这也是单例模式的问题，分需要使用的情况来决定吧
+
+综上，给出两种较好的实现：一种是单例模式，线程安全的静态方法；一种如下
+
+```java
+public class RandomIntGenerator {
+    /**
+     * 最小值
+     */
+    private int min = Integer.MIN_VALUE;
+    /**
+     * 最大值
+     */
+    private int max = Integer.MAX_VALUE;
+
+    /**
+     * 大于min 小于max
+     * @param min
+     * @param max
+     */
+    public RandomIntGenerator(int min, int max)
+    {
+        this.min = min;
+        this.max = max;
+    }
+    
+    /**
+     * 大于min 小于max
+     * @param min
+     * @param max
+     */
+    public static RandomIntGenerator between(int min, int max)
+    {
+        return new RandomIntGenerator(min, max);
+    }
+    /**
+     * 大于min 小于Integer.MAX_VALUE
+     */
+    public static RandomIntGenerator biggerThan(int min)
+    {
+        return new RandomIntGenerator(min, Integer.MAX_VALUE);
+    }
+
+    /**
+     * 大于Integer.MIN_VALUE 小于max
+     */
+    public static RandomIntGenerator smallerThan(int max)
+    {
+        return new RandomIntGenerator(Integer.MIN_VALUE, max);
+    }
+
+    public static RandomIntGenerator getInstance(){
+        return new RandomIntGenerator(Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+}
+```
+
+### 使用体验
+
+- 感觉更多的是工具类可以这么去定义，毕竟都是单例
+- spring本身都是单例了，其实也不需要单独这个了
+
+## 2 当构造方法参数过多时使用builder模式
+
+构造方法比较多的时候，比较几种构造设计
+
+- 伸缩构造方法：就是构造方法中强行塞参数
+- JavaBeans：就是属性都是private，通过setter来构造
+- Builder模式
+
+使用Builder模式的优势
+
+- 可读性好
+- 更安全（相比于JavaBeans，因为JavaBeans的构造方法被割裂为了多次调用，可能导致实例不一致）
+- 可以有多个可变参数，其实就是递归使用builder的某个方法，微小优势，不常用
+
+缺点：
+
+- 代码冗长，因为要单独写builder
+
+综合考虑
+
+- 参数大于等于4个的时候，最好使用builder模式
+- 注意：需要估计类的参数数量，在一开始的时候，而不是从一种构造方法切换到builder模式，代价较大
+
+最佳实践1
+
+- 使用Lombok的@Builder
+
+  ```java
+  import lombok.Builder;
+  
+  @Builder
+  public class SingletonBuilder {
+      private String param1;
+      private String param2;
+      private String param3;
+      private String param4;
+  }
+  ```
+
+- 手写Builder
+
+  ```java
+  // Builder Pattern
+  public class NutritionFacts {
+      private final int servingSize;
+      private final int servings;
+      private final int calories;
+      private final int fat;
+      private final int sodium;
+      private final int carbohydrate;
+      public static class Builder {
+          // Required parameters
+          private final int servingSize;
+          private final int servings;
+          // Optional parameters - initialized to default values
+          private int calories      = 0;
+          private int fat           = 0;
+          private int sodium        = 0;
+          private int carbohydrate  = 0;
+          public Builder(int servingSize, int servings) {
+              this.servingSize = servingSize;
+              this.servings    = servings;
+          }
+          public Builder calories(int val) { 
+              calories = val;      
+          }
+          public Builder fat(int val) { 
+             fat = val;           
+             return this;
+          }
+          public Builder sodium(int val) { 
+             sodium = val;        
+             return this; 
+          }
+          public Builder carbohydrate(int val) { 
+             carbohydrate = val;  
+             return this; 
+          }
+          public NutritionFacts build() {
+              return new NutritionFacts(this);
+          }
+      }
+      private NutritionFacts(Builder builder) {
+          servingSize  = builder.servingSize;
+          servings     = builder.servings;
+          calories     = builder.calories;
+          fat          = builder.fat;
+          sodium       = builder.sodium;
+          carbohydrate = builder.carbohydrate;
+      }
+  }
+  ```
+
+- 抽象基类使用Builder实现可变参数构造
+
+  ```java
+  public abstract class Pizza {
+      public enum Topping {HAM,MUSHROOM,ONION,PEPPER,SAUSAGE}
+      final Set<Topping> toppings;
+  
+      abstract static class Builder<T extends Builder<T>> {
+          EnumSet<Topping> toppings = EnumSet.noneOf(Topping.class);
+          public T addTopping(Topping topping){
+              toppings.add(Objects.requireNonNull(topping));
+              return self();//模拟的self类型
+          }
+          abstract Pizza build();
+  
+          // Subclasses must override this method to return 'this'
+          protected abstract T self();
+      }
+  
+      Pizza(Builder<?> builder) {
+          toppings = builder.toppings.clone();
+      }
+  }
+  ```
+
+### 使用体验
+
+## 3 使用私有构造方法或枚举实现单例模式
+
+讨论了3种实现单例模式的优劣，分别是
+
+- 私有构造方法+公开的实例；
+
+  ```java
+  public class Singleton{
+      private Singleton(){}
+      public static final Singleton INSTANCE = new Singleton();
+  }
+  ```
+
+- 私有构造方法+私有的实例+公开的静态方法获取实例
+
+  ```java
+  public class Singleton{
+      private Singleton(){}
+      private static final Singleton INSTANCE = new Singleton();
+      public static Singleton getInstance(){
+          return INSTANCE;
+      }
+  }
+  ```
+
+- 枚举
+
+  ```java
+  public enum Singleton {
+      INSTANCE;
+  }
+  ```
+
+书中最倾向使用枚举来实现单例，原因如下：
+
+- 最简洁
+
+- 无偿地提供了序列化机制（还不怎么理解..https://www.jianshu.com/p/d3d797c3cd45）
+
+  > 绝对防止多次实例化，即使是在面对复杂的序列化或者反射攻击的时候
+
+其次是静态工厂的模式，优点在于
+
+- 通过API表示这是单例模式
+- 灵活
+  - 需要改变为每个调用该方法的线程返回一个唯一的实例，直接在静态工厂方法中 new instance()，但此时需要去掉单例对象中final修饰的关键字
+  - 如果应用程序需要他，我们可以将它改为一个泛型单例工厂（条目30）
+
+缺点在于，小心序列化问题（第11章有讨论）
+
+> 为了防止单例类变成可序列化的，仅仅将添加 *implements Serializable* 到声明中是不够的。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://andy1202go.github.io/post/EffectiveJava%281%29%20-chuang-jian-he-xiao-hui-dui-xiang-%20Part1.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
+<title>EffectiveJava(1) 创建和销毁对象 Part1</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">EffectiveJava(1) 创建和销毁对象 Part1</h1>
+<div class="title-right">
+    <a href="https://andy1202go.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/andy1202go/andy1202go.github.io/issues/17" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h2>1 考虑使用静态工厂方法替代构造方法</h2>
+<p>静态工厂方法，指的是类中的静态方法，用于创建类的工厂方法；</p>
+<p>和设计模式中的工厂方法主要区别在于</p>
+<ul>
+<li>静态工厂方法创建的是同一个实例，比如Boolean.of()，返回的是TRUE和FALSE两个实例中的一个，没有更多的</li>
+<li>工厂方法，永远是new一个</li>
+</ul>
+<p>先看下Boolean的静态工厂方法实例吧</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">final</span> <span class="pl-k">class</span> <span class="pl-smi">Boolean</span> <span class="pl-k">implements</span> <span class="pl-smi">java</span>.<span class="pl-smi">io</span>.<span class="pl-smi">Serializable</span>,
+                                      <span class="pl-smi">Comparable</span>&lt;<span class="pl-smi">Boolean</span>&gt;
+{
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * The {@code Boolean} object corresponding to the primitive</span>
+<span class="pl-c">     * value {@code true}.</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Boolean</span> <span class="pl-c1">TRUE</span> = <span class="pl-k">new</span> <span class="pl-smi">Boolean</span>(<span class="pl-c1">true</span>);
+
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * The {@code Boolean} object corresponding to the primitive</span>
+<span class="pl-c">     * value {@code false}.</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Boolean</span> <span class="pl-c1">FALSE</span> = <span class="pl-k">new</span> <span class="pl-smi">Boolean</span>(<span class="pl-c1">false</span>);
+                                   
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">Boolean</span> <span class="pl-en">valueOf</span>(<span class="pl-smi">String</span> <span class="pl-s1">s</span>) {
+        <span class="pl-k">return</span> <span class="pl-en">parseBoolean</span>(<span class="pl-s1">s</span>) ? <span class="pl-c1">TRUE</span> : <span class="pl-c1">FALSE</span>;
+    }                                      
+  }</pre></div>
+<p>工厂方法的简单工厂，抽象工厂就不写了；但是静态工厂方法和静态单例模式还是挺像的，比如</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Singleton</span>{
+    <span class="pl-c">//lazy</span>
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">Singleton</span> <span class="pl-s1">instance</span> = <span class="pl-c1">null</span>;
+    
+    <span class="pl-c">//private防止直接构造</span>
+    <span class="pl-k">private</span> <span class="pl-smi">Singleton</span>(){}
+    
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">Singleton</span> <span class="pl-en">getInstance</span>(){
+        <span class="pl-k">if</span>(<span class="pl-s1">instance</span> == <span class="pl-c1">null</span>){
+            <span class="pl-k">synchronized</span> (<span class="pl-smi">Singleton</span>.<span class="pl-k">class</span>) {
+                <span class="pl-k">if</span> (<span class="pl-s1">instance</span> == <span class="pl-c1">null</span>) {
+                    <span class="pl-s1">instance</span> = <span class="pl-k">new</span> <span class="pl-smi">Singleton</span>();
+                }
+            }
+        }
+        <span class="pl-k">return</span> <span class="pl-s1">instance</span>;
+    }
+}</pre></div>
+<p>静态工厂方法的优点</p>
+<ul>
+<li>可读性更好：有名字，可以直接表示含义，比如Collections.emptyList()</li>
+<li>与构造方法不同，它们不需要每次调用时都创建一个新对象</li>
+<li>可以返回该类的任意子类：比如Collections.unmodifiableList();</li>
+<li>静态工厂的第四个优点是返回对象的类可以根据输入参数的不同而不同</li>
+<li>静态工厂的第五个优点是，在编写包含该方法的类时，返回的对象的类不需要存在</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>名字用于表示含义了，没有标识是实例化的方法：所以用getInstance，newInstance什么的命名，保留至少一个</li>
+<li>如果类不含public或protect的构造方法，将不能被继承：这也是单例模式的问题，分需要使用的情况来决定吧</li>
+</ul>
+<p>综上，给出两种较好的实现：一种是单例模式，线程安全的静态方法；一种如下</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">RandomIntGenerator</span> {
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * 最小值</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">min</span> = <span class="pl-smi">Integer</span>.<span class="pl-c1">MIN_VALUE</span>;
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * 最大值</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">max</span> = <span class="pl-smi">Integer</span>.<span class="pl-c1">MAX_VALUE</span>;
+
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * 大于min 小于max</span>
+<span class="pl-c">     * @param min</span>
+<span class="pl-c">     * @param max</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-smi">RandomIntGenerator</span>(<span class="pl-smi">int</span> <span class="pl-s1">min</span>, <span class="pl-smi">int</span> <span class="pl-s1">max</span>)
+    {
+        <span class="pl-smi">this</span>.<span class="pl-s1">min</span> = <span class="pl-s1">min</span>;
+        <span class="pl-smi">this</span>.<span class="pl-s1">max</span> = <span class="pl-s1">max</span>;
+    }
+    
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * 大于min 小于max</span>
+<span class="pl-c">     * @param min</span>
+<span class="pl-c">     * @param max</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">RandomIntGenerator</span> <span class="pl-en">between</span>(<span class="pl-smi">int</span> <span class="pl-s1">min</span>, <span class="pl-smi">int</span> <span class="pl-s1">max</span>)
+    {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">RandomIntGenerator</span>(<span class="pl-s1">min</span>, <span class="pl-s1">max</span>);
+    }
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * 大于min 小于Integer.MAX_VALUE</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">RandomIntGenerator</span> <span class="pl-en">biggerThan</span>(<span class="pl-smi">int</span> <span class="pl-s1">min</span>)
+    {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">RandomIntGenerator</span>(<span class="pl-s1">min</span>, <span class="pl-smi">Integer</span>.<span class="pl-c1">MAX_VALUE</span>);
+    }
+
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * 大于Integer.MIN_VALUE 小于max</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">RandomIntGenerator</span> <span class="pl-en">smallerThan</span>(<span class="pl-smi">int</span> <span class="pl-s1">max</span>)
+    {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">RandomIntGenerator</span>(<span class="pl-smi">Integer</span>.<span class="pl-c1">MIN_VALUE</span>, <span class="pl-s1">max</span>);
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">RandomIntGenerator</span> <span class="pl-en">getInstance</span>(){
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">RandomIntGenerator</span>(<span class="pl-smi">Integer</span>.<span class="pl-c1">MIN_VALUE</span>, <span class="pl-smi">Integer</span>.<span class="pl-c1">MAX_VALUE</span>);
+    }
+}</pre></div>
+<h3>使用体验</h3>
+<ul>
+<li>感觉更多的是工具类可以这么去定义，毕竟都是单例</li>
+<li>spring本身都是单例了，其实也不需要单独这个了</li>
+</ul>
+<h2>2 当构造方法参数过多时使用builder模式</h2>
+<p>构造方法比较多的时候，比较几种构造设计</p>
+<ul>
+<li>伸缩构造方法：就是构造方法中强行塞参数</li>
+<li>JavaBeans：就是属性都是private，通过setter来构造</li>
+<li>Builder模式</li>
+</ul>
+<p>使用Builder模式的优势</p>
+<ul>
+<li>可读性好</li>
+<li>更安全（相比于JavaBeans，因为JavaBeans的构造方法被割裂为了多次调用，可能导致实例不一致）</li>
+<li>可以有多个可变参数，其实就是递归使用builder的某个方法，微小优势，不常用</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>代码冗长，因为要单独写builder</li>
+</ul>
+<p>综合考虑</p>
+<ul>
+<li>参数大于等于4个的时候，最好使用builder模式</li>
+<li>注意：需要估计类的参数数量，在一开始的时候，而不是从一种构造方法切换到builder模式，代价较大</li>
+</ul>
+<p>最佳实践1</p>
+<ul>
+<li>
+<p>使用Lombok的<a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/builder/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/builder">@builder</a></p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-s1">lombok</span>.<span class="pl-s1">Builder</span>;
+
+<span class="pl-c1">@</span><span class="pl-c1">Builder</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">SingletonBuilder</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">param1</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">param2</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">param3</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">param4</span>;
+}</pre></div>
+</li>
+<li>
+<p>手写Builder</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Builder Pattern</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">NutritionFacts</span> {
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">servingSize</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">servings</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">calories</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">fat</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">sodium</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">carbohydrate</span>;
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-smi">Builder</span> {
+        <span class="pl-c">// Required parameters</span>
+        <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">servingSize</span>;
+        <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">servings</span>;
+        <span class="pl-c">// Optional parameters - initialized to default values</span>
+        <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">calories</span>      = <span class="pl-c1">0</span>;
+        <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">fat</span>           = <span class="pl-c1">0</span>;
+        <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">sodium</span>        = <span class="pl-c1">0</span>;
+        <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">carbohydrate</span>  = <span class="pl-c1">0</span>;
+        <span class="pl-k">public</span> <span class="pl-smi">Builder</span>(<span class="pl-smi">int</span> <span class="pl-s1">servingSize</span>, <span class="pl-smi">int</span> <span class="pl-s1">servings</span>) {
+            <span class="pl-smi">this</span>.<span class="pl-s1">servingSize</span> = <span class="pl-s1">servingSize</span>;
+            <span class="pl-smi">this</span>.<span class="pl-s1">servings</span>    = <span class="pl-s1">servings</span>;
+        }
+        <span class="pl-k">public</span> <span class="pl-smi">Builder</span> <span class="pl-en">calories</span>(<span class="pl-smi">int</span> <span class="pl-s1">val</span>) { 
+            <span class="pl-s1">calories</span> = <span class="pl-s1">val</span>;      
+        }
+        <span class="pl-k">public</span> <span class="pl-smi">Builder</span> <span class="pl-en">fat</span>(<span class="pl-smi">int</span> <span class="pl-s1">val</span>) { 
+           <span class="pl-s1">fat</span> = <span class="pl-s1">val</span>;           
+           <span class="pl-k">return</span> <span class="pl-smi">this</span>;
+        }
+        <span class="pl-k">public</span> <span class="pl-smi">Builder</span> <span class="pl-en">sodium</span>(<span class="pl-smi">int</span> <span class="pl-s1">val</span>) { 
+           <span class="pl-s1">sodium</span> = <span class="pl-s1">val</span>;        
+           <span class="pl-k">return</span> <span class="pl-smi">this</span>; 
+        }
+        <span class="pl-k">public</span> <span class="pl-smi">Builder</span> <span class="pl-en">carbohydrate</span>(<span class="pl-smi">int</span> <span class="pl-s1">val</span>) { 
+           <span class="pl-s1">carbohydrate</span> = <span class="pl-s1">val</span>;  
+           <span class="pl-k">return</span> <span class="pl-smi">this</span>; 
+        }
+        <span class="pl-k">public</span> <span class="pl-smi">NutritionFacts</span> <span class="pl-en">build</span>() {
+            <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">NutritionFacts</span>(<span class="pl-smi">this</span>);
+        }
+    }
+    <span class="pl-k">private</span> <span class="pl-smi">NutritionFacts</span>(<span class="pl-smi">Builder</span> <span class="pl-s1">builder</span>) {
+        <span class="pl-s1">servingSize</span>  = <span class="pl-s1">builder</span>.<span class="pl-s1">servingSize</span>;
+        <span class="pl-s1">servings</span>     = <span class="pl-s1">builder</span>.<span class="pl-s1">servings</span>;
+        <span class="pl-s1">calories</span>     = <span class="pl-s1">builder</span>.<span class="pl-s1">calories</span>;
+        <span class="pl-s1">fat</span>          = <span class="pl-s1">builder</span>.<span class="pl-s1">fat</span>;
+        <span class="pl-s1">sodium</span>       = <span class="pl-s1">builder</span>.<span class="pl-s1">sodium</span>;
+        <span class="pl-s1">carbohydrate</span> = <span class="pl-s1">builder</span>.<span class="pl-s1">carbohydrate</span>;
+    }
+}</pre></div>
+</li>
+<li>
+<p>抽象基类使用Builder实现可变参数构造</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">abstract</span> <span class="pl-k">class</span> <span class="pl-smi">Pizza</span> {
+    <span class="pl-k">public</span> <span class="pl-k">enum</span> <span class="pl-smi">Topping</span> {<span class="pl-c1">HAM</span>,<span class="pl-c1">MUSHROOM</span>,<span class="pl-c1">ONION</span>,<span class="pl-c1">PEPPER</span>,<span class="pl-c1">SAUSAGE</span>}
+    <span class="pl-k">final</span> <span class="pl-smi">Set</span>&lt;<span class="pl-smi">Topping</span>&gt; <span class="pl-s1">toppings</span>;
+
+    <span class="pl-k">abstract</span> <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-smi">Builder</span>&lt;<span class="pl-smi">T</span> <span class="pl-k">extends</span> <span class="pl-smi">Builder</span>&lt;<span class="pl-smi">T</span>&gt;&gt; {
+        <span class="pl-smi">EnumSet</span>&lt;<span class="pl-smi">Topping</span>&gt; <span class="pl-s1">toppings</span> = <span class="pl-smi">EnumSet</span>.<span class="pl-en">noneOf</span>(<span class="pl-smi">Topping</span>.<span class="pl-k">class</span>);
+        <span class="pl-k">public</span> <span class="pl-smi">T</span> <span class="pl-en">addTopping</span>(<span class="pl-smi">Topping</span> <span class="pl-s1">topping</span>){
+            <span class="pl-s1">toppings</span>.<span class="pl-en">add</span>(<span class="pl-smi">Objects</span>.<span class="pl-en">requireNonNull</span>(<span class="pl-s1">topping</span>));
+            <span class="pl-k">return</span> <span class="pl-en">self</span>();<span class="pl-c">//模拟的self类型</span>
+        }
+        <span class="pl-k">abstract</span> <span class="pl-smi">Pizza</span> <span class="pl-en">build</span>();
+
+        <span class="pl-c">// Subclasses must override this method to return "this"</span>
+        <span class="pl-k">protected</span> <span class="pl-k">abstract</span> <span class="pl-smi">T</span> <span class="pl-en">self</span>();
+    }
+
+    <span class="pl-smi">Pizza</span>(<span class="pl-smi">Builder</span>&lt;?&gt; <span class="pl-s1">builder</span>) {
+        <span class="pl-s1">toppings</span> = <span class="pl-s1">builder</span>.<span class="pl-s1">toppings</span>.<span class="pl-en">clone</span>();
+    }
+}</pre></div>
+</li>
+</ul>
+<h3>使用体验</h3>
+<h2>3 使用私有构造方法或枚举实现单例模式</h2>
+<p>讨论了3种实现单例模式的优劣，分别是</p>
+<ul>
+<li>
+<p>私有构造方法+公开的实例；</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Singleton</span>{
+    <span class="pl-k">private</span> <span class="pl-smi">Singleton</span>(){}
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Singleton</span> <span class="pl-c1">INSTANCE</span> = <span class="pl-k">new</span> <span class="pl-smi">Singleton</span>();
+}</pre></div>
+</li>
+<li>
+<p>私有构造方法+私有的实例+公开的静态方法获取实例</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Singleton</span>{
+    <span class="pl-k">private</span> <span class="pl-smi">Singleton</span>(){}
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Singleton</span> <span class="pl-c1">INSTANCE</span> = <span class="pl-k">new</span> <span class="pl-smi">Singleton</span>();
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">Singleton</span> <span class="pl-en">getInstance</span>(){
+        <span class="pl-k">return</span> <span class="pl-c1">INSTANCE</span>;
+    }
+}</pre></div>
+</li>
+<li>
+<p>枚举</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">enum</span> <span class="pl-smi">Singleton</span> {
+    <span class="pl-c1">INSTANCE</span>;
+}</pre></div>
+</li>
+</ul>
+<p>书中最倾向使用枚举来实现单例，原因如下：</p>
+<ul>
+<li>
+<p>最简洁</p>
+</li>
+<li>
+<p>无偿地提供了序列化机制（还不怎么理解..<a href="https://www.jianshu.com/p/d3d797c3cd45%EF%BC%89" rel="nofollow">https://www.jianshu.com/p/d3d797c3cd45）</a></p>
+<blockquote>
+<p>绝对防止多次实例化，即使是在面对复杂的序列化或者反射攻击的时候</p>
+</blockquote>
+</li>
+</ul>
+<p>其次是静态工厂的模式，优点在于</p>
+<ul>
+<li>通过API表示这是单例模式</li>
+<li>灵活
+<ul>
+<li>需要改变为每个调用该方法的线程返回一个唯一的实例，直接在静态工厂方法中 new instance()，但此时需要去掉单例对象中final修饰的关键字</li>
+<li>如果应用程序需要他，我们可以将它改为一个泛型单例工厂（条目30）</li>
+</ul>
+</li>
+</ul>
+<p>缺点在于，小心序列化问题（第11章有讨论）</p>
+<blockquote>
+<p>为了防止单例类变成可序列化的，仅仅将添加 <em>implements Serializable</em> 到声明中是不够的。我们必须声明所有的实例字段为 <em>transient</em>，并提供一个 <em>readResolve</em> 方法。否则每当序列化的实例被反序列化时，都会创建一个新的实例，代码实现如下：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Singleton</span> <span class="pl-k">implements</span> <span class="pl-smi">Serializable</span> {
+ <span class="pl-c">//私有无参构造函数</span>
+ <span class="pl-k">private</span> <span class="pl-smi">Singleton</span>() {}
+
+ <span class="pl-c">//单例对象</span>
+ <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Singleton</span> <span class="pl-s1">instance</span> = <span class="pl-k">new</span> <span class="pl-smi">Singleton</span>();
+
+ <span class="pl-c">//静态工厂方法</span>
+ <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">Singleton</span> <span class="pl-en">getInstance</span>() {
+     <span class="pl-k">return</span> <span class="pl-s1">instance</span>;
+ }
+
+ <span class="pl-c">//提供该方法，以便重新指定反序列化得到的对象.</span>
+ <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">readResolve</span>() {
+     <span class="pl-k">return</span> <span class="pl-s1">instance</span>;
+ }
+}</pre></div>
+</blockquote>
+<h3>使用体验</h3>
+<ol>
+<li>
+<p>确实有见过比较大的枚举，里面记录了各种单例服务实例的情况，spring之前的情况；</p>
+</li>
+<li>
+<p>至于spring的单例模式，需要探究下</p>
+<p>[<a href="https://www.cnblogs.com/nickup/p/9800120.html" rel="nofollow">spring怎么实现单例模式？</a>](<a href="https://www.cnblogs.com/nickup/p/9800120.html" rel="nofollow">https://www.cnblogs.com/nickup/p/9800120.html</a>)</p>
+<p>可以看到，spring其实使用的是私有属性+公开的方法实现的，但是对单例做了单独的管理的；</p>
+<p>线程安全直接针对的这个单例的map去做的</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">abstract</span> <span class="pl-k">class</span> <span class="pl-smi">AbstractBeanFactory</span> <span class="pl-k">implements</span> <span class="pl-smi">ConfigurableBeanFactory</span>{  
+       <span class="pl-c">/** </span>
+<span class="pl-c">        * 充当了Bean实例的缓存，实现方式和单例注册表相同 </span>
+<span class="pl-c">        */</span>  
+       <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">Map</span> <span class="pl-s1">singletonCache</span>=<span class="pl-k">new</span> <span class="pl-smi">HashMap</span>();  
+       <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">getBean</span>(<span class="pl-smi">String</span> <span class="pl-s1">name</span>)<span class="pl-k">throws</span> <span class="pl-smi">BeansException</span>{  
+           <span class="pl-k">return</span> <span class="pl-en">getBean</span>(<span class="pl-s1">name</span>,<span class="pl-c1">null</span>,<span class="pl-c1">null</span>);  
+       }  
+    ...  
+       <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">getBean</span>(<span class="pl-smi">String</span> <span class="pl-s1">name</span>,<span class="pl-smi">Class</span> <span class="pl-s1">requiredType</span>,<span class="pl-smi">Object</span>[] <span class="pl-s1">args</span>)<span class="pl-k">throws</span> <span class="pl-smi">BeansException</span>{  
+          <span class="pl-c">//对传入的Bean name稍做处理，防止传入的Bean name名有非法字符(或则做转码)  </span>
+          <span class="pl-smi">String</span> <span class="pl-s1">beanName</span>=<span class="pl-en">transformedBeanName</span>(<span class="pl-s1">name</span>);  
+          <span class="pl-smi">Object</span> <span class="pl-s1">bean</span>=<span class="pl-c1">null</span>;  
+          <span class="pl-c">//手工检测单例注册表  </span>
+          <span class="pl-smi">Object</span> <span class="pl-s1">sharedInstance</span>=<span class="pl-c1">null</span>;  
+          <span class="pl-c">//使用了代码锁定同步块，原理和同步方法相似，但是这种写法效率更高  </span>
+          <span class="pl-k">synchronized</span>(<span class="pl-smi">this</span>.<span class="pl-s1">singletonCache</span>){  
+             <span class="pl-s1">sharedInstance</span>=<span class="pl-smi">this</span>.<span class="pl-s1">singletonCache</span>.<span class="pl-en">get</span>(<span class="pl-s1">beanName</span>);  
+           }  
+          <span class="pl-k">if</span>(<span class="pl-s1">sharedInstance</span>!=<span class="pl-c1">null</span>){  
+             ...  
+             <span class="pl-c">//返回合适的缓存Bean实例  </span>
+             <span class="pl-s1">bean</span>=<span class="pl-en">getObjectForSharedInstance</span>(<span class="pl-s1">name</span>,<span class="pl-s1">sharedInstance</span>);  
+          }<span class="pl-k">else</span>{  
+            ...  
+            <span class="pl-c">//取得Bean的定义  </span>
+            <span class="pl-smi">RootBeanDefinition</span> <span class="pl-s1">mergedBeanDefinition</span>=<span class="pl-en">getMergedBeanDefinition</span>(<span class="pl-s1">beanName</span>,<span class="pl-c1">false</span>);  
+             ...  
+            <span class="pl-c">//根据Bean定义判断，此判断依据通常来自于组件配置文件的单例属性开关  </span>
+            <span class="pl-c">//&lt;bean id="date" class="java.util.Date" scope="singleton"/&gt;  </span>
+            <span class="pl-c">//如果是单例，做如下处理  </span>
+            <span class="pl-k">if</span>(<span class="pl-s1">mergedBeanDefinition</span>.<span class="pl-en">isSingleton</span>()){  
+               <span class="pl-k">synchronized</span>(<span class="pl-smi">this</span>.<span class="pl-s1">singletonCache</span>){  
+                <span class="pl-c">//再次检测单例注册表  </span>
+                 <span class="pl-s1">sharedInstance</span>=<span class="pl-smi">this</span>.<span class="pl-s1">singletonCache</span>.<span class="pl-en">get</span>(<span class="pl-s1">beanName</span>);  
+                 <span class="pl-k">if</span>(<span class="pl-s1">sharedInstance</span>==<span class="pl-c1">null</span>){  
+                    ...  
+                   <span class="pl-k">try</span> {  
+                      <span class="pl-c">//真正创建Bean实例  </span>
+                      <span class="pl-s1">sharedInstance</span>=<span class="pl-en">createBean</span>(<span class="pl-s1">beanName</span>,<span class="pl-s1">mergedBeanDefinition</span>,<span class="pl-s1">args</span>);  
+                      <span class="pl-c">//向单例注册表注册Bean实例  </span>
+                       <span class="pl-en">addSingleton</span>(<span class="pl-s1">beanName</span>,<span class="pl-s1">sharedInstance</span>);  
+                   }<span class="pl-k">catch</span> (<span class="pl-smi">Exception</span> <span class="pl-s1">ex</span>) {  
+                      ...  
+                   }<span class="pl-k">finally</span>{  
+                      ...  
+                  }  
+                 }  
+               }  
+              <span class="pl-s1">bean</span>=<span class="pl-en">getObjectForSharedInstance</span>(<span class="pl-s1">name</span>,<span class="pl-s1">sharedInstance</span>);  
+            }  
+           <span class="pl-c">//如果是非单例，即prototpye，每次都要新创建一个Bean实例  </span>
+           <span class="pl-c">//&lt;bean id="date" class="java.util.Date" scope="prototype"/&gt;  </span>
+           <span class="pl-k">else</span>{  
+              <span class="pl-s1">bean</span>=<span class="pl-en">createBean</span>(<span class="pl-s1">beanName</span>,<span class="pl-s1">mergedBeanDefinition</span>,<span class="pl-s1">args</span>);  
+           }  
+    }  
+    ...  
+       <span class="pl-k">return</span> <span class="pl-s1">bean</span>;  
+    }  
+}</pre></div>
+</li>
+</ol>
+<h2></h2></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+</div>
+    <div id="footer">Copyright © <span id="year"></span><a href="https://andy1202go.github.io"> Andy's Blog </a>
+<p>
+<span id="runday"></span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a>
+</p>
+
+<script>
+if(""!=""){
+    var now=new Date();
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("year").innerHTML=now.getFullYear();
+    if(""!=""){document.getElementById("runday").innerHTML=" • "+"网站运行"+diffDay+"天"+" • ";}
+    else{document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";}
+}
+</script>
+</div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n\n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","andy1202go/andy1202go.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+</script>
+
+
+</html>
