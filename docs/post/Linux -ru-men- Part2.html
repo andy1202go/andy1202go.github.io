@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="//cdn.staticfile.net/Primer/21.0.7/primer.css" rel="stylesheet" />
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/11980041"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="### 1.6 文件与目录管理
+
+- 绝对路径，就是从/根目录开始的
+- 相对路径，相对于当前所在的目录
+
+#### 处理目录的常用命令
+
+接下来我们就来看几个常见的处理目录的命令吧：
+
+- ls: 列出目录
+- cd：切换目录
+- pwd：显示目前的目录
+- mkdir：创建一个新的目录
+- rmdir：删除一个空的目录
+- cp: 复制文件或目录
+- rm: 移除文件或目录
+- mv: 移动文件与目录、文件重命名
+
+你可以使用 *man [命令]* 来查看各个命令的使用文档，如 ：man cp。">
+<meta property="og:title" content="Linux 入门 Part2">
+<meta property="og:description" content="### 1.6 文件与目录管理
+
+- 绝对路径，就是从/根目录开始的
+- 相对路径，相对于当前所在的目录
+
+#### 处理目录的常用命令
+
+接下来我们就来看几个常见的处理目录的命令吧：
+
+- ls: 列出目录
+- cd：切换目录
+- pwd：显示目前的目录
+- mkdir：创建一个新的目录
+- rmdir：删除一个空的目录
+- cp: 复制文件或目录
+- rm: 移除文件或目录
+- mv: 移动文件与目录、文件重命名
+
+你可以使用 *man [命令]* 来查看各个命令的使用文档，如 ：man cp。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://andy1202go.github.io/post/Linux%20-ru-men-%20Part2.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
+<title>Linux 入门 Part2</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Linux 入门 Part2</h1>
+<div class="title-right">
+    <a href="https://andy1202go.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/andy1202go/andy1202go.github.io/issues/5" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h3>1.6 文件与目录管理</h3>
+<ul>
+<li>绝对路径，就是从/根目录开始的</li>
+<li>相对路径，相对于当前所在的目录</li>
+</ul>
+<h4>处理目录的常用命令</h4>
+<p>接下来我们就来看几个常见的处理目录的命令吧：</p>
+<ul>
+<li>ls: 列出目录</li>
+<li>cd：切换目录</li>
+<li>pwd：显示目前的目录</li>
+<li>mkdir：创建一个新的目录</li>
+<li>rmdir：删除一个空的目录</li>
+<li>cp: 复制文件或目录</li>
+<li>rm: 移除文件或目录</li>
+<li>mv: 移动文件与目录、文件重命名</li>
+</ul>
+<p>你可以使用 <em>man [命令]</em> 来查看各个命令的使用文档，如 ：man cp。</p>
+<h5>ls (列出目录)</h5>
+<p>在Linux系统当中， ls 命令可能是最常被运行的。</p>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# ls [-aAdfFhilnrRSt] 目录名称
+[root@www ~]# ls [--color={never,auto,always}] 目录名称
+[root@www ~]# ls [--full-time] 目录名称
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-a ：全部的文件，连同隐藏档( 开头为 . 的文件) 一起列出来(常用)</li>
+<li>-d ：仅列出目录本身，而不是列出目录内的文件数据(常用)</li>
+<li>-l ：长数据串列出，包含文件的属性与权限等等数据；(常用)</li>
+</ul>
+<p>将家目录下的所有文件列出来(含属性与隐藏档)</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# ls -al ~
+</code></pre>
+<h5>cd (切换目录)</h5>
+<p>cd是Change Directory的缩写，这是用来变换工作目录的命令。</p>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate"> cd [相对路径或绝对路径]
+#使用 mkdir 命令创建w3cschool.cn目录
+[root@www ~]# mkdir w3cschool.cn
+
+#使用绝对路径切换到w3cschool.cn目录
+[root@www ~]# cd /root/w3cschool.cn/
+
+#使用相对路径切换到w3cschool.cn目录
+[root@www ~]# cd ./w3cschool.cn/
+
+# 表示回到自己的家目录，亦即是 /root 这个目录
+[root@www w3cschool.cn]# cd ~
+
+# 表示去到目前的上一级目录，亦即是 /root 的上一级目录的意思；
+[root@www ~]# cd ..
+</code></pre>
+<p>接下来大家多操作几次应该就可以很好的理解 cd 命令的。</p>
+<h5>pwd (显示目前所在的目录)</h5>
+<p>pwd是Print Working Directory的缩写，也就是显示目前所在目录的命令。</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# pwd [-P]
+选项与参数：
+-P  ：显示出确实的路径，而非使用连结 (link) 路径。
+
+范例：单纯显示出目前的工作目录：
+[root@www ~]# pwd
+/root   &lt;== 显示出目录啦～  
+
+范例：显示出实际的工作目录，而非连结档本身的目录名而已 
+[root@www ~]# cd /var/mail   &lt;==注意，/var/mail是一个连结档 
+[root@www mail]# pwd 
+/var/mail         &lt;==列出目前的工作目录 
+[root@www mail]# pwd -P 
+/var/spool/mail   &lt;==怎么回事？有没有加 -P 差很多～ 
+[root@www mail]# ls -ld /var/mail 
+lrwxrwxrwx 1 root root 10 Sep  4 17:54 /var/mail -&gt; spool/mail
+# 看到这里应该知道为啥了吧？因为 /var/mail 是连结档，连结到 /var/spool/mail 
+# 所以，加上 pwd -P 的选项后，会不以连结档的数据显示，而是显示正确的完整路径啊！
+</code></pre>
+<h5>mkdir (创建新目录)</h5>
+<p>如果想要创建新的目录的话，那么就使用mkdir (make directory)吧。</p>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate">mkdir [-mp] 目录名称
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-m ：配置文件的权限喔！直接配置，不需要看默认权限 (umask) 的脸色～</li>
+<li>-p ：帮助你直接将所需要的目录(包含上一级目录)递回创建起来！</li>
+</ul>
+<p>范例：请到/tmp底下尝试创建数个新目录看看：</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# cd /tmp
+[root@www tmp]# mkdir test    &lt;==创建一名为 test 的新目录 
+[root@www tmp]# mkdir test1/test2/test3/test4 
+mkdir: cannot create directory `test1/test2/test3/test4':  
+No such file or directory       &lt;== 没办法直接创建此目录啊！ 
+[root@www tmp]# mkdir -p test1/test2/test3/test4 
+</code></pre>
+<p>加了这个 -p 的选项，可以自行帮你创建多层目录！</p>
+<p>范例：创建权限为rwx--x--x的目录</p>
+<pre class="notranslate"><code class="notranslate">[root@www tmp]# mkdir -m 711 test2
+[root@www tmp]# ls -l
+drwxr-xr-x  3 root  root 4096 Jul 18 12:50 test
+drwxr-xr-x  3 root  root 4096 Jul 18 12:53 test1
+drwx--x--x  2 root  root 4096 Jul 18 12:54 test2
+</code></pre>
+<p>上面的权限部分，如果没有加上 -m 来强制配置属性，系统会使用默认属性。</p>
+<p>如果我们使用 -m ，如上例我们给予 -m 711 来给予新的目录 drwx--x--x 的权限。</p>
+<h5>rmdir (删除空的目录)</h5>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate"> rmdir [-p] 目录名称
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>**-p ：**连同上一级『空的』目录也一起删除</li>
+</ul>
+<p>删除 w3cschool.cn 目录</p>
+<pre class="notranslate"><code class="notranslate">[root@www tmp]# rmdir w3cschool.cn/
+</code></pre>
+<p>范例：将於mkdir范例中创建的目录(/tmp底下)删除掉！</p>
+<pre class="notranslate"><code class="notranslate">[root@www tmp]# ls -l   &lt;==看看有多少目录存在？ 
+drwxr-xr-x  3 root  root 4096 Jul 18 12:50 test 
+drwxr-xr-x  3 root  root 4096 Jul 18 12:53 test1 
+drwx--x--x  2 root  root 4096 Jul 18 12:54 test2 
+[root@www tmp]# rmdir test   &lt;==可直接删除掉，没问题 
+[root@www tmp]# rmdir test1  &lt;==因为尚有内容，所以无法删除！ 
+rmdir: `test1': Directory not empty 
+[root@www tmp]# rmdir -p test1/test2/test3/test4 
+[root@www tmp]# ls -l        &lt;==您看看，底下的输出中test与test1不见了！ 
+drwx--x--x  2 root  root 4096 Jul 18 12:54 test2 
+</code></pre>
+<p>利用 -p 这个选项，立刻就可以将 test1/test2/test3/test4 一次删除。</p>
+<p>不过要注意的是，这个 rmdir 仅能删除空的目录，你可以使用 rm 命令来删除非空目录。</p>
+<h5>cp (复制文件或目录)</h5>
+<p>cp 即拷贝文件和目录。</p>
+<p>语法:</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# cp [-adfilprsu] 来源档(source) 目标档(destination)
+[root@www ~]# cp [options] source1 source2 source3 .... directory
+</code></pre>
+<p>选项与参数：</p>
+<p>-a ：相当於 -pdr 的意思，至於 pdr 请参考下列说明；(常用)</p>
+<p>-d ：若来源档为连结档的属性(link file)，则复制连结档属性而非文件本身；</p>
+<p>-f ：为强制(force)的意思，若目标文件已经存在且无法开启，则移除后再尝试一次；</p>
+<p>-i ：若目标档(destination)已经存在时，在覆盖时会先询问动作的进行(常用)</p>
+<p>-l ：进行硬式连结(hard link)的连结档创建，而非复制文件本身；</p>
+<p>-p ：连同文件的属性一起复制过去，而非使用默认属性(备份常用)；</p>
+<p>-r ：递回持续复制，用於目录的复制行为；(常用)</p>
+<p>-s ：复制成为符号连结档 (symbolic link)，亦即『捷径』文件；</p>
+<p>-u ：若 destination 比 source 旧才升级 destination ！</p>
+<p>用root身份，将家目录下的 .bashrc 复制到 /tmp 下，并更名为 bashr</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# cp ~/.bashrc /tmp/bashrc
+[root@www ~]# cp -i ~/.bashrc /tmp/bashrc
+cp: overwrite `/tmp/bashrc'? n  &lt;==n不覆盖，y为覆盖 
+</code></pre>
+<h5>rm (移除文件或目录)</h5>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate"> rm [-fir] 文件或目录
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-f ：就是 force 的意思，忽略不存在的文件，不会出现警告信息；</li>
+<li>-i ：互动模式，在删除前会询问使用者是否动作</li>
+<li>-r ：递回删除啊！最常用在目录的删除了！这是非常危险的选项！！！</li>
+<li></li>
+</ul>
+<p>将刚刚在 cp 的范例中创建的 bashrc 删除掉！</p>
+<pre class="notranslate"><code class="notranslate">[root@www tmp]# rm -i bashrc
+rm: remove regular file `bashrc'? y
+</code></pre>
+<p>如果加上 -i 的选项就会主动询问喔，避免你删除到错误的档名！</p>
+<h5>mv (移动文件与目录，或修改名称)</h5>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# mv [-fiu] source destination
+[root@www ~]# mv [options] source1 source2 source3 .... directory
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-f ：force 强制的意思，如果目标文件已经存在，不会询问而直接覆盖；</li>
+<li>-i ：若目标文件 (destination) 已经存在时，就会询问是否覆盖！</li>
+<li>-u ：若目标文件已经存在，且 source 比较新，才会升级 (update)</li>
+</ul>
+<p>复制一文件，创建一目录，将文件移动到目录中</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# cd /tmp
+[root@www tmp]# cp ~/.bashrc bashrc
+[root@www tmp]# mkdir mvtest
+[root@www tmp]# mv bashrc mvtest
+</code></pre>
+<p>将某个文件移动到某个目录去，就是这样做！</p>
+<p>将刚刚的目录名称更名为 mvtest2</p>
+<pre class="notranslate"><code class="notranslate">[root@www tmp]# mv mvtest mvtest2
+</code></pre>
+<hr>
+<h4>Linux 文件内容查看</h4>
+<p>Linux系统中使用以下命令来查看文件的内容：</p>
+<ul>
+<li>cat 由第一行开始显示文件内容</li>
+<li>tac 从最后一行开始显示，可以看出 tac 是 cat 的倒着写！</li>
+<li>nl  显示的时候，顺道输出行号！</li>
+<li>more 一页一页的显示文件内容</li>
+<li>less 与 more 类似，但是比 more 更好的是，他可以往前翻页！</li>
+<li>head 只看头几行</li>
+<li>tail 只看尾巴几行</li>
+</ul>
+<p>你可以使用 *man [命令]*来查看各个命令的使用文档，如 ：man cp。</p>
+<h5>cat</h5>
+<p>由第一行开始显示文件内容</p>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate">cat [-AbEnTv]
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-A ：相当於 -vET 的整合选项，可列出一些特殊字符而不是空白而已；</li>
+<li>-b ：列出行号，仅针对非空白行做行号显示，空白行不标行号！</li>
+<li>-E ：将结尾的断行字节 $ 显示出来；</li>
+<li>-n ：列印出行号，连同空白行也会有行号，与 -b 的选项不同；</li>
+<li>-T ：将 [tab] 按键以 ^I 显示出来；</li>
+<li>-v ：列出一些看不出来的特殊字符</li>
+</ul>
+<p>检看 /etc/issue 这个文件的内容：</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# cat /etc/issue
+CentOS release 6.4 (Final)
+Kernel \r on an \m
+</code></pre>
+<h5>tac</h5>
+<p>tac与cat命令刚好相反，文件内容从最后一行开始显示，可以看出 tac 是 cat 的倒着写！如：</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# tac /etc/issue
+
+Kernel \r on an \m
+CentOS release 6.4 (Final)
+</code></pre>
+<h5>nl</h5>
+<p>显示行号</p>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate">nl [-bnw] 文件
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-b ：指定行号指定的方式，主要有两种：<br>
+-b a ：表示不论是否为空行，也同样列出行号(类似 cat -n)；<br>
+-b t ：如果有空行，空的那一行不要列出行号(默认值)；</li>
+<li>-n ：列出行号表示的方法，主要有三种：<br>
+-n ln ：行号在萤幕的最左方显示；<br>
+-n rn ：行号在自己栏位的最右方显示，且不加 0 ；<br>
+-n rz ：行号在自己栏位的最右方显示，且加 0 ；</li>
+<li>-w ：行号栏位的占用的位数。</li>
+</ul>
+<p>范例一：用 nl 列出 /etc/issue 的内容</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# nl /etc/issue
+     1  CentOS release 6.4 (Final)
+     2  Kernel \r on an \m
+</code></pre>
+<h5>more</h5>
+<p>一页一页翻动</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# more /etc/man.config
+#
+# Generated automatically from man.conf.in by the
+# configure script.
+#
+# man.conf from man-1.6d
+....(中间省略)....
+--More--(28%)  &lt;== 重点在这一行喔！你的光标也会在这里等待你的命令 
+</code></pre>
+<p>在 more 这个程序的运行过程中，你有几个按键可以按的：</p>
+<ul>
+<li>空白键 (space)：代表向下翻一页；</li>
+<li>Enter     ：代表向下翻『一行』；</li>
+<li>/字串     ：代表在这个显示的内容当中，向下搜寻『字串』这个关键字；</li>
+<li>:f      ：立刻显示出档名以及目前显示的行数；</li>
+<li>q       ：代表立刻离开 more ，不再显示该文件内容。</li>
+<li>b 或 [ctrl]-b ：代表往回翻页，不过这动作只对文件有用，对管线无用。</li>
+</ul>
+<h5>less</h5>
+<p>一页一页翻动，以下实例输出/etc/man.config文件的内容：</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# less /etc/man.config
+#
+# Generated automatically from man.conf.in by the
+# configure script.
+#
+# man.conf from man-1.6d
+....(中间省略)....
+:   &lt;== 这里可以等待你输入命令！ 
+</code></pre>
+<p>less运行时可以输入的命令有：</p>
+<ul>
+<li>空白键  ：向下翻动一页；</li>
+<li>[pagedown]：向下翻动一页；</li>
+<li>[pageup] ：向上翻动一页；</li>
+<li>/字串   ：向下搜寻『字串』的功能；</li>
+<li>?字串   ：向上搜寻『字串』的功能；</li>
+<li>n     ：重复前一个搜寻 (与 / 或 ? 有关！)</li>
+<li>N     ：反向的重复前一个搜寻 (与 / 或 ? 有关！)</li>
+<li>q     ：离开 less 这个程序；</li>
+</ul>
+<h5>head</h5>
+<p>取出文件前面几行</p>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate">head [-n number] 文件 
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-n ：后面接数字，代表显示几行的意思</li>
+</ul>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# head /etc/man.config
+</code></pre>
+<p>默认的情况中，显示前面 10 行！若要显示前 20 行，就得要这样：</p>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# head -n 20 /etc/man.config
+</code></pre>
+<h5>tail</h5>
+<p>取出文件后面几行</p>
+<p>语法：</p>
+<pre class="notranslate"><code class="notranslate">tail [-n number] 文件 
+</code></pre>
+<p>选项与参数：</p>
+<ul>
+<li>-n ：后面接数字，代表显示几行的意思</li>
+<li>-f ：表示持续侦测后面所接的档名，要等到按下[ctrl]-c才会结束tail的侦测</li>
+</ul>
+<pre class="notranslate"><code class="notranslate">[root@www ~]# tail /etc/man.config
+# 默认的情况中，显示最后的十行！若要显示最后的 20 行，就得要这样：
+[root@www ~]# tail -n 20 /etc/man.config
+</code></pre>
+<h4>总结-最常用的命令及选项含义</h4>
+<div class="highlight highlight-source-shell"><pre class="notranslate">ls -al 全部文件及具体信息
+<span class="pl-c1">cd</span> 
+<span class="pl-c1">pwd</span>
+cat -b 显示行号
+more less 空格间向下翻看；/搜索
+tail -200f 尾部且持续输出</pre></div>
+<h3>1.7 文件基本属性</h3>
+<ul>
+<li>
+<p>linux系统，一切皆文件</p>
+</li>
+<li>
+<p>linux系统，也是多用户系统</p>
+</li>
+<li>
+<p>对不同用户访问同一文件（<strong>包括目录文件</strong>）的权限做了不同的规定</p>
+</li>
+<li>
+<p>使用ll查看文件详细信息</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">[root@www /]<span class="pl-c"><span class="pl-c">#</span> ls -l</span>
+total 64
+dr-xr-xr-x   2 root root 4096 Dec 14  2012 bin
+dr-xr-xr-x   4 root root 4096 Apr 19  2012 boot
+……</pre></div>
+</li>
+<li>
+<p>十位数标识文件类型和不同用户对文件的权限</p>
+</li>
+<li>
+<p>第一位标识文件类型</p>
+<blockquote>
+<ul>
+<li>当为[ <em>d</em> ]则是目录</li>
+<li>当为[ <em>-</em> ]则是文件；</li>
+<li>若是[ <em>l</em> ]则表示为链接文档(link file)；</li>
+<li>若是[ <em>b</em> ]则表示为装置文件里面的可供储存的接口设备(可随机存取装置)；</li>
+<li>若是[ <em>c</em> ]则表示为装置文件里面的串行端口设备，例如键盘、鼠标(一次性读取装置)。</li>
+</ul>
+</blockquote>
+</li>
+<li>
+<p>后面每三位表示用户权限，从前到后分别为：属主，属组，其他用户</p>
+</li>
+<li>
+<p>属主是文件的所有者</p>
+</li>
+<li>
+<p>属组是所有者的同组用户</p>
+</li>
+<li>
+<p>三位权限表示读写执行，英文是rwx</p>
+</li>
+<li>
+<p>没有权限标识“-”</p>
+</li>
+<li>
+<p>对于 root 用户来说，一般情况下，文件的权限对其不起作用。</p>
+</li>
+<li>
+<p>一般来说，属主权限&gt;=属组权限&gt;=其他用户权限</p>
+</li>
+</ul>
+<h4>更改文件属性</h4>
+<div class="highlight highlight-source-shell"><pre class="notranslate">chown root test1
+chown root:service test1 更改test1文件的属主为root，属组为service
+chgrp root test1
+chmod 777 test1 更改test1的权限属性，每个组都设置为7
+chmod u=rwx,g=rw,o=r test1 属主权限为rwx，属组权限为rw，其他为r
+chmod a=rwx test1 所有用户权限为rwx
+chmod a+x test1 所有用户增加执行权限
+chmod a-x test1 所有用户减少执行权限</pre></div>
+<h3>1.8 用户和用户组管理</h3>
+<p>略</p>
+<h3>1.9 磁盘管理</h3>
+<h4>空间查看</h4>
+<ul>
+<li>
+<p>两个命令：df和du</p>
+<blockquote>
+<p>df命令参数功能：检查文件系统的磁盘空间占用情况。可以利用该命令来获取硬盘被占用了多少空间，目前还剩下多少空间等信息。</p>
+<p>Linux du命令也是查看使用空间的，但是与df命令不同的是Linux du命令是对文件和目录磁盘使用的空间的查看，还是和df命令有一些区别的</p>
+</blockquote>
+</li>
+<li>
+<p>df查看磁盘空间，du查看文件大小</p>
+</li>
+<li>
+<p>通用命令</p>
+</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre class="notranslate">df -hTa 文件名 全部文件系统，显示文件系统类型，以较易阅读形式展示
+du -h 文件名 以较易阅读形式展示
+du -h
+df -h 当前位置情况</pre></div>
+<h4>磁盘分区等操作</h4>
+<p>fdisk</p>
+<p>其他略</p>
+<h3>1.10 vim</h3>
+<p>略</p>
+<h3>1.11 yum命令</h3>
+<blockquote>
+<p>yum（ Yellow dog Updater, Modified）是一个在Fedora和RedHat以及SUSE中的Shell前端软件包管理器。</p>
+<p>基于RPM包管理，能够从指定的服务器自动下载RPM包并且安装，可以自动处理依赖性关系，并且一次安装所有依赖的软体包，无须繁琐地一次次下载、安装。</p>
+<p>yum提供了查找、安装、删除某一个、一组甚至全部软件包的命令，而且命令简洁而又好记。</p>
+</blockquote>
+<h4>yum常用命令</h4>
+<ul>
+<li>1.列出所有可更新的软件清单命令：yum check-update</li>
+<li>2.更新所有软件命令：yum update</li>
+<li>3.仅安装指定的软件命令：yum install &lt;package_name&gt;</li>
+<li>4.仅更新指定的软件命令：yum update &lt;package_name&gt;</li>
+<li>5.列出所有可安裝的软件清单命令：yum list</li>
+<li>6.删除软件包命令：yum remove &lt;package_name&gt;</li>
+<li>7.查找软件包 命令：yum search </li>
+<li>8.清除缓存命令:
+<ul>
+<li>yum clean packages: 清除缓存目录下的软件包</li>
+<li>yum clean headers: 清除缓存目录下的 headers</li>
+<li>yum clean oldheaders: 清除缓存目录下旧的 headers</li>
+<li>yum clean, yum clean all (= yum clean packages; yum clean oldheaders) :清除缓存目录下的软件包及旧的headers</li>
+</ul>
+</li>
+</ul></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+</div>
+    <div id="footer">Copyright © <span id="year"></span><a href="https://andy1202go.github.io"> Andy's Blog </a>
+<p>
+<span id="runday"></span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a>
+</p>
+
+<script>
+if(""!=""){
+    var now=new Date();
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("year").innerHTML=now.getFullYear();
+    if(""!=""){document.getElementById("runday").innerHTML=" • "+"网站运行"+diffDay+"天"+" • ";}
+    else{document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";}
+}
+</script>
+</div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n\n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","andy1202go/andy1202go.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+</script>
+
+
+</html>

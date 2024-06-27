@@ -1,5 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:13:27 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>Linux入门 Part1</title><link>https://andy1202go.github.io/post/Linux-ru-men-%20Part1.html</link><description>&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:14:13 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>Linux 入门 Part2</title><link>https://andy1202go.github.io/post/Linux%20-ru-men-%20Part2.html</link><description>### 1.6 文件与目录管理&#13;
+&#13;
+- 绝对路径，就是从/根目录开始的&#13;
+- 相对路径，相对于当前所在的目录&#13;
+&#13;
+#### 处理目录的常用命令&#13;
+&#13;
+接下来我们就来看几个常见的处理目录的命令吧：&#13;
+&#13;
+- ls: 列出目录&#13;
+- cd：切换目录&#13;
+- pwd：显示目前的目录&#13;
+- mkdir：创建一个新的目录&#13;
+- rmdir：删除一个空的目录&#13;
+- cp: 复制文件或目录&#13;
+- rm: 移除文件或目录&#13;
+- mv: 移动文件与目录、文件重命名&#13;
+&#13;
+你可以使用 *man [命令]* 来查看各个命令的使用文档，如 ：man cp。</description><guid isPermaLink="true">https://andy1202go.github.io/post/Linux%20-ru-men-%20Part2.html</guid><pubDate>Thu, 27 Jun 2024 07:13:48 +0000</pubDate></item><item><title>Linux入门 Part1</title><link>https://andy1202go.github.io/post/Linux-ru-men-%20Part1.html</link><description>&#13;
 &gt; 初级阶段：&#13;
 &gt; 1． 命令是必须要学的，linux常用的命令大概在80个左右，这些常用命令一定要熟练掌握。</description><guid isPermaLink="true">https://andy1202go.github.io/post/Linux-ru-men-%20Part1.html</guid><pubDate>Thu, 27 Jun 2024 07:12:33 +0000</pubDate></item><item><title>Test2</title><link>https://andy1202go.github.io/post/Test2.html</link><description>1231。</description><guid isPermaLink="true">https://andy1202go.github.io/post/Test2.html</guid><pubDate>Thu, 27 Jun 2024 07:11:51 +0000</pubDate></item><item><title>The Key To Accelerating Your Coding Skills-文章读后小结</title><link>https://andy1202go.github.io/post/The%20Key%20To%20Accelerating%20Your%20Coding%20Skills--wen-zhang-du-hou-xiao-jie.html</link><description>### 文章链接：http://blog.thefirehoseproject.com/posts/learn-to-code-and-be-self-reliant/&#13;
 &#13;
