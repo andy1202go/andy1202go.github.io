@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="//cdn.staticfile.net/Primer/21.0.7/primer.css" rel="stylesheet" />
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/11980041"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="如何使用Java提供的基本元素来合理设计类和接口。">
+<meta property="og:title" content="EffectiveJava(6) 类和接口 Part1">
+<meta property="og:description" content="如何使用Java提供的基本元素来合理设计类和接口。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://andy1202go.github.io/post/EffectiveJava%286%29%20-lei-he-jie-kou-%20Part1.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
+<title>EffectiveJava(6) 类和接口 Part1</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">EffectiveJava(6) 类和接口 Part1</h1>
+<div class="title-right">
+    <a href="https://andy1202go.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/andy1202go/andy1202go.github.io/issues/22" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p>如何使用Java提供的基本元素来合理设计类和接口。</p>
+<h2>15 使类和成员的可访问性最小化</h2>
+<p>遵循软件设计的基本原则，即封装。隐藏内部实现细节，仅通过API进行通信。</p>
+<p>Java提供了许多机制来帮助信息隐藏。访问控制机制指定了类，接口和成员的可访问性。</p>
+<h3>让每个类或成员尽可能的不可访问</h3>
+<p>尽可能的缩小可被访问的范围！！从小到大的范围分别如下</p>
+<ul>
+<li>类和接口：包级私有或者public</li>
+<li>成员：private,包级私有，protected，public</li>
+</ul>
+<p>当遇到需要调整类、接口、成员的访问控制级别的时候，都应该反思之前是不是设定有问题，要仔细考虑再调整（主要是级别升高的情况）</p>
+<h3>特殊情况</h3>
+<ol>
+<li>
+<p>继承</p>
+<p>子类复写父类的方法，要求子类中的访问级别不能低于父类中的访问级别</p>
+<blockquote>
+<p>这对于确保子类的实例在父类的实例可用的地方是可用的（Liskov 替换原则，见条目 15）是必要的。 如果违反此规则，编译器将在尝试编译子类时生成错误消息。 这个规则的一个特例是，如果一个类实现了一个接口，那么接口中的所有类方法都必须在该类中声明为 public。</p>
+</blockquote>
+<p>反例来想，比如子类是private，而父类是public，那父类在多态时候就无法调用子类的方法了...</p>
+<p>取舍问题，访问控制让步于多态。</p>
+</li>
+<li>
+<p>公有类的实例域绝不能是共有的，包含公有可变域的类通常并不是线程安全的</p>
+</li>
+<li>
+<p>用final符修饰的内容，如果知识可变对象的引用，则比较危险，比如数组、List等。可以暴露Immutable的List,或者使用方法，每次返回一个clone实例。</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Potential security hole!</span>
+<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Thing</span>[] <span class="pl-c1">VALUES</span> = { ... };
+
+<span class="pl-c">//you should</span>
+<span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Thing</span>[] <span class="pl-c1">PRIVATE_VALUES</span> = { ... };
+<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">List</span>&lt;<span class="pl-smi">Thing</span>&gt; <span class="pl-c1">VALUES</span> = <span class="pl-smi">Collections</span>.<span class="pl-en">unmodifiableList</span>(<span class="pl-smi">Arrays</span>.<span class="pl-en">asList</span>(<span class="pl-c1">PRIVATE_VALUES</span>));
+
+<span class="pl-c">//or</span>
+<span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Thing</span>[] <span class="pl-c1">PRIVATE_VALUES</span> = { ... };
+<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Thing</span>[] <span class="pl-s1">values</span>() {
+    <span class="pl-k">return</span> <span class="pl-smi">PRIVATE_VALUES</span>.<span class="pl-en">clone</span>();
+}</pre></div>
+</li>
+</ol>
+<h3>关于内部类</h3>
+<p>对成员变量，通常是private修饰，然后提供public方法访问获取，封装的较好。但是对于类，往往一个public了事。</p>
+<p>文中对于类，有一段说明是，如果类的范围明确，尽量缩小，比如在使用类中声明和使用即可。</p>
+<blockquote>
+<p>如果一个类或接口只是在某一个类的内部被用到，就应该考虑使它成为唯一使用它的那个类的私有嵌套类。</p>
+</blockquote>
+<p>内部类除了能够提供更好的封装以外，还具有一些特殊的性质，如内部类可以直接访问到外部类中的成员，包括私有的成员。</p>
+<p>在 Java 的集合框架中大量地使用了内部类，比如集合类中迭代器的实现。这些迭代器实现了同样的接口（Iterator Interface），但是具体的实现又各不相同。外部类也不必关心它们的具体实现方法，只需要按照约定的接口进行访问即可。</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//ArrayList</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Iterator</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">iterator</span>() {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">Itr</span>();
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">class</span> <span class="pl-smi">Itr</span> <span class="pl-k">implements</span> <span class="pl-smi">Iterator</span>&lt;<span class="pl-smi">E</span>&gt; {
+        <span class="pl-smi">int</span> <span class="pl-s1">cursor</span>;       <span class="pl-c">// index of next element to return</span>
+        <span class="pl-smi">int</span> <span class="pl-s1">lastRet</span> = -<span class="pl-c1">1</span>; <span class="pl-c">// index of last element returned; -1 if no such</span>
+        <span class="pl-smi">int</span> <span class="pl-s1">expectedModCount</span> = <span class="pl-s1">modCount</span>;
+
+        <span class="pl-smi">Itr</span>() {}
+
+        <span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">hasNext</span>() {
+            <span class="pl-k">return</span> <span class="pl-s1">cursor</span> != <span class="pl-s1">size</span>;
+        }
+
+        <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"unchecked"</span>)
+        <span class="pl-k">public</span> <span class="pl-smi">E</span> <span class="pl-en">next</span>() {
+            <span class="pl-en">checkForComodification</span>();
+            <span class="pl-smi">int</span> <span class="pl-s1">i</span> = <span class="pl-s1">cursor</span>;
+            <span class="pl-k">if</span> (<span class="pl-s1">i</span> &gt;= <span class="pl-s1">size</span>)
+                <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">NoSuchElementException</span>();
+            <span class="pl-smi">Object</span>[] <span class="pl-s1">elementData</span> = <span class="pl-smi">ArrayList</span>.<span class="pl-smi">this</span>.<span class="pl-s1">elementData</span>;
+            <span class="pl-k">if</span> (<span class="pl-s1">i</span> &gt;= <span class="pl-s1">elementData</span>.<span class="pl-s1">length</span>)
+                <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">ConcurrentModificationException</span>();
+            <span class="pl-s1">cursor</span> = <span class="pl-s1">i</span> + <span class="pl-c1">1</span>;
+            <span class="pl-k">return</span> (<span class="pl-smi">E</span>) <span class="pl-s1">elementData</span>[<span class="pl-s1">lastRet</span> = <span class="pl-s1">i</span>];
+        }
+
+        <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">remove</span>() {
+            <span class="pl-k">if</span> (<span class="pl-s1">lastRet</span> &lt; <span class="pl-c1">0</span>)
+                <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">IllegalStateException</span>();
+            <span class="pl-en">checkForComodification</span>();
+
+            <span class="pl-k">try</span> {
+                <span class="pl-smi">ArrayList</span>.<span class="pl-smi">this</span>.<span class="pl-en">remove</span>(<span class="pl-s1">lastRet</span>);
+                <span class="pl-s1">cursor</span> = <span class="pl-s1">lastRet</span>;
+                <span class="pl-s1">lastRet</span> = -<span class="pl-c1">1</span>;
+                <span class="pl-s1">expectedModCount</span> = <span class="pl-s1">modCount</span>;
+            } <span class="pl-k">catch</span> (<span class="pl-smi">IndexOutOfBoundsException</span> <span class="pl-s1">ex</span>) {
+                <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">ConcurrentModificationException</span>();
+            }
+        }
+
+        <span class="pl-c1">@</span><span class="pl-c1">Override</span>
+        <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"unchecked"</span>)
+        <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">forEachRemaining</span>(<span class="pl-smi">Consumer</span>&lt;? <span class="pl-en">super</span> <span class="pl-smi">E</span>&gt; <span class="pl-s1">consumer</span>) {
+            <span class="pl-smi">Objects</span>.<span class="pl-en">requireNonNull</span>(<span class="pl-s1">consumer</span>);
+            <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">size</span> = <span class="pl-smi">ArrayList</span>.<span class="pl-smi">this</span>.<span class="pl-s1">size</span>;
+            <span class="pl-smi">int</span> <span class="pl-s1">i</span> = <span class="pl-s1">cursor</span>;
+            <span class="pl-k">if</span> (<span class="pl-s1">i</span> &gt;= <span class="pl-s1">size</span>) {
+                <span class="pl-k">return</span>;
+            }
+            <span class="pl-k">final</span> <span class="pl-smi">Object</span>[] <span class="pl-s1">elementData</span> = <span class="pl-smi">ArrayList</span>.<span class="pl-smi">this</span>.<span class="pl-s1">elementData</span>;
+            <span class="pl-k">if</span> (<span class="pl-s1">i</span> &gt;= <span class="pl-s1">elementData</span>.<span class="pl-s1">length</span>) {
+                <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">ConcurrentModificationException</span>();
+            }
+            <span class="pl-k">while</span> (<span class="pl-s1">i</span> != <span class="pl-s1">size</span> &amp;&amp; <span class="pl-s1">modCount</span> == <span class="pl-s1">expectedModCount</span>) {
+                <span class="pl-s1">consumer</span>.<span class="pl-en">accept</span>((<span class="pl-smi">E</span>) <span class="pl-s1">elementData</span>[<span class="pl-s1">i</span>++]);
+            }
+            <span class="pl-c">// update once at end of iteration to reduce heap write traffic</span>
+            <span class="pl-s1">cursor</span> = <span class="pl-s1">i</span>;
+            <span class="pl-s1">lastRet</span> = <span class="pl-s1">i</span> - <span class="pl-c1">1</span>;
+            <span class="pl-en">checkForComodification</span>();
+        }
+
+        <span class="pl-k">final</span> <span class="pl-smi">void</span> <span class="pl-en">checkForComodification</span>() {
+            <span class="pl-k">if</span> (<span class="pl-s1">modCount</span> != <span class="pl-s1">expectedModCount</span>)
+                <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">ConcurrentModificationException</span>();
+        }
+    }</pre></div>
+<p>内部类分为</p>
+<ul>
+<li>
+<p>成员内部类</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Outer</span> {
+
+    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">i</span> = <span class="pl-c1">1</span>;
+
+    <span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Inner</span> {
+        <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">i</span> = <span class="pl-c1">2</span>;
+
+        <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">print</span>() {
+            <span class="pl-smi">int</span> <span class="pl-s1">i</span> = <span class="pl-c1">3</span>;
+            <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">i</span>);
+            <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-smi">this</span>.<span class="pl-s1">i</span>);
+            <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-smi">Outer</span>.<span class="pl-smi">this</span>.<span class="pl-s1">i</span>);
+        }
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) {
+        <span class="pl-smi">Outer</span> <span class="pl-s1">outer</span> = <span class="pl-k">new</span> <span class="pl-smi">Outer</span>();
+        <span class="pl-smi">Inner</span> <span class="pl-s1">inner</span> = <span class="pl-s1">outer</span>.<span class="pl-k">new</span> <span class="pl-smi">Inner</span>();
+        <span class="pl-s1">inner</span>.<span class="pl-en">print</span>();
+    }
+}
+<span class="pl-c">//3 2 1</span></pre></div>
+<p>内部类可以访问外部类的成员变量，反之不行。这种内部类只能先实例外部类，才能实例内部类</p>
+</li>
+<li>
+<p>静态内部类</p>
+<p>static的内部类，只是这个类写在外部类中，不属于任何外部类的实例</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">InnerTest1</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">age</span>;
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-smi">Inner</span>{
+        <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">in</span>;
+        <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setIn</span>(<span class="pl-smi">int</span> <span class="pl-s1">in</span>){
+            <span class="pl-smi">this</span>.<span class="pl-s1">in</span> = <span class="pl-s1">in</span>;
+        }
+        <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">getIn</span>() {
+            <span class="pl-k">return</span> <span class="pl-s1">in</span>;
+        }    
+    }
+
+    <span class="pl-c">// public Inner getInner(){</span>
+    <span class="pl-c">//     return new Inner();</span>
+    <span class="pl-c">// }</span>
+
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">getAge</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">age</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setAge</span>(<span class="pl-smi">int</span> <span class="pl-s1">age</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">age</span> = <span class="pl-s1">age</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>){
+        <span class="pl-smi">Inner</span> <span class="pl-s1">inner</span> = <span class="pl-k">new</span> <span class="pl-smi">Inner</span>();
+        <span class="pl-s1">inner</span>.<span class="pl-en">setIn</span>(<span class="pl-c1">1</span>);
+        <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">inner</span>.<span class="pl-en">getIn</span>());
+    }
+}</pre></div>
+</li>
+<li>
+<p>局部内部类</p>
+</li>
+<li>
+<p>匿名内部类</p>
+<blockquote>
+<p>匿名内部类 ：是内部类的简化写法。它的本质是一个带具体实现的父类或者父接口的 匿名的 子类对象。开发中，最常用到的内部类就是匿名内部类了。以接口举例，当你使用一个接口时，似乎得做如下几步操作，</p>
+<ol>
+<li>定义子类</li>
+<li>重写接口中的方法</li>
+<li>创建子类对象</li>
+<li>调用重写后的方法</li>
+</ol>
+<p>我们的目的，最终只是为了调用方法，那么能不能简化一下，把以上四步合成一步呢？匿名内部类就是做这样的快捷方式。</p>
+</blockquote>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">abstract</span> <span class="pl-k">class</span> <span class="pl-smi">FlyAble</span>{
+    <span class="pl-k">public</span> <span class="pl-k">abstract</span> <span class="pl-smi">void</span> <span class="pl-en">fly</span>();
+}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">InnerDemo2</span> {
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) {
+        <span class="pl-c">/**</span>
+<span class="pl-c">        1.等号右边:是匿名内部类，定义并创建该接口的子类对象</span>
+<span class="pl-c">        2.等号左边:是多态赋值,接口类型引用指向子类对象</span>
+<span class="pl-c">        */</span>
+        <span class="pl-smi">FlyAble</span> <span class="pl-s1">f</span> = <span class="pl-k">new</span> <span class="pl-smi">FlyAble</span>(){
+            <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">fly</span>() {
+                <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"芜湖，起飞！！✈️✈️✈️"</span>);
+            }
+        };
+        <span class="pl-c">// 将f传递给showFly方法中</span>
+        <span class="pl-en">showFly</span>(<span class="pl-s1">f</span>);
+    }
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">showFly</span>(<span class="pl-smi">FlyAble</span> <span class="pl-s1">f</span>) {
+        <span class="pl-s1">f</span>.<span class="pl-en">fly</span>();
+    }
+}</pre></div>
+<p>Java8之后的lambda表达式就是这个东西的进一步简化。</p>
+<blockquote>
+<p>这里分享一个 『Java 核心技术』 中提到的使用匿名内部类的一个场景。在生成日志或调试消息是，通常希望包含当前类的类名，如：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-smi">System</span>.<span class="pl-s1">err</span>.<span class="pl-en">println</span>(<span class="pl-s">"Something awful happened in :"</span> + <span class="pl-en">getClass</span>());</pre></div>
+<p>但是，这对于静态方法不奏效，因为 getClass() 不是一个静态方法。可以通过以下技巧在静态方法中获取到所在的类：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">new</span> <span class="pl-smi">Object</span>(){}.<span class="pl-en">getClass</span>().<span class="pl-en">getEnclosingClass</span>(); <span class="pl-c">//get class of static method</span></pre></div>
+<p>在这里，会建立一个 Object 的匿名子类的对象，进而通过 getEnclosingClass 得到其外围类，及包含该静态方法的类。</p>
+<p>Java 8 之后，很多使用匿名内部类的场景都可以使用 Lambda 表达式进行替换，使用起来也更为方便。</p>
+</blockquote>
+</li>
+</ul>
+<h2>16 在公共类中使用访问方法而不是公共属性</h2>
+<p>解析下标题</p>
+<ul>
+<li>公共类：public class</li>
+<li>公共属性：public String value比如说</li>
+<li>访问方法：getValue()</li>
+</ul>
+<p>就比较常用的封装，属性不能被直接访问，而是通过方法。</p>
+<blockquote>
+<p>**如果一个类在其包之外是可访问的，则提供访问方法来保留更改类内部表示的灵活性。**如果一个公共类暴露其数据属性，那么以后更改其表示形式基本上没有可能，因为客户端代码可以散布在很多地方。</p>
+</blockquote>
+<p>反例是java.awt包中的Point对象</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-s1">Point</span> <span class="pl-k">extends</span> <span class="pl-smi">Point2D</span> <span class="pl-k">implements</span> <span class="pl-smi">java</span>.<span class="pl-smi">io</span>.<span class="pl-smi">Serializable</span> {
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * The X coordinate of this &lt;code&gt;Point&lt;/code&gt;.</span>
+<span class="pl-c">     * If no X coordinate is set it will default to 0.</span>
+<span class="pl-c">     *</span>
+<span class="pl-c">     * @serial</span>
+<span class="pl-c">     * @see #getLocation()</span>
+<span class="pl-c">     * @see #move(int, int)</span>
+<span class="pl-c">     * @since 1.0</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">x</span>;
+
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * The Y coordinate of this &lt;code&gt;Point&lt;/code&gt;.</span>
+<span class="pl-c">     * If no Y coordinate is set it will default to 0.</span>
+<span class="pl-c">     *</span>
+<span class="pl-c">     * @serial</span>
+<span class="pl-c">     * @see #getLocation()</span>
+<span class="pl-c">     * @see #move(int, int)</span>
+<span class="pl-c">     * @since 1.0</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">y</span>;
+    
+    ...<span class="pl-c">//remainder omitted</span></pre></div>
+<p>对于不可变的属性，可以暴露出去，危害比较小</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">final</span> <span class="pl-k">class</span> <span class="pl-smi">Time</span> {
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-c1">HOURS_PER_DAY</span>    = <span class="pl-c1">24</span>;
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-c1">MINUTES_PER_HOUR</span> = <span class="pl-c1">60</span>;
+    <span class="pl-k">public</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">hour</span>;
+    <span class="pl-k">public</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">minute</span>;
+
+    <span class="pl-k">public</span> <span class="pl-smi">Time</span>(<span class="pl-smi">int</span> <span class="pl-s1">hour</span>, <span class="pl-smi">int</span> <span class="pl-s1">minute</span>) {
+        <span class="pl-k">if</span> (<span class="pl-s1">hour</span> &lt; <span class="pl-c1">0</span> || <span class="pl-s1">hour</span> &gt;= <span class="pl-c1">HOURS_PER_DAY</span>)
+           <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">IllegalArgumentException</span>(<span class="pl-s">"Hour: "</span> + <span class="pl-s1">hour</span>);
+        <span class="pl-k">if</span> (<span class="pl-s1">minute</span> &lt; <span class="pl-c1">0</span> || <span class="pl-s1">minute</span> &gt;= <span class="pl-c1">MINUTES_PER_HOUR</span>)
+           <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">IllegalArgumentException</span>(<span class="pl-s">"Min: "</span> + <span class="pl-s1">minute</span>);
+        <span class="pl-smi">this</span>.<span class="pl-s1">hour</span> = <span class="pl-s1">hour</span>;
+        <span class="pl-smi">this</span>.<span class="pl-s1">minute</span> = <span class="pl-s1">minute</span>;
+    }
+
+    ... <span class="pl-c">// Remainder omitted</span>
+}</pre></div>
+<h2>17 最小化可变性</h2>
+<p>就是在说，设计类的时候，多考虑设计成为不可变类。</p>
+<p>不可变类，实际上是说，其实例是不能被修改的类。</p>
+<p>Java平台类库有很多不可变类：String，基本类型包装类，BigInteger，BigDecimal</p>
+<p>总而言之，不可变类比可变类更易于设计、实现和使用，不容易出错，而且更安全。</p>
+<h3>不可变类需要遵守的五条规则</h3>
+<ol>
+<li>
+<p>不要提供修改对象状态的方法</p>
+</li>
+<li>
+<p>确保这个类不能被继承</p>
+</li>
+<li>
+<p>所有字段设置为final</p>
+</li>
+<li>
+<p>所有字段设置为private</p>
+</li>
+<li>
+<p>确保对任何可变组件的互斥访问</p>
+<blockquote>
+<p>如果你的类有任何引用可变对象的字段，请确保该类的客户端无法获得对这些对象的引用。 切勿将这样的属性初始化为客户端提供的对象引用，或从访问方法返回属性。 在构造方法，访问方法和 <code class="notranslate">readObject</code> 方法（详见第 88 条）中进行防御性拷贝（详见第 50 条）。</p>
+</blockquote>
+</li>
+</ol>
+<h3>不可变类的方法与函数式编程</h3>
+<p>举例来说</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Immutable complex number class</span>
+<span class="pl-k">public</span> <span class="pl-k">final</span> <span class="pl-k">class</span> <span class="pl-smi">Complex</span> {
+
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">double</span> <span class="pl-s1">re</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">double</span> <span class="pl-s1">im</span>;
+
+    <span class="pl-k">public</span> <span class="pl-smi">Complex</span>(<span class="pl-smi">double</span> <span class="pl-s1">re</span>, <span class="pl-smi">double</span> <span class="pl-s1">im</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">re</span> = <span class="pl-s1">re</span>;
+        <span class="pl-smi">this</span>.<span class="pl-s1">im</span> = <span class="pl-s1">im</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">double</span> <span class="pl-en">realPart</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">re</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">double</span> <span class="pl-en">imaginaryPart</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">im</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">Complex</span> <span class="pl-en">plus</span>(<span class="pl-smi">Complex</span> <span class="pl-s1">c</span>) {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">Complex</span>(<span class="pl-s1">re</span> + <span class="pl-s1">c</span>.<span class="pl-s1">re</span>, <span class="pl-s1">im</span> + <span class="pl-s1">c</span>.<span class="pl-s1">im</span>);
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">Complex</span> <span class="pl-en">minus</span>(<span class="pl-smi">Complex</span> <span class="pl-s1">c</span>) {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">Complex</span>(<span class="pl-s1">re</span> - <span class="pl-s1">c</span>.<span class="pl-s1">re</span>, <span class="pl-s1">im</span> - <span class="pl-s1">c</span>.<span class="pl-s1">im</span>);
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">Complex</span> <span class="pl-en">times</span>(<span class="pl-smi">Complex</span> <span class="pl-s1">c</span>) {
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">Complex</span>(<span class="pl-s1">re</span> * <span class="pl-s1">c</span>.<span class="pl-s1">re</span> - <span class="pl-s1">im</span> * <span class="pl-s1">c</span>.<span class="pl-s1">im</span>,
+                <span class="pl-s1">re</span> * <span class="pl-s1">c</span>.<span class="pl-s1">im</span> + <span class="pl-s1">im</span> * <span class="pl-s1">c</span>.<span class="pl-s1">re</span>);
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">Complex</span> <span class="pl-en">dividedBy</span>(<span class="pl-smi">Complex</span> <span class="pl-s1">c</span>) {
+        <span class="pl-smi">double</span> <span class="pl-s1">tmp</span> = <span class="pl-s1">c</span>.<span class="pl-s1">re</span> * <span class="pl-s1">c</span>.<span class="pl-s1">re</span> + <span class="pl-s1">c</span>.<span class="pl-s1">im</span> * <span class="pl-s1">c</span>.<span class="pl-s1">im</span>;
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">Complex</span>((<span class="pl-s1">re</span> * <span class="pl-s1">c</span>.<span class="pl-s1">re</span> + <span class="pl-s1">im</span> * <span class="pl-s1">c</span>.<span class="pl-s1">im</span>) / <span class="pl-s1">tmp</span>,
+                (<span class="pl-s1">im</span> * <span class="pl-s1">c</span>.<span class="pl-s1">re</span> - <span class="pl-s1">re</span> * <span class="pl-s1">c</span>.<span class="pl-s1">im</span>) / <span class="pl-s1">tmp</span>);
+    }
+
+    <span class="pl-c1">@</span><span class="pl-c1">Override</span>
+    <span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+        <span class="pl-k">if</span> (<span class="pl-s1">o</span> == <span class="pl-smi">this</span>) {
+            <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+        }
+
+        <span class="pl-k">if</span> (!(<span class="pl-s1">o</span> <span class="pl-k">instanceof</span> <span class="pl-smi">Complex</span>)) {
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        }
+
+        <span class="pl-smi">Complex</span> <span class="pl-s1">c</span> = (<span class="pl-smi">Complex</span>) <span class="pl-s1">o</span>;
+
+        <span class="pl-c">// See page 47 to find out why we use compare instead of ==</span>
+        <span class="pl-k">return</span> <span class="pl-smi">Double</span>.<span class="pl-en">compare</span>(<span class="pl-s1">c</span>.<span class="pl-s1">re</span>, <span class="pl-s1">re</span>) == <span class="pl-c1">0</span>
+                &amp;&amp; <span class="pl-smi">Double</span>.<span class="pl-en">compare</span>(<span class="pl-s1">c</span>.<span class="pl-s1">im</span>, <span class="pl-s1">im</span>) == <span class="pl-c1">0</span>;
+    }
+
+    <span class="pl-c1">@</span><span class="pl-c1">Override</span>
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">hashCode</span>() {
+        <span class="pl-k">return</span> <span class="pl-c1">31</span> * <span class="pl-smi">Double</span>.<span class="pl-en">hashCode</span>(<span class="pl-s1">re</span>) + <span class="pl-smi">Double</span>.<span class="pl-en">hashCode</span>(<span class="pl-s1">im</span>);
+    }
+
+    <span class="pl-c1">@</span><span class="pl-c1">Override</span>
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span>() {
+        <span class="pl-k">return</span> <span class="pl-s">"("</span> + <span class="pl-s1">re</span> + <span class="pl-s">" + "</span> + <span class="pl-s1">im</span> + <span class="pl-s">"i)"</span>;
+    }
+}</pre></div>
+<p>上面例子中的方法，没有对入参做修改，而是返回了一个新的实例，这种模式是函数式编程</p>
+<blockquote>
+<p>因为方法返回将操作数应用于函数的结果，而不修改它们。 与其对应的过程式的（procedural）或命令式的（imperative）的方法相对比，在这种方法中，将一个过程作用在操作数上，导致其状态改变。 请注意，方法名称是介词（如 plus）而不是动词（如 add）。 这强调了方法不会改变对象的值的事实。</p>
+</blockquote>
+<h3>不可变类的优缺点</h3>
+<p>优点</p>
+<ul>
+<li>
+<p>不可变对象很简单，使用方面</p>
+</li>
+<li>
+<p>不可变对象本质上是线程安全的，它们不需要同步</p>
+<blockquote>
+<p>被多个线程同时访问它们时，不会遭到破坏。 这是实现线程安全的最简单方法。 由于没有线程可以观察到另一个线程对不可变对象的影响，所以<strong>不可变对象可以被自由地共享。</strong> 因此，不可变类应鼓励客户端尽可能重用现有的实例。 一个简单的方法是为常用的值提供公共的静态 final 常量。 例如，<code class="notranslate">Complex</code> 类可能提供这些常量：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Complex</span> <span class="pl-c1">ZERO</span> = <span class="pl-k">new</span> <span class="pl-smi">Complex</span>(<span class="pl-c1">0</span>, <span class="pl-c1">0</span>);
+<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Complex</span> <span class="pl-c1">ONE</span>  = <span class="pl-k">new</span> <span class="pl-smi">Complex</span>(<span class="pl-c1">1</span>, <span class="pl-c1">0</span>);
+<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Complex</span> <span class="pl-s1">I</span>    = <span class="pl-k">new</span> <span class="pl-smi">Complex</span>(<span class="pl-c1">0</span>, <span class="pl-c1">1</span>);</pre></div>
+<p>这种方法可以更进一步。 一个不可变的类可以提供静态的工厂（详见第 1 条）来缓存经常被请求的实例，以避免在现有的实例中创建新的实例。 所有基本类型的包装类和 <code class="notranslate">BigInteger</code> 类都是这样做的。 使用这样的静态工厂会使客户端共享实例而不是创建新实例，从而减少内存占用和垃圾回收成本。 在设计新类时，选择静态工厂代替公共构造方法，可以在以后增加缓存的灵活性，而不需要修改客户端。</p>
+</blockquote>
+<p>自由分享意味着不要提供clone方法，直接用就是。String有clone方法，是历史原因导致的，不要使用。</p>
+</li>
+<li>
+<p><strong>不仅可以共享不可变的对象，而且可以共享内部信息。</strong> 例如，<code class="notranslate">BigInteger</code> 类在内部使用符号数值表示法。 符号用 <code class="notranslate">int</code> 值表示，数值用 <code class="notranslate">int</code> 数组表示。 <code class="notranslate">negate</code> 方法生成了一个数值相同但符号相反的新 <code class="notranslate">BigInteger</code> 实例。 即使它是可变的，也不需要复制数组；新创建的 <code class="notranslate">BigInteger</code> 指向与原始相同的内部数组。</p>
+</li>
+<li>
+<p><strong>不可变对象为其他对象提供了很好的构件（building blocks）</strong>，无论是可变的还是不可变的。 如果知道一个复杂组件的内部对象不会发生改变，那么维护复杂对象的不变性就容易多了。不可变对象是优秀的映射键和集合元素是这一原则的重要例子: 一旦不可变对象作为 <code class="notranslate">Map</code> 的键或 <code class="notranslate">Set</code> 里的元素，你就不需要担心<code class="notranslate">Map</code> 或 <code class="notranslate">Set</code> 的不变性被这些对象的值的变化所破坏。</p>
+</li>
+<li>
+<p><strong>不可变对象无偿地提供了的原子失败机制（详见第 76 条）。</strong> 它们的状态永远不会改变，所以不可能出现临时的不一致。</p>
+</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>
+<p><strong>不可变类的主要缺点是对于每个不同的值都需要一个单独的对象。</strong></p>
+<blockquote>
+<p>创建这些对象可能代价很高，特别是是大型的对象下。 例如，假设你有一个百万位的 <code class="notranslate">BigInteger</code> ，你想改变它的低位。<code class="notranslate">flipBit</code> 方法创建一个新的 <code class="notranslate">BigInteger</code> 实例，也是一百万位长，与原始位置只有一位不同。 该操作需要与 <code class="notranslate">BigInteger</code> 大小成比例的时间和空间。 将其与 <code class="notranslate">java.util.BitSet</code> 对比。 像 <code class="notranslate">BigInteger</code> 一样，<code class="notranslate">BitSet</code> 表示一个任意长度的位序列，但与 <code class="notranslate">BigInteger</code> 不同，<code class="notranslate">BitSet</code> 是可变的。 <code class="notranslate">BitSet</code> 类提供了一种方法，允许你在固定时间内更改百万位实例中单个位的状态.</p>
+<p>如果你可以准确预测客户端要在你的不可变类上执行哪些复杂的操作，那么包级私有可变伙伴类的方式可以正常工作。如果不是的话，那么最好的办法就是提供一个公开的可变伙伴类。 这种方法在 Java 平台类库中的主要例子是 <code class="notranslate">String</code> 类，它的可变伙伴类是 <code class="notranslate">StringBuilder</code>（及其过时的前身 <code class="notranslate">StringBuffer</code> 类）。</p>
+</blockquote>
+</li>
+</ul>
+<h3>最佳实践</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">FinalBestPractice</span> {
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-s1">age</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-s1">name</span>;
+
+    <span class="pl-k">private</span> <span class="pl-smi">FinalBestPractice</span>(<span class="pl-smi">int</span> <span class="pl-s1">age</span>,<span class="pl-smi">String</span> <span class="pl-s1">name</span>){
+        <span class="pl-smi">this</span>.<span class="pl-s1">age</span> = <span class="pl-s1">age</span>;
+        <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s1">name</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">FinalBestPractice</span> <span class="pl-en">getFinalTrue</span>(<span class="pl-smi">int</span> <span class="pl-s1">age</span>, <span class="pl-smi">String</span> <span class="pl-s1">name</span>){
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">FinalBestPractice</span>(<span class="pl-s1">age</span>, <span class="pl-s1">name</span>);
+    }
+}</pre></div>
+<p>这里注意类本身没有标记为final，但是因为没有提供private级别以上的构造方法，所以不能够被继承。</p>
+<h3>特别说明</h3>
+<ul>
+<li>
+<p>BigInteger和BigDecimal实际上是可以继承的，历史原因导致的，不要继承使用</p>
+</li>
+<li>
+<p>对于任何类，每一个属性是否是可变的，都应该做慎重考虑</p>
+</li>
+<li>
+<p>几点重要原则需要实践证明之</p>
+<blockquote>
+<ul>
+<li><strong>除非有充分的理由使类成为可变类，否则类应该是不可变的。</strong></li>
+<li><strong>如果一个类不能设计为不可变类，那么也要尽可能地限制它的可变性</strong> 。</li>
+<li><strong>除非有充分的理由不这样做，否则应该把每个属性声明为私有 final 的。</strong></li>
+<li><strong>构造方法应该创建完全初始化的对象，并建立所有的不变性。</strong></li>
+</ul>
+</blockquote>
+</li>
+<li>
+<p>学习下CountDownLatch的代码</p>
+</li>
+<li>
+<p>学习了解函数式编程与命令式编程，混合使用之</p>
+</li>
+</ul>
+<h2>参考资料</h2>
+<ol>
+<li>[<a href="https://www.bookstack.cn/books/effective-java-3rd-chinese" rel="nofollow">Effective Java (高效 Java) 第三版</a>](<a href="https://www.bookstack.cn/books/effective-java-3rd-chinese" rel="nofollow">https://www.bookstack.cn/books/effective-java-3rd-chinese</a>)</li>
+<li><a href="https://blog.csdn.net/cbmljs/article/details/103870881" rel="nofollow">https://blog.csdn.net/cbmljs/article/details/103870881</a></li>
+<li><a href="https://www.jianshu.com/p/7b595ddd9d99" rel="nofollow">https://www.jianshu.com/p/7b595ddd9d99</a></li>
+<li>[<a href="https://blog.jrwang.me/2016/java-inner-class/" rel="nofollow">关于 Java 内部类的小抄</a>](<a href="https://blog.jrwang.me/2016/java-inner-class/" rel="nofollow">https://blog.jrwang.me/2016/java-inner-class/</a>)</li>
+<li>[<a href="https://xie.infoq.cn/article/956c85d1cbec5ae5787084a46" rel="nofollow">Java 中的内部类与匿名内部类详解</a>](<a href="https://xie.infoq.cn/article/956c85d1cbec5ae5787084a46" rel="nofollow">https://xie.infoq.cn/article/956c85d1cbec5ae5787084a46</a>)</li>
+<li>[<a href="https://blog.51cto.com/u_10941874/5343800" rel="nofollow">一篇文章看懂函数式编程与命令式编程</a>](</li>
+</ol></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+</div>
+    <div id="footer">Copyright © <span id="year"></span><a href="https://andy1202go.github.io"> Andy's Blog </a>
+<p>
+<span id="runday"></span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a>
+</p>
+
+<script>
+if(""!=""){
+    var now=new Date();
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("year").innerHTML=now.getFullYear();
+    if(""!=""){document.getElementById("runday").innerHTML=" • "+"网站运行"+diffDay+"天"+" • ";}
+    else{document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";}
+}
+</script>
+</div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n\n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","andy1202go/andy1202go.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+</script>
+
+
+</html>
