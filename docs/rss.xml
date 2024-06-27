@@ -1,5 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:47:06 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>EffectiveJava(6) 类和接口 Part1</title><link>https://andy1202go.github.io/post/EffectiveJava%286%29%20-lei-he-jie-kou-%20Part1.html</link><description>如何使用Java提供的基本元素来合理设计类和接口。</description><guid isPermaLink="true">https://andy1202go.github.io/post/EffectiveJava%286%29%20-lei-he-jie-kou-%20Part1.html</guid><pubDate>Thu, 27 Jun 2024 07:45:58 +0000</pubDate></item><item><title>EffectiveJava(5) 对于所有对象都通用的方法 Part2</title><link>https://andy1202go.github.io/post/EffectiveJava%285%29%20-dui-yu-suo-you-dui-xiang-du-tong-yong-de-fang-fa-%20Part2.html</link><description>## 12 始终重写toString方法&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:52:57 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>数据结构与算法之美(1) 开篇</title><link>https://andy1202go.github.io/post/shu-ju-jie-gou-yu-suan-fa-zhi-mei-%281%29%20-kai-pian.html</link><description>## 1 定位&#13;
+&#13;
+- 基础内容&#13;
+- 知道有哪些，是什么，怎么用&#13;
+- 分为入门、基础、高级、实战&#13;
+&#13;
+## 2 期望&#13;
+&#13;
+- 对数据结构和算法有初步认知&#13;
+- 在平时设计和编写代码能用起来&#13;
+&#13;
+## 3 老生常谈，为什么要学习数据结构和算法&#13;
+&#13;
+因为要从唯一性原理出发，探查本质。</description><guid isPermaLink="true">https://andy1202go.github.io/post/shu-ju-jie-gou-yu-suan-fa-zhi-mei-%281%29%20-kai-pian.html</guid><pubDate>Thu, 27 Jun 2024 07:52:34 +0000</pubDate></item><item><title>EffectiveJava(6) 类和接口 Part1</title><link>https://andy1202go.github.io/post/EffectiveJava%286%29%20-lei-he-jie-kou-%20Part1.html</link><description>如何使用Java提供的基本元素来合理设计类和接口。</description><guid isPermaLink="true">https://andy1202go.github.io/post/EffectiveJava%286%29%20-lei-he-jie-kou-%20Part1.html</guid><pubDate>Thu, 27 Jun 2024 07:45:58 +0000</pubDate></item><item><title>EffectiveJava(5) 对于所有对象都通用的方法 Part2</title><link>https://andy1202go.github.io/post/EffectiveJava%285%29%20-dui-yu-suo-you-dui-xiang-du-tong-yong-de-fang-fa-%20Part2.html</link><description>## 12 始终重写toString方法&#13;
 &#13;
 ### 为什么&#13;
 &#13;
