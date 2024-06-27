@@ -9,14 +9,44 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="123。">
+<meta name="description" content="## 12 始终重写toString方法
+
+### 为什么
+
+- Object提供的toString方法，不好用，是类名@十六进制的展示，看不懂啥意思
+
+  ```java
+  //    * It is recommended that all subclasses override this method.    
+  public String toString() {
+          return getClass().getName() + '@' + Integer.toHexString(hashCode());
+      }
+  ```
+
+- 官方都说，强烈建议，所有类都重写这个方法
+
+- 没有约定，想equals和hashcode那样，但良好的toString方法，对后续的使用大有益处。">
 <meta property="og:title" content="EffectiveJava(5) 对于所有对象都通用的方法 Part2">
-<meta property="og:description" content="123。">
+<meta property="og:description" content="## 12 始终重写toString方法
+
+### 为什么
+
+- Object提供的toString方法，不好用，是类名@十六进制的展示，看不懂啥意思
+
+  ```java
+  //    * It is recommended that all subclasses override this method.    
+  public String toString() {
+          return getClass().getName() + '@' + Integer.toHexString(hashCode());
+      }
+  ```
+
+- 官方都说，强烈建议，所有类都重写这个方法
+
+- 没有约定，想equals和hashcode那样，但良好的toString方法，对后续的使用大有益处。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://andy1202go.github.io/post/EffectiveJava%285%29%20-dui-yu-suo-you-dui-xiang-du-tong-yong-de-fang-fa-%20Part2.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>EffectiveJava(5) 对于所有对象都通用的方法 Part2</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 </head>
 <style>
@@ -70,7 +100,324 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><p>123</p></div>
+<div class="markdown-body" id="postBody"><h2>12 始终重写toString方法</h2>
+<h3>为什么</h3>
+<ul>
+<li>
+<p>Object提供的toString方法，不好用，是类名@十六进制的展示，看不懂啥意思</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//    * It is recommended that all subclasses override this method.    </span>
+<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-s1">toString</span>() {
+        <span class="pl-k">return</span> <span class="pl-en">getClass</span>().<span class="pl-en">getName</span>() + <span class="pl-s">"@"</span> + <span class="pl-smi">Integer</span>.<span class="pl-en">toHexString</span>(<span class="pl-en">hashCode</span>());
+    }</pre></div>
+</li>
+<li>
+<p>官方都说，强烈建议，所有类都重写这个方法</p>
+</li>
+<li>
+<p>没有约定，想equals和hashcode那样，但良好的toString方法，对后续的使用大有益处。</p>
+</li>
+<li>
+<p><strong>当对象被传递到 println、printf、字符串连接操作符或断言，或者由调试器打印时，toString 方法会自动被调用</strong></p>
+</li>
+</ul>
+<h3>怎么写</h3>
+<ul>
+<li>
+<p>一般的类，参考源码去写，就把关键信息或者逻辑信息组织好就行了</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//Timestamp</span>
+   <span class="pl-c">/**</span>
+<span class="pl-c">     * Formats a timestamp in JDBC timestamp escape format.</span>
+<span class="pl-c">     *         &lt;code&gt;yyyy-mm-dd hh:mm:ss.fffffffff&lt;/code&gt;,</span>
+<span class="pl-c">     * where &lt;code&gt;ffffffffff&lt;/code&gt; indicates nanoseconds.</span>
+<span class="pl-c">     * &lt;P&gt;</span>
+<span class="pl-c">     * @return a &lt;code&gt;String&lt;/code&gt; object in</span>
+<span class="pl-c">     *           &lt;code&gt;yyyy-mm-dd hh:mm:ss.fffffffff&lt;/code&gt; format</span>
+<span class="pl-c">     */</span>
+    <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"deprecation"</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-s1">toString</span> () {
+
+        <span class="pl-smi">int</span> <span class="pl-s1">year</span> = <span class="pl-en">super</span>.<span class="pl-en">getYear</span>() + <span class="pl-c1">1900</span>;
+        <span class="pl-smi">int</span> <span class="pl-s1">month</span> = <span class="pl-en">super</span>.<span class="pl-en">getMonth</span>() + <span class="pl-c1">1</span>;
+        <span class="pl-smi">int</span> <span class="pl-s1">day</span> = <span class="pl-en">super</span>.<span class="pl-en">getDate</span>();
+        <span class="pl-smi">int</span> <span class="pl-s1">hour</span> = <span class="pl-en">super</span>.<span class="pl-en">getHours</span>();
+        <span class="pl-smi">int</span> <span class="pl-s1">minute</span> = <span class="pl-en">super</span>.<span class="pl-en">getMinutes</span>();
+        <span class="pl-smi">int</span> <span class="pl-s1">second</span> = <span class="pl-en">super</span>.<span class="pl-en">getSeconds</span>();
+        <span class="pl-smi">String</span> <span class="pl-s1">yearString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">monthString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">dayString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">hourString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">minuteString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">secondString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">nanosString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">zeros</span> = <span class="pl-s">"000000000"</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">yearZeros</span> = <span class="pl-s">"0000"</span>;
+        <span class="pl-smi">StringBuffer</span> <span class="pl-s1">timestampBuf</span>;
+
+        <span class="pl-k">if</span> (<span class="pl-s1">year</span> &lt; <span class="pl-c1">1000</span>) {
+            <span class="pl-c">// Add leading zeros</span>
+            <span class="pl-s1">yearString</span> = <span class="pl-s">""</span> + <span class="pl-s1">year</span>;
+            <span class="pl-s1">yearString</span> = <span class="pl-s1">yearZeros</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>, (<span class="pl-c1">4</span>-<span class="pl-s1">yearString</span>.<span class="pl-en">length</span>())) +
+                <span class="pl-s1">yearString</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">yearString</span> = <span class="pl-s">""</span> + <span class="pl-s1">year</span>;
+        }
+        <span class="pl-k">if</span> (<span class="pl-s1">month</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">monthString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">month</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">monthString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">month</span>);
+        }
+        <span class="pl-k">if</span> (<span class="pl-s1">day</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">dayString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">day</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">dayString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">day</span>);
+        }
+        <span class="pl-k">if</span> (<span class="pl-s1">hour</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">hourString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">hour</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">hourString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">hour</span>);
+        }
+        <span class="pl-k">if</span> (<span class="pl-s1">minute</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">minuteString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">minute</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">minuteString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">minute</span>);
+        }
+        <span class="pl-k">if</span> (<span class="pl-s1">second</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">secondString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">second</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">secondString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">second</span>);
+        }
+        <span class="pl-k">if</span> (<span class="pl-s1">nanos</span> == <span class="pl-c1">0</span>) {
+            <span class="pl-s1">nanosString</span> = <span class="pl-s">"0"</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">nanosString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">nanos</span>);
+
+            <span class="pl-c">// Add leading zeros</span>
+            <span class="pl-s1">nanosString</span> = <span class="pl-s1">zeros</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>, (<span class="pl-c1">9</span>-<span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>())) +
+                <span class="pl-s1">nanosString</span>;
+
+            <span class="pl-c">// Truncate trailing zeros</span>
+            <span class="pl-smi">char</span>[] <span class="pl-s1">nanosChar</span> = <span class="pl-k">new</span> <span class="pl-smi">char</span>[<span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>()];
+            <span class="pl-s1">nanosString</span>.<span class="pl-en">getChars</span>(<span class="pl-c1">0</span>, <span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>(), <span class="pl-s1">nanosChar</span>, <span class="pl-c1">0</span>);
+            <span class="pl-smi">int</span> <span class="pl-s1">truncIndex</span> = <span class="pl-c1">8</span>;
+            <span class="pl-k">while</span> (<span class="pl-s1">nanosChar</span>[<span class="pl-s1">truncIndex</span>] == <span class="pl-s">'0'</span>) {
+                <span class="pl-s1">truncIndex</span>--;
+            }
+
+            <span class="pl-s1">nanosString</span> = <span class="pl-k">new</span> <span class="pl-smi">String</span>(<span class="pl-s1">nanosChar</span>, <span class="pl-c1">0</span>, <span class="pl-s1">truncIndex</span> + <span class="pl-c1">1</span>);
+        }
+
+        <span class="pl-c">// do a string buffer here instead.</span>
+        <span class="pl-s1">timestampBuf</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuffer</span>(<span class="pl-c1">20</span>+<span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>());
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">yearString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">"-"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">monthString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">"-"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">dayString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">" "</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">hourString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">":"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">minuteString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">":"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">secondString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">"."</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">nanosString</span>);
+
+        <span class="pl-k">return</span> (<span class="pl-s1">timestampBuf</span>.<span class="pl-en">toString</span>());
+    }</pre></div>
+</li>
+<li>
+<p>如果是抽象基类，可以把ToString方法写好，子类往往不需要专门覆盖了</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//AbstractCollection</span>
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * Returns a string representation of this collection.  The string</span>
+<span class="pl-c">     * representation consists of a list of the collection's elements in the</span>
+<span class="pl-c">     * order they are returned by its iterator, enclosed in square brackets</span>
+<span class="pl-c">     * (&lt;tt&gt;"[]"&lt;/tt&gt;).  Adjacent elements are separated by the characters</span>
+<span class="pl-c">     * &lt;tt&gt;", "&lt;/tt&gt; (comma and space).  Elements are converted to strings as</span>
+<span class="pl-c">     * by {@link String#valueOf(Object)}.</span>
+<span class="pl-c">     *</span>
+<span class="pl-c">     * @return a string representation of this collection</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-s1">toString</span>() {
+        <span class="pl-smi">Iterator</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">it</span> = <span class="pl-en">iterator</span>();
+        <span class="pl-k">if</span> (! <span class="pl-s1">it</span>.<span class="pl-en">hasNext</span>())
+            <span class="pl-k">return</span> <span class="pl-s">"[]"</span>;
+
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>();
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">'['</span>);
+        <span class="pl-k">for</span> (;;) {
+            <span class="pl-smi">E</span> <span class="pl-s1">e</span> = <span class="pl-s1">it</span>.<span class="pl-en">next</span>();
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">e</span> == <span class="pl-smi">this</span> ? <span class="pl-s">"(this Collection)"</span> : <span class="pl-s1">e</span>);
+            <span class="pl-k">if</span> (! <span class="pl-s1">it</span>.<span class="pl-en">hasNext</span>())
+                <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">']'</span>).<span class="pl-en">toString</span>();
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">','</span>).<span class="pl-en">append</span>(<span class="pl-s">' '</span>);
+        }
+    }</pre></div>
+</li>
+<li>
+<p>可以指定格式化的输出，虽然有说可能根据toString的格式来解析，但我个人觉得，还是不要这么做比较好...toString本来也不应该担此重任</p>
+</li>
+</ul>
+<h3>特别提醒</h3>
+<blockquote>
+<p>在静态工具类（详见第 4 条）中编写 toString 方法是没有意义的。 你也不应该在大多数枚举类型（条目 34）中写一个 toString 方法，因为 Java 为你提供了一个非常好的方法。 但是，你应该在任何抽象类中定义 toString 方法，该类的子类共享一个公共字符串表示形式。 例如，大多数集合实现上的 toString 方法都是从抽象集合类继承的。</p>
+</blockquote>
+<h3>使用框架</h3>
+<p>依然AutoValue，但是对于非常特殊的类，可以自己写，来输出指定格式的，带有逻辑意味的输出</p>
+<h2>13 谨慎的重写clone方法</h2>
+<h3>为什么</h3>
+<p>因为Object中的clone()方法，是受保护的，你不能，不借助反射 （详见第 65 条），仅仅因为它实现了 Cloneable 接口，就调用对象上的 clone 方法。</p>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">protected</span> <span class="pl-k">native</span> <span class="pl-smi">Object</span> <span class="pl-s1">clone</span>() <span class="pl-k">throws</span> <span class="pl-s1">CloneNotSupportedException</span>;</pre></div>
+<p>Cloneable 接口的目的，仅仅是做个标记</p>
+<blockquote>
+<p>既然 Cloneable 接口不包含任何方法，那它用来做什么？ 它决定了 Object 的受保护的 clone 方法实现的行为：如果一个类实现了 Cloneable 接口，那么 Object 的 clone 方法将返回该对象的逐个属性（field-by-field）拷贝；否则会抛出 <code class="notranslate">CloneNotSupportedException</code> 异常。这是一个非常反常的接口使用，而不应该被效仿。 通常情况下，实现一个接口用来表示可以为客户做什么。但对于 Cloneable 接口，它会修改父类上受保护方法的行为。</p>
+</blockquote>
+<p>而且，clone方法的通用规范薄弱，没有强约束，比如equals那种</p>
+<blockquote>
+<p>创建并返回此对象的副本。 「复制（copy）」的确切含义可能取决于对象的类。 一般意图是，对于任何对象 x，表达式 <code class="notranslate">x.clone() != x</code> 返回 true，并且 <code class="notranslate">x.clone().getClass() == x.getClass()</code> 也返回 true，但它们不是绝对的要求，但通常情况下，<code class="notranslate">x.clone().equals(x)</code> 返回 true，当然这个要求也不是绝对的。</p>
+<p>　　根据约定，这个方法返回的对象应该通过调用 <code class="notranslate">super.clone</code> 方法获得的。 如果一个类和它的所有父类（Object 除外）都遵守这个约定，情况就是如此，<code class="notranslate">x.clone().getClass() == x.getClass()</code>。</p>
+<p>　　根据约定，返回的对象应该独立于被克隆的对象。 为了实现这种独立性，在返回对象之前，可能需要修改由 super.clone 返回的对象的一个或多个属性。</p>
+</blockquote>
+<h3>实践配方</h3>
+<p>如果一定要实现clone方法，真诚的建议是：参考已有的类的实现！！！比如DateFormat中的</p>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-c">/**</span>
+<span class="pl-c">     * Overrides Cloneable</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-s1">clone</span>()
+    {
+        <span class="pl-smi">DateFormat</span> <span class="pl-s1">other</span> = (<span class="pl-smi">DateFormat</span>) <span class="pl-en">super</span>.<span class="pl-en">clone</span>();
+        <span class="pl-s1">other</span>.<span class="pl-s1">calendar</span> = (<span class="pl-smi">Calendar</span>) <span class="pl-s1">calendar</span>.<span class="pl-en">clone</span>();
+        <span class="pl-s1">other</span>.<span class="pl-s1">numberFormat</span> = (<span class="pl-smi">NumberFormat</span>) <span class="pl-s1">numberFormat</span>.<span class="pl-en">clone</span>();
+        <span class="pl-k">return</span> <span class="pl-s1">other</span>;
+    }</pre></div>
+<p>如果一定有步骤的话，大致如下</p>
+<ol>
+<li>调用super.clone()，并转类型为当前类，这个是Object类承诺的；</li>
+<li>成员类依次重复上述步骤</li>
+<li>特殊类型，比如hash类型的，需要单独实现深拷贝（new 对象，赋值等）</li>
+<li>捕获CloneNotSupportedException</li>
+</ol>
+<p>比如HashSet中</p>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-c">/**</span>
+<span class="pl-c">     * Returns a shallow copy of this &lt;tt&gt;HashSet&lt;/tt&gt; instance: the elements</span>
+<span class="pl-c">     * themselves are not cloned.</span>
+<span class="pl-c">     *</span>
+<span class="pl-c">     * @return a shallow copy of this set</span>
+<span class="pl-c">     */</span>
+    <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"unchecked"</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-s1">clone</span>() {
+        <span class="pl-k">try</span> {
+            <span class="pl-smi">HashSet</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">newSet</span> = (<span class="pl-smi">HashSet</span>&lt;<span class="pl-smi">E</span>&gt;) <span class="pl-en">super</span>.<span class="pl-en">clone</span>();
+            <span class="pl-s1">newSet</span>.<span class="pl-s1">map</span> = (<span class="pl-smi">HashMap</span>&lt;<span class="pl-smi">E</span>, <span class="pl-smi">Object</span>&gt;) <span class="pl-s1">map</span>.<span class="pl-en">clone</span>();
+            <span class="pl-k">return</span> <span class="pl-s1">newSet</span>;
+        } <span class="pl-k">catch</span> (<span class="pl-smi">CloneNotSupportedException</span> <span class="pl-s1">e</span>) {
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">InternalError</span>(<span class="pl-s1">e</span>);
+        }
+    }</pre></div>
+<h3>特别提醒</h3>
+<p>谨慎的考虑提供clone方法，</p>
+<ol>
+<li>
+<p>复制功能最好由构造方法或工厂提供</p>
+</li>
+<li>
+<p>数组的复制，最好使用clone</p>
+<blockquote>
+<p>数组是 clone 机制的唯一有力的用途。</p>
+</blockquote>
+</li>
+</ol>
+<h2>14 考虑实现Comparable接口</h2>
+<h3>为什么</h3>
+<p>虽然不是Object的实现方法，但是强烈建议，所有有自然顺序的值类，都应该实现这个接口！</p>
+<p>实现这个接口，就能享受很多好处，可以在集合类中sort，可以互相比较等。</p>
+<h3>约定</h3>
+<p>和equals类似</p>
+<blockquote>
+<p>将此对象与指定的对象按照排序进行比较。 返回值可能为负整数，零或正整数，因为此对象对应小于，等于或大于指定的对象。 如果指定对象的类型与此对象不能进行比较，则引发 <code class="notranslate">ClassCastException</code> 异常。</p>
+<p>　　下面的描述中，符号 sgn(expression) 表示数学中的 signum 函数，它根据表达式的值为负数、零、正数，对应返回-1、0 和 1。</p>
+<ul>
+<li>实现类必须确保所有 <code class="notranslate">x</code> 和 <code class="notranslate">y</code> 都满足 <code class="notranslate">sgn(x.compareTo(y)) == -sgn(y. compareTo(x))</code>。 （这意味着当且仅当 <code class="notranslate">y.compareTo(x)</code> 抛出异常时，<code class="notranslate">x.compareTo(y)</code> 必须抛出异常。）</li>
+<li>实现类还必须确保该关系是可传递的：<code class="notranslate">(x. compareTo(y) &gt; 0 &amp;&amp; y.compareTo(z) &gt; 0)</code> 意味着 <code class="notranslate">x.compareTo(z) &gt; 0</code>。</li>
+<li>最后，对于所有的 z，实现类必须确保 <code class="notranslate">x.compareTo(y) == 0</code> 意味着 <code class="notranslate">sgn(x.compareTo(z)) == sgn(y.compareTo(z))</code>。</li>
+<li>强烈推荐 <code class="notranslate">(x.compareTo(y) == 0) == (x.equals(y))</code>，但不是必需的。 一般来说，任何实现了 <code class="notranslate">Comparable</code> 接口的类违反了这个条件都应该清楚地说明这个事实。 推荐的语言是「注意：这个类有一个自然顺序，与 <code class="notranslate">equals</code> 不一致」。</li>
+</ul>
+</blockquote>
+<p>前三条就是自反性，对称性和传递性，必须要满足才行。</p>
+<p>第四条是个强烈建议，翻译一下就是最好和equals的结果保持相同，如果不同，注意标记出来。</p>
+<h3>实践配方</h3>
+<p>编写方法也和equals类似，关键区别是对入参不用在意，允许抛出异常这样子。</p>
+<p>如果有多个属性，应该注意比较的顺序。</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Multiple-field `Comparable` with primitive fields</span>
+<span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">compareTo</span>(<span class="pl-smi">PhoneNumber</span> <span class="pl-s1">pn</span>) {
+    <span class="pl-smi">int</span> <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">areaCode</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">areaCode</span>);
+    <span class="pl-k">if</span> (<span class="pl-s1">result</span> == <span class="pl-c1">0</span>) {
+        <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">prefix</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">prefix</span>);
+        <span class="pl-k">if</span> (<span class="pl-s1">result</span> == <span class="pl-c1">0</span>)
+            <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">lineNum</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">lineNum</span>);
+    }
+    <span class="pl-k">return</span> <span class="pl-s1">result</span>;
+}</pre></div>
+<p>注意不要使用符号进行比较</p>
+<blockquote>
+<p>　　　　在本书第二版中，曾经推荐如果比较整型基本类型的属性，使用关系运算符「&lt;」和 「&gt;」，对于浮点类型基本类型的属性，使用 <code class="notranslate">Double.compare</code> 和 <code class="notranslate">Float.compare</code> 静态方法。在 Java 7 中，静态比较方法被添加到 Java 的所有包装类中。 在 <code class="notranslate">compareTo</code> 方法中使用关系运算符「&lt;」和「&gt;」是冗长且容易出错的，不再推荐。</p>
+</blockquote>
+<h3>使用Comparator接口</h3>
+<p>类中使用，应先静态初始化Comparator，然后在方法中使用</p>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">EqualsTest</span>&gt; <span class="pl-c1">COMPARATOR</span> = <span class="pl-smi">Comparator</span>
+    .<span class="pl-en">comparingInt</span>(<span class="pl-smi">EqualsTest</span>::<span class="pl-s1">getValueInt</span>);
+
+    <span class="pl-c1">@</span><span class="pl-c1">Override</span>
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">compareTo</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+       <span class="pl-k">try</span> {
+            <span class="pl-k">return</span> <span class="pl-smi">COMPARATOR</span>.<span class="pl-en">compare</span>(<span class="pl-smi">this</span>, (<span class="pl-smi">EqualsTest</span>) <span class="pl-s1">o</span>);
+        } <span class="pl-k">catch</span> (<span class="pl-smi">Exception</span> <span class="pl-s1">e</span>) {
+            <span class="pl-c">// TODO: handle exception</span>
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">UnsupportedOperationException</span>(<span class="pl-s">"Unimplemented method 'compareTo'"</span>);
+        }
+    }</pre></div>
+<p>代码中直接使用的话，可以是静态构造，或者上面示例</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Comparator based on static compare method</span>
+<span class="pl-k">static</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">Object</span>&gt; <span class="pl-s1">hashCodeOrder</span> = <span class="pl-k">new</span> <span class="pl-smi">Comparator</span>&lt;&gt;() {
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compare</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o1</span>, <span class="pl-smi">Object</span> <span class="pl-s1">o2</span>) {
+        <span class="pl-k">return</span> <span class="pl-smi">Integer</span>.<span class="pl-en">compare</span>(<span class="pl-s1">o1</span>.<span class="pl-en">hashCode</span>(), <span class="pl-s1">o2</span>.<span class="pl-en">hashCode</span>());
+    }
+};
+<span class="pl-c">// Comparator based on Comparator construction method</span>
+<span class="pl-k">static</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">Object</span>&gt; <span class="pl-s1">hashCodeOrder</span> =
+        <span class="pl-smi">Comparator</span>.<span class="pl-en">comparingInt</span>(<span class="pl-s1">o</span> -&gt; <span class="pl-s1">o</span>.<span class="pl-en">hashCode</span>());
+
+<span class="pl-c">// BROKEN difference-based comparator - violates transitivity!</span>
+
+<span class="pl-k">static</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">Object</span>&gt; <span class="pl-s1">hashCodeOrder</span> = <span class="pl-k">new</span> <span class="pl-smi">Comparator</span>&lt;&gt;() {
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compare</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o1</span>, <span class="pl-smi">Object</span> <span class="pl-s1">o2</span>) {
+        <span class="pl-k">return</span> <span class="pl-s1">o1</span>.<span class="pl-en">hashCode</span>() - <span class="pl-s1">o2</span>.<span class="pl-en">hashCode</span>();
+    }
+};</pre></div>
+<p>尽量不要使用上面第三个示例，会破坏传递性</p>
+<blockquote>
+<p>不要使用这种技术！它可能会导致整数最大长度溢出和 IEEE 754 浮点运算失真的危险[JLS 15.20.1,15.21.1]。 此外，由此产生的方法不可能比使用上述技术编写的方法快得多</p>
+</blockquote>
+<h2>总结</h2>
+<p>本章节讨论了Object提供的方法，该如何在新类中进行拓展的原则以及做法和注意事项。</p>
+<p>其他都可以忘记，但最好形成一些肌肉记忆</p>
+<ul>
+<li>谨慎考虑重写equals方法，能不重写就不要重写</li>
+<li>重写equals的时候，必须重写hashcode</li>
+<li>toString始终重写</li>
+<li>只有数组推荐使用clone进行复制，其他的类不重写clone方法</li>
+<li>值类，特别考虑是否重写equals，尽量重写Comparator方法</li>
+</ul>
+<h2>参考资料</h2>
+<ol>
+<li>[<a href="https://www.bookstack.cn/books/effective-java-3rd-chinese" rel="nofollow">Effective Java (高效 Java) 第三版</a>](<a href="https://www.bookstack.cn/books/effective-java-3rd-chinese" rel="nofollow">https://www.bookstack.cn/books/effective-java-3rd-chinese</a>)</li>
+<li>[<a href="https://ebook.qicoder.com/effective-java-3rd/#effective-javaa-%E7%AC%AC%E4%B8%89%E7%89%88" rel="nofollow">Effective Javaa 第三版</a>](<a href="https://ebook.qicoder.com/effective-java-3rd/#effective-javaa-%E7%AC%AC%E4%B8%89%E7%89%88" rel="nofollow">https://ebook.qicoder.com/effective-java-3rd/#effective-javaa-%E7%AC%AC%E4%B8%89%E7%89%88</a>)</li>
+<li>[<a href="https://juejin.cn/post/7115420084209713182" rel="nofollow">Java反序列化漏洞 - 1.从URL类的一个bug 说起</a>](<a href="https://juejin.cn/post/7115420084209713182" rel="nofollow">https://juejin.cn/post/7115420084209713182</a>)</li>
+<li>[<a href="https://github.com/google/auto/tree/main/value">AutoValue</a>](<a href="https://github.com/google/auto/tree/main/value">https://github.com/google/auto/tree/main/value</a>)</li>
+<li><a href="https://blog.csdn.net/wangxiaotongfan/article/details/81486952" rel="nofollow">https://blog.csdn.net/wangxiaotongfan/article/details/81486952</a></li>
+<li>[<a href="https://github.com/google/guava/wiki/HashingExplained#hashing">Guava hash</a>](<a href="https://github.com/google/guava/wiki/HashingExplained#hashing">https://github.com/google/guava/wiki/HashingExplained#hashing</a>)</li>
+<li>[<a href="https://juejin.cn/post/6844903683361079309" rel="nofollow">为什么Java String哈希乘数为31？</a>](</li>
+</ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
 <div class="comments" id="comments"></div>
