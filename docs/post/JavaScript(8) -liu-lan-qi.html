@@ -188,7 +188,241 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <h3>history</h3>
 <p><code class="notranslate">history</code>对象保存了浏览器的历史记录，JavaScript可以调用<code class="notranslate">history</code>对象的<code class="notranslate">back()</code>或<code class="notranslate">forward ()</code>，相当于用户点击了浏览器的“后退”或“前进”按钮。</p>
 <p>这个对象属于历史遗留对象，对于现代Web页面来说，由于大量使用AJAX和页面交互，简单粗暴地调用<code class="notranslate">history.back()</code>可能会让用户感到非常愤怒。</p>
-<p><strong>任何情况，你都不应该使用<code class="notranslate">history</code>这个对象了。</strong></p></div>
+<p><strong>任何情况，你都不应该使用<code class="notranslate">history</code>这个对象了。</strong></p>
+<h2>2 操作DOM</h2>
+<p><strong>HTML，被浏览器解析之后，就是一颗DOM树，牢记这点。</strong></p>
+<p>对DOM树的操作，就能改变HTML的结构。</p>
+<p>对DOM树的操作，不外乎增删改查。</p>
+<h3>查</h3>
+<p>查，又或者说是获取某个DOM节点。</p>
+<p>最常用的是document.getElementById()和document.getElementsByTagName()，还有CSS选择器document.getElementsByClassName()</p>
+<p>由于ID在HTML中是唯一的，所以常用做法是，通过id查到唯一DOM节点，再精确查找他的子节点。</p>
+<p>拿到父节点后，通常需要遍历获取所有子节点，可以通过迭代children属性来实现</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span>
+    <span class="pl-s1">i</span><span class="pl-kos">,</span> <span class="pl-s1">c</span><span class="pl-kos">,</span>
+    <span class="pl-s1">list</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'list'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-s1">i</span><span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-s1">c</span> <span class="pl-c1">=</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">;</span> <span class="pl-c">// 拿到第i个子节点</span>
+<span class="pl-kos">}</span></pre></div>
+<p>举例</p>
+<div class="highlight highlight-text-html-basic"><pre class="notranslate"><span class="pl-c">&lt;!-- HTML结构 --&gt;</span>
+<span class="pl-kos">&lt;</span><span class="pl-ent">div</span> <span class="pl-c1">id</span>="<span class="pl-s">test-div</span>"<span class="pl-kos">&gt;</span>
+<span class="pl-kos">&lt;</span><span class="pl-ent">div</span> <span class="pl-c1">class</span>="<span class="pl-s">c-red</span>"<span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">p</span> <span class="pl-c1">id</span>="<span class="pl-s">test-p</span>"<span class="pl-kos">&gt;</span>JavaScript<span class="pl-kos">&lt;/</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>Java<span class="pl-kos">&lt;/</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>
+  <span class="pl-kos">&lt;/</span><span class="pl-ent">div</span><span class="pl-kos">&gt;</span>
+  <span class="pl-kos">&lt;</span><span class="pl-ent">div</span> <span class="pl-c1">class</span>="<span class="pl-s">c-red c-green</span>"<span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>Python<span class="pl-kos">&lt;/</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>Ruby<span class="pl-kos">&lt;/</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>Swift<span class="pl-kos">&lt;/</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>
+  <span class="pl-kos">&lt;/</span><span class="pl-ent">div</span><span class="pl-kos">&gt;</span>
+  <span class="pl-kos">&lt;</span><span class="pl-ent">div</span> <span class="pl-c1">class</span>="<span class="pl-s">c-green</span>"<span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>Scheme<span class="pl-kos">&lt;/</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>Haskell<span class="pl-kos">&lt;/</span><span class="pl-ent">p</span><span class="pl-kos">&gt;</span>
+  <span class="pl-kos">&lt;/</span><span class="pl-ent">div</span><span class="pl-kos">&gt;</span>
+<span class="pl-kos">&lt;/</span><span class="pl-ent">div</span><span class="pl-kos">&gt;</span></pre></div>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
+<span class="pl-c">// 选择&lt;p&gt;JavaScript&lt;/p&gt;:</span>
+<span class="pl-k">var</span> <span class="pl-s1">js</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">"test-p"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+
+<span class="pl-c">// 选择&lt;p&gt;Python&lt;/p&gt;,&lt;p&gt;Ruby&lt;/p&gt;,&lt;p&gt;Swift&lt;/p&gt;:</span>
+<span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementsByClassName</span><span class="pl-kos">(</span><span class="pl-s">"c-red c-green"</span><span class="pl-kos">)</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">;</span>
+
+<span class="pl-c">// 选择&lt;p&gt;Haskell&lt;/p&gt;:</span>
+<span class="pl-k">var</span> <span class="pl-s1">haskell</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementsByClassName</span><span class="pl-kos">(</span><span class="pl-s">"c-green"</span><span class="pl-kos">)</span><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">lastElementChild</span><span class="pl-kos">;</span>
+
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">haskell</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+
+
+<span class="pl-c">// 测试:</span>
+<span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-c1">!</span><span class="pl-s1">js</span> <span class="pl-c1">||</span> <span class="pl-s1">js</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">'JavaScript'</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'选择JavaScript失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-c1">!</span><span class="pl-s1">arr</span> <span class="pl-c1">||</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">!==</span> <span class="pl-c1">3</span> <span class="pl-c1">||</span> <span class="pl-c1">!</span><span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-kos">]</span> <span class="pl-c1">||</span> <span class="pl-c1">!</span><span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">]</span> <span class="pl-c1">||</span> <span class="pl-c1">!</span><span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">2</span><span class="pl-kos">]</span> <span class="pl-c1">||</span> <span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">'Python'</span> <span class="pl-c1">||</span> <span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">'Ruby'</span> <span class="pl-c1">||</span> <span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">2</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">'Swift'</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'选择Python,Ruby,Swift失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-c1">!</span><span class="pl-s1">haskell</span> <span class="pl-c1">||</span> <span class="pl-s1">haskell</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">'Haskell'</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'选择Haskell失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
+<p>尤其注意各种get方法的使用。</p>
+<p>getElementById，可以精确到具体的DOM节点；那DOM节点的常用方法都是可以直接用的，比如innerText；</p>
+<p>但是getElementsByTagName，getElementsByClassName，拿到的都是一个DOM节点数组，所以要定位到具体的某个节点。</p>
+<p>常用的方式方法，更多示例如下</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// 返回ID为'test'的节点：</span>
+<span class="pl-k">var</span> <span class="pl-s1">test</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'test'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+
+<span class="pl-c">// 先定位ID为'test-table'的节点，再返回其内部所有tr节点：</span>
+<span class="pl-k">var</span> <span class="pl-s1">trs</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'test-table'</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">getElementsByTagName</span><span class="pl-kos">(</span><span class="pl-s">'tr'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+
+<span class="pl-c">// 先定位ID为'test-div'的节点，再返回其内部所有class包含red的节点：</span>
+<span class="pl-k">var</span> <span class="pl-s1">reds</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'test-div'</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">getElementsByClassName</span><span class="pl-kos">(</span><span class="pl-s">'red'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+
+<span class="pl-c">// 获取节点test下的所有直属子节点:</span>
+<span class="pl-k">var</span> <span class="pl-s1">cs</span> <span class="pl-c1">=</span> <span class="pl-s1">test</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">;</span>
+
+<span class="pl-c">// 获取节点test下第一个、最后一个子节点：</span>
+<span class="pl-k">var</span> <span class="pl-s1">first</span> <span class="pl-c1">=</span> <span class="pl-s1">test</span><span class="pl-kos">.</span><span class="pl-c1">firstElementChild</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">last</span> <span class="pl-c1">=</span> <span class="pl-s1">test</span><span class="pl-kos">.</span><span class="pl-c1">lastElementChild</span><span class="pl-kos">;</span></pre></div>
+<p>另外</p>
+<blockquote>
+<p>严格地讲，我们这里的DOM节点是指<code class="notranslate">Element</code>，但是DOM节点实际上是<code class="notranslate">Node</code>，在HTML中，<code class="notranslate">Node</code>包括<code class="notranslate">Element</code>、<code class="notranslate">Comment</code>、<code class="notranslate">CDATA_SECTION</code>等很多种，以及根节点<code class="notranslate">Document</code>类型，但是，绝大多数时候我们只关心<code class="notranslate">Element</code>，也就是实际控制页面结构的<code class="notranslate">Node</code>，其他类型的<code class="notranslate">Node</code>忽略即可。根节点<code class="notranslate">Document</code>已经自动绑定为全局变量<code class="notranslate">document</code>。</p>
+</blockquote>
+<h3>增</h3>
+<p>这里首先涉及一个问题，如何创建一个节点。</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">ab</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">createElement</span><span class="pl-kos">(</span><span class="pl-s">"p"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">ab</span><span class="pl-kos">.</span><span class="pl-c1">id</span> <span class="pl-c1">=</span> <span class="pl-s">'ab'</span><span class="pl-kos">;</span>
+<span class="pl-s1">ab</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">=</span> <span class="pl-s">'AB'</span><span class="pl-kos">;</span>
+
+<span class="pl-k">var</span> <span class="pl-s1">d</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">createElement</span><span class="pl-kos">(</span><span class="pl-s">'style'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">d</span><span class="pl-kos">.</span><span class="pl-en">setAttribute</span><span class="pl-kos">(</span><span class="pl-s">'type'</span><span class="pl-kos">,</span> <span class="pl-s">'text/css'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">d</span><span class="pl-kos">.</span><span class="pl-c1">innerHTML</span> <span class="pl-c1">=</span> <span class="pl-s">'p { color: red }'</span><span class="pl-kos">;</span></pre></div>
+<p>有了待新增的节点，理论上，有三种新增DOM节点的方法</p>
+<ol>
+<li>
+<p>空白的DOM节点</p>
+<p>增加属性来充实这个节点，例如，<code class="notranslate">&lt;div&gt;&lt;/div&gt;</code>，那么，直接使用<code class="notranslate">innerHTML = '&lt;span&gt;child&lt;/span&gt;'</code>就可以修改DOM节点的内容，相当于“插入”了新的DOM节点。</p>
+</li>
+<li>
+<p>在某个节点后面新增节点</p>
+<p>ref.appendChild(new);</p>
+</li>
+<li>
+<p>在某个节点之前新增节点</p>
+<p>parentElement.insertBefore(newElement, referenceElement);</p>
+<p>所以这里需要的信息更多，需要知道父节点，需要知道参考节点。</p>
+</li>
+</ol>
+<p>练习将有的HTML list重新排序</p>
+<div class="highlight highlight-text-html-basic"><pre class="notranslate"><span class="pl-c">&lt;!-- HTML结构 --&gt;</span>
+<span class="pl-kos">&lt;</span><span class="pl-ent">ol</span> <span class="pl-c1">id</span>="<span class="pl-s">test-list</span>"<span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span> <span class="pl-c1">class</span>="<span class="pl-s">lang</span>"<span class="pl-kos">&gt;</span>Scheme<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span> <span class="pl-c1">class</span>="<span class="pl-s">lang</span>"<span class="pl-kos">&gt;</span>JavaScript<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span> <span class="pl-c1">class</span>="<span class="pl-s">lang</span>"<span class="pl-kos">&gt;</span>Python<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span> <span class="pl-c1">class</span>="<span class="pl-s">lang</span>"<span class="pl-kos">&gt;</span>Ruby<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span> <span class="pl-c1">class</span>="<span class="pl-s">lang</span>"<span class="pl-kos">&gt;</span>Haskell<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+<span class="pl-kos">&lt;/</span><span class="pl-ent">ol</span><span class="pl-kos">&gt;</span></pre></div>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// sort list:</span>
+<span class="pl-k">var</span> <span class="pl-s1">list</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">"test-list"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">i</span><span class="pl-kos">,</span> <span class="pl-s1">j</span><span class="pl-kos">;</span>
+<span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-s1">i</span><span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">===</span> <span class="pl-c1">0</span><span class="pl-kos">)</span> <span class="pl-k">continue</span><span class="pl-kos">;</span>
+    <span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-s1">i</span><span class="pl-kos">;</span> <span class="pl-s1">j</span> <span class="pl-c1">&gt;</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">j</span><span class="pl-c1">--</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">j</span> <span class="pl-c1">-</span> <span class="pl-c1">1</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">&gt;</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">j</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-en">insertBefore</span><span class="pl-kos">(</span><span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">j</span><span class="pl-kos">]</span><span class="pl-kos">,</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">j</span> <span class="pl-c1">-</span> <span class="pl-c1">1</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span>
+<span class="pl-c">// 测试:</span>
+<span class="pl-kos">;</span> <span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">var</span>
+        <span class="pl-s1">arr</span><span class="pl-kos">,</span> <span class="pl-s1">i</span><span class="pl-kos">,</span>
+        <span class="pl-s1">t</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'test-list'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">t</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">===</span> <span class="pl-c1">5</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+        <span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-s1">i</span><span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">push</span><span class="pl-kos">(</span><span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-kos">[</span><span class="pl-s">'Haskell'</span><span class="pl-kos">,</span> <span class="pl-s">'JavaScript'</span><span class="pl-kos">,</span> <span class="pl-s">'Python'</span><span class="pl-kos">,</span> <span class="pl-s">'Ruby'</span><span class="pl-kos">,</span> <span class="pl-s">'Scheme'</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">else</span> <span class="pl-kos">{</span>
+            <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败: '</span> <span class="pl-c1">+</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+    <span class="pl-kos">}</span>
+    <span class="pl-k">else</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
+<h3>删</h3>
+<p>只需要知道父节点是哪个，然后parent.removeChild。</p>
+<p>怎么拿到父节点呢？尤其是在不知道id什么的情况下。</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// 拿到待删除节点:</span>
+<span class="pl-k">var</span> <span class="pl-s1">self</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'to-be-removed'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-c">// 拿到父节点:</span>
+<span class="pl-k">var</span> <span class="pl-s1">parent</span> <span class="pl-c1">=</span> <span class="pl-s1">self</span><span class="pl-kos">.</span><span class="pl-c1">parentElement</span><span class="pl-kos">;</span>
+<span class="pl-c">// 删除:</span>
+<span class="pl-k">var</span> <span class="pl-s1">removed</span> <span class="pl-c1">=</span> <span class="pl-s1">parent</span><span class="pl-kos">.</span><span class="pl-en">removeChild</span><span class="pl-kos">(</span><span class="pl-s1">self</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">removed</span> <span class="pl-c1">===</span> <span class="pl-s1">self</span><span class="pl-kos">;</span> <span class="pl-c">// true</span></pre></div>
+<p>self.parentElement;</p>
+<p><strong>注意到删除后的节点虽然不在文档树中了，但其实它还在内存中，可以随时再次被添加到别的位置。</strong></p>
+<p>另外就是注意remove会实时改变children属性的长度，遍历的时候尤其需要注意。</p>
+<div class="highlight highlight-text-html-basic"><pre class="notranslate"><span class="pl-c">&lt;!-- HTML结构 --&gt;</span>
+<span class="pl-kos">&lt;</span><span class="pl-ent">ul</span> <span class="pl-c1">id</span>="<span class="pl-s">test-list2</span>"<span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>JavaScript<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>Swift<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>HTML<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>ANSI C<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>CSS<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+    <span class="pl-kos">&lt;</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>DirectX<span class="pl-kos">&lt;/</span><span class="pl-ent">li</span><span class="pl-kos">&gt;</span>
+<span class="pl-kos">&lt;/</span><span class="pl-ent">ul</span><span class="pl-kos">&gt;</span></pre></div>
+<p>把与Web开发技术不相关的节点删掉：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">list</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">"test-list2"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">needRemove</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-kos">]</span><span class="pl-kos">,</span> <span class="pl-s1">i</span><span class="pl-kos">,</span> <span class="pl-s1">j</span><span class="pl-kos">;</span>
+<span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-s1">i</span><span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">"JavaScript"</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">"HTML"</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">!==</span> <span class="pl-s">"CSS"</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-s1">needRemove</span><span class="pl-kos">.</span><span class="pl-en">push</span><span class="pl-kos">(</span><span class="pl-s1">i</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span>
+<span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-s1">needRemove</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">-</span> <span class="pl-c1">1</span><span class="pl-kos">;</span> <span class="pl-s1">j</span> <span class="pl-c1">&gt;</span> <span class="pl-c1">-</span><span class="pl-c1">1</span><span class="pl-kos">;</span> <span class="pl-s1">j</span><span class="pl-c1">--</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-en">removeChild</span><span class="pl-kos">(</span><span class="pl-s1">list</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">needRemove</span><span class="pl-kos">[</span><span class="pl-s1">j</span><span class="pl-kos">]</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-c">// 测试:</span>
+<span class="pl-kos">;</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">var</span>
+        <span class="pl-s1">arr</span><span class="pl-kos">,</span> <span class="pl-s1">i</span><span class="pl-kos">,</span>
+        <span class="pl-s1">t</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'test-list2'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">t</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">===</span> <span class="pl-c1">3</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+        <span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">push</span><span class="pl-kos">(</span><span class="pl-s1">t</span><span class="pl-kos">.</span><span class="pl-c1">children</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-kos">[</span><span class="pl-s">'JavaScript'</span><span class="pl-kos">,</span> <span class="pl-s">'HTML'</span><span class="pl-kos">,</span> <span class="pl-s">'CSS'</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">else</span> <span class="pl-kos">{</span>
+            <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败: '</span> <span class="pl-c1">+</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+    <span class="pl-kos">}</span>
+    <span class="pl-k">else</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
+<h3>改</h3>
+<p>对于DOM节点，可以修改文本，可以修改属性，可以修改CSS样式</p>
+<p>最强大的是innerHTML属性的修改，可以直接改变DOM节点甚至是子节点的情况。谨慎使用（比如XSS攻击）。</p>
+<p>参考</p>
+<ul>
+<li>[<a href="https://tech.meituan.com/2018/09/27/fe-security.html" rel="nofollow">前端安全系列（一）：如何防止XSS攻击？</a>](<a href="https://tech.meituan.com/2018/09/27/fe-security.html" rel="nofollow">https://tech.meituan.com/2018/09/27/fe-security.html</a>)</li>
+<li>[<a href="https://juejin.cn/post/6844903909715116046" rel="nofollow">innerHTML 的漏洞与安防</a>](<a href="https://juejin.cn/post/6844903909715116046" rel="nofollow">https://juejin.cn/post/6844903909715116046</a>)</li>
+</ul>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// 获取&lt;p id="p-id"&gt;...&lt;/p&gt;</span>
+<span class="pl-k">var</span> <span class="pl-s1">p</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'p-id'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-c">// 设置文本为abc:</span>
+<span class="pl-s1">p</span><span class="pl-kos">.</span><span class="pl-c1">innerHTML</span> <span class="pl-c1">=</span> <span class="pl-s">'ABC'</span><span class="pl-kos">;</span> <span class="pl-c">// &lt;p id="p-id"&gt;ABC&lt;/p&gt;</span>
+<span class="pl-c">// 设置HTML:</span>
+<span class="pl-s1">p</span><span class="pl-kos">.</span><span class="pl-c1">innerHTML</span> <span class="pl-c1">=</span> <span class="pl-s">'ABC &lt;span style="color:red"&gt;RED&lt;/span&gt; XYZ'</span><span class="pl-kos">;</span>
+<span class="pl-c">// &lt;p&gt;...&lt;/p&gt;的内部结构已修改</span></pre></div>
+<p>通过innerText可以修改文本。</p>
+<p>通过.style属性，可以修改颜色，字体等样式</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// 获取&lt;p id="p-id"&gt;...&lt;/p&gt;</span>
+<span class="pl-k">var</span> <span class="pl-s1">p</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'p-id'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-c">// 设置文本:</span>
+<span class="pl-s1">p</span><span class="pl-kos">.</span><span class="pl-c1">innerText</span> <span class="pl-c1">=</span> <span class="pl-s">'&lt;script&gt;alert("Hi")&lt;/script&gt;'</span><span class="pl-kos">;</span>
+<span class="pl-c">// HTML被自动编码，无法设置一个&lt;script&gt;节点:</span>
+<span class="pl-c">// &lt;p id="p-id"&gt;&amp;lt;script&amp;gt;alert("Hi")&amp;lt;/script&amp;gt;&lt;/p&gt;</span>
+
+<span class="pl-c">// 获取&lt;p id="p-id"&gt;...&lt;/p&gt;</span>
+<span class="pl-k">var</span> <span class="pl-s1">p</span> <span class="pl-c1">=</span> <span class="pl-smi">document</span><span class="pl-kos">.</span><span class="pl-en">getElementById</span><span class="pl-kos">(</span><span class="pl-s">'p-id'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-c">// 设置CSS:</span>
+<span class="pl-s1">p</span><span class="pl-kos">.</span><span class="pl-c1">style</span><span class="pl-kos">.</span><span class="pl-c1">color</span> <span class="pl-c1">=</span> <span class="pl-s">'#ff0000'</span><span class="pl-kos">;</span>
+<span class="pl-s1">p</span><span class="pl-kos">.</span><span class="pl-c1">style</span><span class="pl-kos">.</span><span class="pl-c1">fontSize</span> <span class="pl-c1">=</span> <span class="pl-s">'20px'</span><span class="pl-kos">;</span>
+<span class="pl-s1">p</span><span class="pl-kos">.</span><span class="pl-c1">style</span><span class="pl-kos">.</span><span class="pl-c1">paddingTop</span> <span class="pl-c1">=</span> <span class="pl-s">'2em'</span><span class="pl-kos">;</span></pre></div>
+<h2>参考资料</h2>
+<ol>
+<li>[<a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023022129105888" rel="nofollow">浏览器</a>](</li>
+</ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
 <div class="comments" id="comments"></div>
