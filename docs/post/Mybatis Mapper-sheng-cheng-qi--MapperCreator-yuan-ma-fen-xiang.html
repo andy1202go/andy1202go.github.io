@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="//cdn.staticfile.net/Primer/21.0.7/primer.css" rel="stylesheet" />
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/11980041"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="来源：huzhiyong
+```java
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Created by huzhiyong on 2017/2/7.
+ * 用于生成基本的mapper文件
+ * 输入：SQLyog 导出的建表语句
+ * 输出：1，基本Dao和DO类，2，mapper文件，3,测试代码  全部输出到 output.txt 文件
+ *
+ * sql规范：
+ * 1, 数据库字段名全小写，用下划线隔开
+ * 2，默认每个表都有 id 字段（自增主键） modified_date
+ * 3, 每列都要有注释，列注释当中不包括 英文逗号，数据库注释不包括 英文括号
+ * 4，删除掉索引行，当有联合索引时，会报错
+ */
+public class MapperCreator {
+    private static final HashMap<String,String> sqlJavaTypeMap = new HashMap<>();
+    private static final HashMap<String,String> sqlJdbcTypeMap = new HashMap<>();
+    static{
+        sqlJavaTypeMap.put('bigint', 'Long') ;
+        sqlJavaTypeMap.put('int', 'Integer') ;
+        sqlJavaTypeMap.put('tinyint', 'Integer') ;
+        sqlJavaTypeMap.put('varchar', 'String') ;
+        sqlJavaTypeMap.put('text', 'String') ;
+        sqlJavaTypeMap.put('char', 'String') ;
+        sqlJavaTypeMap.put('datetime', 'Date') ;
+        sqlJavaTypeMap.put('timestamp', 'Date') ;
+        sqlJavaTypeMap.put('mediumtext', 'String') ;
+
+        sqlJdbcTypeMap.put('bigint', 'BIGINT') ;
+        sqlJdbcTypeMap.put('int', 'INTEGER') ;
+        sqlJdbcTypeMap.put('tinyint', 'INTEGER') ;
+        sqlJdbcTypeMap.put('varchar', 'VARCHAR') ;
+        sqlJdbcTypeMap.put('text', 'VARCHAR') ;
+        sqlJdbcTypeMap.put('char', 'CHAR') ;
+        sqlJdbcTypeMap.put('datetime', 'TIMESTAMP') ;// 注意，这里使用这个类型，不能直接使用DATE,mybatis的Date只有年月日
+        sqlJdbcTypeMap.put('timestamp', 'TIMESTAMP') ;
+        sqlJdbcTypeMap.put('mediumtext', 'VARCHAR') ;
+    }
+
+    private static final String DAO_END = 'Dao' ;
+    private static final String DO_END = 'DO' ;
+
+
+
+    // 修改这两个参数
+    private static final String OUTPUT_DIR = 'C:\\Users\\jrliangbo\\Downloads' ;
+    private static final String PACKAGE_NAME = 'com.heytap.mall.comment.core.domain.dao.' ;
+
+
+    public static void main(String[] args) throws Exception{
+
+        // 此处将sql建表语句粘出，注意sql规范
+       String sql = 'CREATE TABLE `t_comment_liking` (\n' +
+               '  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id 自增主键',\n' +
+               '  `comment_id` bigint(20) NOT NULL COMMENT '评论id 评论id',\n' +
+               '  `user_id` varchar(64) DEFAULT NULL COMMENT '用户唯一标识 用户唯一标识',\n' +
+               '  `device_id` varchar(64) DEFAULT NULL COMMENT '设备id',\n' +
+               '  `liking` tinyint(1) DEFAULT NULL COMMENT '点赞 点赞与否，1点赞',\n' +
+               '  `data_status` tinyint(1) DEFAULT NULL COMMENT '数据有效性 数据是否有效，1有效',\n' +
+               '  `create_time` timestamp NOT NULL COMMENT '创建时间',\n' +
+               '  `modify_time` timestamp NOT NULL COMMENT '修改时间',\n' +
+               '  `created` varchar(32) NOT NULL DEFAULT '' COMMENT '创建人',\n' +
+               '  `modified` varchar(32) NOT NULL DEFAULT '' COMMENT '更新人',\n' +
+               '  PRIMARY KEY (`id`)\n' +
+               ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论点赞表 '' ;
+
+
+        sql = sql.replace('\n','') ;
+        process(sql) ;
+        System.out.println('end');
+
+    }
+
+    /**
+     * 生成 java DO类
+     * 生成 Dao类
+     * 生成 mapper文件
+     * 生成 测试类
+     */
+    private static void process(String allData){
+        int begin = allData.indexOf('(');
+        int end = allData.lastIndexOf(')');
+
+        String firstLine = allData.substring(0, begin) ;
+        String columnLine = allData.substring(begin+1,end);
+
+        String tableName = getTableName(firstLine) ;
+
+        List<Item> columnList = getColumnList(columnLine) ;
+
+        String baseName = columnName2JavaName(tableName) ;
+        String doVarName = baseName + DO_END ;
+        String daoVarName = baseName + DAO_END ;
+        String doClassName = doVarName.substring(0,1).toUpperCase() + doVarName.substring(1) ;
+        String daoClassName = daoVarName.substring(0,1).toUpperCase() + daoVarName.substring(1) ;
+        StringBuilder sb = new StringBuilder('') ;
+
+        sb.append(doClassName);
+        sb.append('-----------------------------------------------------------\n\n') ;
+        sb.append(createDoFile(columnList)) ;
+        sb.append('\n\n') ;
+
+
+        sb.append(daoClassName);
+        sb.append('-----------------------------------------------------------\n\n') ;
+        sb.append(createDaoFile(doVarName, doClassName, daoClassName)) ;
+        sb.append('\n\n') ;
+
+
+        sb.append(baseName.substring(0,1).toUpperCase());
+        sb.append(baseName.substring(1));
+        sb.append('Mapper.xml-------------------------------------------------\n\n') ;
+        sb.append(createMapperFile(columnList,daoClassName,doClassName,tableName));
+        sb.append('\n\n');
+
+
+
+        sb.append(daoClassName);
+        sb.append('Test.java');
+        sb.append('-----------------------------------------------------------\n\n') ;
+        sb.append(createTestFile(columnList,doClassName,doVarName,daoClassName,daoVarName)) ;
+        sb.append('\n\n') ;
+
+
+        writeToFile(OUTPUT_DIR, sb.toString()) ;
+
+        return ;
+    }
+
+
+    private static void writeToFile(String dir, String data){
+        String filePath = dir + '\\\\' + 'output.txt' ;
+        FileWriter fos;
+        try {
+            fos = new FileWriter(filePath);
+            fos.write(data);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    private static String createDoFile(List<Item> columnList){
+        StringBuilder sb = new StringBuilder('') ;
+        for(Item item : columnList){
+            sb.append('/**  ');
+            sb.append(item.getComment());
+            sb.append('  */\n');
+
+            sb.append('private ');
+            sb.append(item.getJavaType());
+            sb.append(' ');
+            sb.append(item.getName()) ;
+            sb.append(';\n\n') ;
+        }
+
+        sb.append('\n\n');
+        return sb.toString() ;
+    }
+
+    private static String createDaoFile(String doVarName,String doClassName,String daoClassName){
+        String base  = '@SuperDao\n' +
+                'public interface TMPDAO {\n' +
+                '    int insert(TMPDO tmpdo);\n' +
+                '    int update(TMPDO tmpdo);\n' +
+                '    int delete(Long id);\n' +
+                '    TMPDO getById(Long id);\n' +
+                '}';
+        base = base.replace('TMPDAO',daoClassName);
+        base = base.replace('TMPDO',doClassName);
+        base = base.replace('tmpdo',doVarName);
+        return base ;
+
+    }
+
+    private static String createMapperFile(List<Item> columnList,String daoClassName,String doClassName,String tableName){
+        StringBuilder sb = new StringBuilder('<?xml version=\'1.0\' encoding=\'UTF-8\' ?>\n' +
+                '<!DOCTYPE mapper PUBLIC \'-//mybatis.org//DTD Mapper 3.0//EN\' \'http://mybatis.org/dtd/mybatis-3-mapper.dtd\' >\n' +
+                '<mapper namespace=\'');
+        sb.append(PACKAGE_NAME);
+        sb.append(daoClassName);
+        sb.append('\'>\n');
+
+        sb.append('<resultMap id=\'BaseResultMap\' type=\'');
+        sb.append(doClassName);
+        sb.append('\'>\n') ;
+
+        sb.append('<id column=\'id\' property=\'id\' jdbcType=\'BIGINT\'/>\n') ;
+
+        for(Item item : columnList){
+            if(!item.getName().equals('id')){
+                sb.append('<result column=\'');
+                sb.append(item.getColumn());
+                sb.append('\' property=\'');
+                sb.append(item.getName());
+                sb.append('\' jdbcType=\'');
+                sb.append(item.getJdbcType());
+                sb.append('\'/>\n');
+
+            }
+        }
+
+        sb.append(' </resultMap>\n') ;
+
+        sb.append('<sql id=\'Base_Column_List\'>\n');
+        sb.append(columnList.get(0).getColumn());
+        for(int i=1; i<columnList.size(); i++){
+            sb.append(',') ;
+            sb.append(columnList.get(i).getColumn()) ;
+        }
+        sb.append('\n');
+        sb.append('</sql>\n') ;
+
+        // insert
+        sb.append(createInsertSql(columnList, doClassName, tableName)) ;
+        sb.append('\n\n');
+
+        // update
+        sb.append(createUpdateSql(columnList, doClassName, tableName)) ;
+        sb.append('\n\n');
+
+        // getById
+        sb.append(createQuerySql(tableName)) ;
+        sb.append('\n\n');
+
+        // delete
+        sb.append(createDeleteSql(tableName)) ;
+        sb.append('\n\n');
+
+        sb.append('</mapper>\n');
+        return sb.toString() ;
+
+    }
+
+
+    private static String createInsertSql(List<Item> columnList,String doClassName,String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<insert id=\'insert\' useGeneratedKeys=\'true\' keyProperty=\'id\' parameterType=\'');
+        sb.append(doClassName);
+        sb.append('\'>\n');
+        sb.append('INSERT into ');
+        sb.append(tableName) ;
+        sb.append('\n');
+        sb.append('<trim prefix=\'(\' suffix=\')\'>\n');
+        for(Item item : columnList){
+            if(!item.getColumn().equals('id') && !item.getColumn().equals('modified_date')){
+                if(item.getColumn().equals('created_date')){
+                    sb.append('created_date,\n');
+                }else if(item.isCanEmpty()){
+                    sb.append('<if test=\'');
+                    sb.append(item.getName());
+                    sb.append('!= null\'>\n');
+                    sb.append(item.getColumn());
+                    sb.append(',\n');
+                    sb.append('</if>\n');
+                }else{
+                    sb.append(item.getColumn());
+                    sb.append(',\n') ;
+                }
+            }
+        }
+        sb.append('modified_date\n');
+        sb.append('</trim>\n') ;
+
+
+        sb.append('<trim prefix=\'values (\' suffix=\')\'>\n');
+        for(Item item : columnList){
+            if(!item.getColumn().equals('id') && !item.getColumn().equals('modified_date')){
+                if(item.getColumn().equals('created_date')){
+                    sb.append('current_timestamp,\n');
+                }else if(item.isCanEmpty()){
+                    sb.append('<if test=\'');
+                    sb.append(item.getName());
+                    sb.append(' != null\'>\n');
+                    sb.append('#{');
+                    sb.append(item.getName());
+                    sb.append(',jdbcType=');
+                    sb.append(item.getJdbcType());
+                    sb.append('},\n');
+                    sb.append('</if>\n');
+                }else{
+                    sb.append('#{');
+                    sb.append(item.getName());
+                    sb.append(',jdbcType=');
+                    sb.append(item.getJdbcType());
+                    sb.append('},\n');
+                }
+            }
+        }
+        sb.append('current_timestamp\n');
+        sb.append('</trim>\n') ;
+        sb.append('</insert>\n') ;
+        return sb.toString() ;
+    }
+
+
+    private static String createUpdateSql(List<Item> columnList,String doClassName,String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<update id=\'update\' parameterType=\'');
+        sb.append(doClassName);
+        sb.append('\'>\n');
+        sb.append('update ');
+        sb.append(tableName);
+        sb.append('\n');
+        sb.append('<set>\n');
+
+
+        for(Item item : columnList){
+            if(!item.getColumn().equals('id')
+                    && !item.getColumn().equals('modified_date')
+                    && !item.getColumn().equals('created_date')){
+
+                sb.append('<if test=\'');
+                sb.append(item.getName());
+                sb.append(' != null\'>\n');
+                sb.append(item.getColumn());
+                sb.append(' = #{');
+                sb.append(item.getName());
+                sb.append(',jdbcType=');
+                sb.append(item.getJdbcType());
+                sb.append('},\n');
+                sb.append('</if>\n');
+            }
+        }
+        sb.append('modified_date = current_timestamp\n');
+        sb.append('</set>\n');
+        sb.append('where id = #{id,jdbcType=BIGINT}\n');
+        sb.append('</update>\n');
+
+
+        return sb.toString() ;
+    }
+
+    private static String createQuerySql(String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<select id=\'getById\' resultMap=\'BaseResultMap\' parameterType=\'java.lang.Long\'>\n');
+        sb.append('SELECT\n');
+        sb.append('<include refid=\'Base_Column_List\' />\n');
+        sb.append('from ');
+        sb.append(tableName);
+        sb.append('\n');
+        sb.append('where id = #{id,jdbcType=BIGINT}\n');
+        sb.append('</select>\n') ;
+
+        return sb.toString() ;
+    }
+
+    private static String createDeleteSql(String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<delete id=\'delete\'  parameterType=\'java.lang.Long\'>\n');
+        sb.append('DELETE\n');
+        sb.append('from ');
+        sb.append(tableName);
+        sb.append('\n');
+        sb.append('where id = #{id,jdbcType=BIGINT}\n');
+        sb.append('</delete>\n') ;
+
+        return sb.toString() ;
+    }
+
+    private static String createTestFile(List<Item> columnList,String doClassName,String doVarName,String daoClassName, String daoVarName){
+
+        String model = 'public class TMPXXXDaoTest extends TestBase {\n' +
+                '    private static final Logger logger = LoggerFactory.getLogger(TMPXXXDaoTest.class);\n' +
+                '\n' +
+                '    @Resource\n' +
+                '    private TMPXXXDao tmpXXXDao;\n' +
+                '\n' +
+                '    private Long id ;\n' +
+                '\n' +
+                '    @Test\n' +
+                '    public void testInsert(){\n' +
+                '        TMPXXXDO tmpXXXDO = create();\n' +
+                '        int result = tmpXXXDao.insert(tmpXXXDO);\n' +
+                '        Assert.assertTrue(result > 0);\n' +
+                '        id = tmpXXXDO.getId() ;\n' +
+                '        Assert.assertNotNull(id);\n' +
+                '        Assert.assertTrue(id > 0);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testInsert\')\n' +
+                '    public void testGetById(){\n' +
+                '        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);\n' +
+                '        Assert.assertNotNull(tmpXXXDO);\n' +
+                '        logger.info(\'testGetById获得对象： {}\', tmpXXXDO);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testGetById\')\n' +
+                '    public void testUpdate(){\n' +
+                '        TMPXXXDO tmpXXXDO = create();\n' +
+                '        tmpXXXDO.setId(id);\n' +
+                '        SET_STRING_PLACEHOLDER\n' +
+                '        int result = tmpXXXDao.update(tmpXXXDO);\n' +
+                '        Assert.assertTrue(result > 0);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testUpdate\')\n' +
+                '    public void testGetById2(){\n' +
+                '        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);\n' +
+                '        Assert.assertNotNull(tmpXXXDO);\n' +
+                '        logger.info(\'testGetById2获得对象： {}\', tmpXXXDO);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testGetById2\')\n' +
+                '    public void testDelete(){\n' +
+                '        int result = tmpXXXDao.delete(id);\n' +
+                '        Assert.assertTrue(result > 0);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testDelete\')\n' +
+                '    public void testGetById3(){\n' +
+                '        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);\n' +
+                '        Assert.assertNull(tmpXXXDO);\n' +
+                '    }\n' +
+                '\n' +
+                '\n' +
+                '    private TMPXXXDO create(){\n' +
+                '        TMPXXXDO tmpXXXDO = new TMPXXXDO();\n' +
+                '        SET_STRING_PLACEHOLDER\n' +
+                '        return tmpXXXDO ;\n' +
+                '    }\n' +
+                '}' ;
+
+        model = model.replace('TMPXXXDao',daoClassName);
+        model = model.replace('tmpXXXDao',daoVarName);
+        model = model.replace('TMPXXXDO',doClassName);
+        model = model.replace('tmpXXXDO',doVarName);
+        String setString = getSetString(columnList,doVarName);
+        model = model.replace('SET_STRING_PLACEHOLDER', setString);
+        return model ;
+
+    }
+
+    private static String getSetString(List<Item> columnList,String doVarName){
+        StringBuilder sb = new StringBuilder('');
+        for(Item item:columnList){
+            if(!item.getColumn().equals('id')){
+                if(item.isCanEmpty()){
+                    sb.append('//') ;
+                }
+                sb.append(doVarName);
+                sb.append('.set');
+                sb.append(item.getName().substring(0,1).toUpperCase());
+                sb.append(item.getName().substring(1));
+                sb.append('(');
+
+                // 当有新的类型时，需要在此处添加
+                if(item.getJavaType().equals('Integer')){
+                    sb.append('0');
+                }else if(item.getJavaType().equals('Long')){
+                    sb.append('0L');
+                }else if(item.getJavaType().equals('String')){
+                    sb.append('\'hello world 测试\'');
+                }else if(item.getJavaType().equals('Date')){
+                    sb.append('new Date()');
+                }else{
+                    sb.append('');
+                }
+
+                sb.append(');\n');
+            }
+
+        }
+
+        return sb.toString() ;
+
+    }
+
+
+
+    private static List<Item> getColumnList(String data){
+        List<Item> result = new ArrayList<Item>();
+        String[] array = data.split(',') ;
+        for(String line : array){
+            if(!isKeyLine(line)){
+                Item item = new Item();
+                item.setColumn(getColumn(line));
+                item.setComment(getComment(line));
+                item.setSqlType(getType(line));
+                item.setCanEmpty(canEmpty(line));
+                if(!sqlJavaTypeMap.containsKey(item.getSqlType())){
+                    throw new RuntimeException('找不到对应类型') ;
+                }
+                item.setJavaType(sqlJavaTypeMap.get(item.getSqlType()));
+                item.setJdbcType(sqlJdbcTypeMap.get(item.getSqlType()));
+                item.setName(columnName2JavaName(item.getColumn()));
+                result.add(item);
+            }
+
+        }
+        return result ;
+    }
+
+    private static boolean isKeyLine(String line){
+        line = line.trim();
+        line = line.toUpperCase() ;
+        if(line.startsWith('PRIMARY')
+                || line.startsWith('KEY')
+                || line.startsWith('INDEX')
+                || line.startsWith('UNIQUE')
+                ){
+            return true ;
+        }
+        return false ;
+    }
+
+
+
+    private static String removeQuote(String data, int quote){
+        data = data.trim() ;
+        int begin = data.indexOf(quote);
+        if(begin > -1){
+            int end = data.indexOf(quote,begin+1);
+            if(end > -1){
+                return data.substring(begin+1,end) ;
+            }
+        }
+        return data ;
+    }
+
+    private static String getTableName(String firstLine){
+        String[] array = firstLine.split(' ');
+        int length = array.length;
+        return removeQuote(array[length-1],'`');
+    }
+
+    // 获取注释，COMMENT 之后第一个用 引号包起来的内容
+    private static String getComment(String line){
+        String[] array = line.split('COMMENT');
+        return removeQuote(array[1],'\'') ;
+    }
+
+    private static String getColumn(String line){
+        return removeQuote(line,'`');
+    }
+
+    private static boolean canEmpty(String line){
+        // 有默认值的认为插入是可以为空
+        if(line.contains('NOT NULL DEFAULT')){
+            return true ;
+        }
+        return !(line.contains('NOT NULL')) ;
+    }
+
+    private static String getType(String line){
+        line = line.trim() ;
+        String[] array = line.split(' ');
+        String name = array[1];
+        int end = name.indexOf('(');
+        if(end > 1){
+            return name.substring(0,end) ;
+        }
+        return name ;
+    }
+
+
+
+
+    private static String columnName2JavaName(String column){
+        column = column.toLowerCase() ;
+        String[] array = column.split('_') ;
+        StringBuilder sb = new StringBuilder('');
+        sb.append(array[0]);
+        for(int i=1; i<array.length; i++){
+            sb.append(array[i].substring(0,1).toUpperCase()) ;
+            sb.append(array[i].substring(1)) ;
+        }
+
+        return sb.toString() ;
+
+    }
+
+
+}
+
+class Item{
+    private String name; // java字段名
+    private String column ; // 数据库列名
+    private String sqlType ;
+    private String javaType;
+    private String jdbcType ;
+    private boolean canEmpty ;// 是否可为Null
+    private String comment ; //注释
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getColumn() {
+        return column;
+    }
+
+    public void setColumn(String column) {
+        this.column = column;
+    }
+
+    public String getSqlType() {
+        return sqlType;
+    }
+
+    public void setSqlType(String sqlType) {
+        this.sqlType = sqlType;
+    }
+
+    public String getJavaType() {
+        return javaType;
+    }
+
+    public void setJavaType(String javaType) {
+        this.javaType = javaType;
+    }
+
+    public String getJdbcType() {
+        return jdbcType;
+    }
+
+    public void setJdbcType(String jdbcType) {
+        this.jdbcType = jdbcType;
+    }
+
+    public boolean isCanEmpty() {
+        return canEmpty;
+    }
+
+    public void setCanEmpty(boolean canEmpty) {
+        this.canEmpty = canEmpty;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+}
+
+```。">
+<meta property="og:title" content="Mybatis Mapper生成器-MapperCreator源码分享">
+<meta property="og:description" content="来源：huzhiyong
+```java
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Created by huzhiyong on 2017/2/7.
+ * 用于生成基本的mapper文件
+ * 输入：SQLyog 导出的建表语句
+ * 输出：1，基本Dao和DO类，2，mapper文件，3,测试代码  全部输出到 output.txt 文件
+ *
+ * sql规范：
+ * 1, 数据库字段名全小写，用下划线隔开
+ * 2，默认每个表都有 id 字段（自增主键） modified_date
+ * 3, 每列都要有注释，列注释当中不包括 英文逗号，数据库注释不包括 英文括号
+ * 4，删除掉索引行，当有联合索引时，会报错
+ */
+public class MapperCreator {
+    private static final HashMap<String,String> sqlJavaTypeMap = new HashMap<>();
+    private static final HashMap<String,String> sqlJdbcTypeMap = new HashMap<>();
+    static{
+        sqlJavaTypeMap.put('bigint', 'Long') ;
+        sqlJavaTypeMap.put('int', 'Integer') ;
+        sqlJavaTypeMap.put('tinyint', 'Integer') ;
+        sqlJavaTypeMap.put('varchar', 'String') ;
+        sqlJavaTypeMap.put('text', 'String') ;
+        sqlJavaTypeMap.put('char', 'String') ;
+        sqlJavaTypeMap.put('datetime', 'Date') ;
+        sqlJavaTypeMap.put('timestamp', 'Date') ;
+        sqlJavaTypeMap.put('mediumtext', 'String') ;
+
+        sqlJdbcTypeMap.put('bigint', 'BIGINT') ;
+        sqlJdbcTypeMap.put('int', 'INTEGER') ;
+        sqlJdbcTypeMap.put('tinyint', 'INTEGER') ;
+        sqlJdbcTypeMap.put('varchar', 'VARCHAR') ;
+        sqlJdbcTypeMap.put('text', 'VARCHAR') ;
+        sqlJdbcTypeMap.put('char', 'CHAR') ;
+        sqlJdbcTypeMap.put('datetime', 'TIMESTAMP') ;// 注意，这里使用这个类型，不能直接使用DATE,mybatis的Date只有年月日
+        sqlJdbcTypeMap.put('timestamp', 'TIMESTAMP') ;
+        sqlJdbcTypeMap.put('mediumtext', 'VARCHAR') ;
+    }
+
+    private static final String DAO_END = 'Dao' ;
+    private static final String DO_END = 'DO' ;
+
+
+
+    // 修改这两个参数
+    private static final String OUTPUT_DIR = 'C:\\Users\\jrliangbo\\Downloads' ;
+    private static final String PACKAGE_NAME = 'com.heytap.mall.comment.core.domain.dao.' ;
+
+
+    public static void main(String[] args) throws Exception{
+
+        // 此处将sql建表语句粘出，注意sql规范
+       String sql = 'CREATE TABLE `t_comment_liking` (\n' +
+               '  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id 自增主键',\n' +
+               '  `comment_id` bigint(20) NOT NULL COMMENT '评论id 评论id',\n' +
+               '  `user_id` varchar(64) DEFAULT NULL COMMENT '用户唯一标识 用户唯一标识',\n' +
+               '  `device_id` varchar(64) DEFAULT NULL COMMENT '设备id',\n' +
+               '  `liking` tinyint(1) DEFAULT NULL COMMENT '点赞 点赞与否，1点赞',\n' +
+               '  `data_status` tinyint(1) DEFAULT NULL COMMENT '数据有效性 数据是否有效，1有效',\n' +
+               '  `create_time` timestamp NOT NULL COMMENT '创建时间',\n' +
+               '  `modify_time` timestamp NOT NULL COMMENT '修改时间',\n' +
+               '  `created` varchar(32) NOT NULL DEFAULT '' COMMENT '创建人',\n' +
+               '  `modified` varchar(32) NOT NULL DEFAULT '' COMMENT '更新人',\n' +
+               '  PRIMARY KEY (`id`)\n' +
+               ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论点赞表 '' ;
+
+
+        sql = sql.replace('\n','') ;
+        process(sql) ;
+        System.out.println('end');
+
+    }
+
+    /**
+     * 生成 java DO类
+     * 生成 Dao类
+     * 生成 mapper文件
+     * 生成 测试类
+     */
+    private static void process(String allData){
+        int begin = allData.indexOf('(');
+        int end = allData.lastIndexOf(')');
+
+        String firstLine = allData.substring(0, begin) ;
+        String columnLine = allData.substring(begin+1,end);
+
+        String tableName = getTableName(firstLine) ;
+
+        List<Item> columnList = getColumnList(columnLine) ;
+
+        String baseName = columnName2JavaName(tableName) ;
+        String doVarName = baseName + DO_END ;
+        String daoVarName = baseName + DAO_END ;
+        String doClassName = doVarName.substring(0,1).toUpperCase() + doVarName.substring(1) ;
+        String daoClassName = daoVarName.substring(0,1).toUpperCase() + daoVarName.substring(1) ;
+        StringBuilder sb = new StringBuilder('') ;
+
+        sb.append(doClassName);
+        sb.append('-----------------------------------------------------------\n\n') ;
+        sb.append(createDoFile(columnList)) ;
+        sb.append('\n\n') ;
+
+
+        sb.append(daoClassName);
+        sb.append('-----------------------------------------------------------\n\n') ;
+        sb.append(createDaoFile(doVarName, doClassName, daoClassName)) ;
+        sb.append('\n\n') ;
+
+
+        sb.append(baseName.substring(0,1).toUpperCase());
+        sb.append(baseName.substring(1));
+        sb.append('Mapper.xml-------------------------------------------------\n\n') ;
+        sb.append(createMapperFile(columnList,daoClassName,doClassName,tableName));
+        sb.append('\n\n');
+
+
+
+        sb.append(daoClassName);
+        sb.append('Test.java');
+        sb.append('-----------------------------------------------------------\n\n') ;
+        sb.append(createTestFile(columnList,doClassName,doVarName,daoClassName,daoVarName)) ;
+        sb.append('\n\n') ;
+
+
+        writeToFile(OUTPUT_DIR, sb.toString()) ;
+
+        return ;
+    }
+
+
+    private static void writeToFile(String dir, String data){
+        String filePath = dir + '\\\\' + 'output.txt' ;
+        FileWriter fos;
+        try {
+            fos = new FileWriter(filePath);
+            fos.write(data);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    private static String createDoFile(List<Item> columnList){
+        StringBuilder sb = new StringBuilder('') ;
+        for(Item item : columnList){
+            sb.append('/**  ');
+            sb.append(item.getComment());
+            sb.append('  */\n');
+
+            sb.append('private ');
+            sb.append(item.getJavaType());
+            sb.append(' ');
+            sb.append(item.getName()) ;
+            sb.append(';\n\n') ;
+        }
+
+        sb.append('\n\n');
+        return sb.toString() ;
+    }
+
+    private static String createDaoFile(String doVarName,String doClassName,String daoClassName){
+        String base  = '@SuperDao\n' +
+                'public interface TMPDAO {\n' +
+                '    int insert(TMPDO tmpdo);\n' +
+                '    int update(TMPDO tmpdo);\n' +
+                '    int delete(Long id);\n' +
+                '    TMPDO getById(Long id);\n' +
+                '}';
+        base = base.replace('TMPDAO',daoClassName);
+        base = base.replace('TMPDO',doClassName);
+        base = base.replace('tmpdo',doVarName);
+        return base ;
+
+    }
+
+    private static String createMapperFile(List<Item> columnList,String daoClassName,String doClassName,String tableName){
+        StringBuilder sb = new StringBuilder('<?xml version=\'1.0\' encoding=\'UTF-8\' ?>\n' +
+                '<!DOCTYPE mapper PUBLIC \'-//mybatis.org//DTD Mapper 3.0//EN\' \'http://mybatis.org/dtd/mybatis-3-mapper.dtd\' >\n' +
+                '<mapper namespace=\'');
+        sb.append(PACKAGE_NAME);
+        sb.append(daoClassName);
+        sb.append('\'>\n');
+
+        sb.append('<resultMap id=\'BaseResultMap\' type=\'');
+        sb.append(doClassName);
+        sb.append('\'>\n') ;
+
+        sb.append('<id column=\'id\' property=\'id\' jdbcType=\'BIGINT\'/>\n') ;
+
+        for(Item item : columnList){
+            if(!item.getName().equals('id')){
+                sb.append('<result column=\'');
+                sb.append(item.getColumn());
+                sb.append('\' property=\'');
+                sb.append(item.getName());
+                sb.append('\' jdbcType=\'');
+                sb.append(item.getJdbcType());
+                sb.append('\'/>\n');
+
+            }
+        }
+
+        sb.append(' </resultMap>\n') ;
+
+        sb.append('<sql id=\'Base_Column_List\'>\n');
+        sb.append(columnList.get(0).getColumn());
+        for(int i=1; i<columnList.size(); i++){
+            sb.append(',') ;
+            sb.append(columnList.get(i).getColumn()) ;
+        }
+        sb.append('\n');
+        sb.append('</sql>\n') ;
+
+        // insert
+        sb.append(createInsertSql(columnList, doClassName, tableName)) ;
+        sb.append('\n\n');
+
+        // update
+        sb.append(createUpdateSql(columnList, doClassName, tableName)) ;
+        sb.append('\n\n');
+
+        // getById
+        sb.append(createQuerySql(tableName)) ;
+        sb.append('\n\n');
+
+        // delete
+        sb.append(createDeleteSql(tableName)) ;
+        sb.append('\n\n');
+
+        sb.append('</mapper>\n');
+        return sb.toString() ;
+
+    }
+
+
+    private static String createInsertSql(List<Item> columnList,String doClassName,String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<insert id=\'insert\' useGeneratedKeys=\'true\' keyProperty=\'id\' parameterType=\'');
+        sb.append(doClassName);
+        sb.append('\'>\n');
+        sb.append('INSERT into ');
+        sb.append(tableName) ;
+        sb.append('\n');
+        sb.append('<trim prefix=\'(\' suffix=\')\'>\n');
+        for(Item item : columnList){
+            if(!item.getColumn().equals('id') && !item.getColumn().equals('modified_date')){
+                if(item.getColumn().equals('created_date')){
+                    sb.append('created_date,\n');
+                }else if(item.isCanEmpty()){
+                    sb.append('<if test=\'');
+                    sb.append(item.getName());
+                    sb.append('!= null\'>\n');
+                    sb.append(item.getColumn());
+                    sb.append(',\n');
+                    sb.append('</if>\n');
+                }else{
+                    sb.append(item.getColumn());
+                    sb.append(',\n') ;
+                }
+            }
+        }
+        sb.append('modified_date\n');
+        sb.append('</trim>\n') ;
+
+
+        sb.append('<trim prefix=\'values (\' suffix=\')\'>\n');
+        for(Item item : columnList){
+            if(!item.getColumn().equals('id') && !item.getColumn().equals('modified_date')){
+                if(item.getColumn().equals('created_date')){
+                    sb.append('current_timestamp,\n');
+                }else if(item.isCanEmpty()){
+                    sb.append('<if test=\'');
+                    sb.append(item.getName());
+                    sb.append(' != null\'>\n');
+                    sb.append('#{');
+                    sb.append(item.getName());
+                    sb.append(',jdbcType=');
+                    sb.append(item.getJdbcType());
+                    sb.append('},\n');
+                    sb.append('</if>\n');
+                }else{
+                    sb.append('#{');
+                    sb.append(item.getName());
+                    sb.append(',jdbcType=');
+                    sb.append(item.getJdbcType());
+                    sb.append('},\n');
+                }
+            }
+        }
+        sb.append('current_timestamp\n');
+        sb.append('</trim>\n') ;
+        sb.append('</insert>\n') ;
+        return sb.toString() ;
+    }
+
+
+    private static String createUpdateSql(List<Item> columnList,String doClassName,String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<update id=\'update\' parameterType=\'');
+        sb.append(doClassName);
+        sb.append('\'>\n');
+        sb.append('update ');
+        sb.append(tableName);
+        sb.append('\n');
+        sb.append('<set>\n');
+
+
+        for(Item item : columnList){
+            if(!item.getColumn().equals('id')
+                    && !item.getColumn().equals('modified_date')
+                    && !item.getColumn().equals('created_date')){
+
+                sb.append('<if test=\'');
+                sb.append(item.getName());
+                sb.append(' != null\'>\n');
+                sb.append(item.getColumn());
+                sb.append(' = #{');
+                sb.append(item.getName());
+                sb.append(',jdbcType=');
+                sb.append(item.getJdbcType());
+                sb.append('},\n');
+                sb.append('</if>\n');
+            }
+        }
+        sb.append('modified_date = current_timestamp\n');
+        sb.append('</set>\n');
+        sb.append('where id = #{id,jdbcType=BIGINT}\n');
+        sb.append('</update>\n');
+
+
+        return sb.toString() ;
+    }
+
+    private static String createQuerySql(String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<select id=\'getById\' resultMap=\'BaseResultMap\' parameterType=\'java.lang.Long\'>\n');
+        sb.append('SELECT\n');
+        sb.append('<include refid=\'Base_Column_List\' />\n');
+        sb.append('from ');
+        sb.append(tableName);
+        sb.append('\n');
+        sb.append('where id = #{id,jdbcType=BIGINT}\n');
+        sb.append('</select>\n') ;
+
+        return sb.toString() ;
+    }
+
+    private static String createDeleteSql(String tableName){
+        StringBuilder sb = new StringBuilder('');
+        sb.append('<delete id=\'delete\'  parameterType=\'java.lang.Long\'>\n');
+        sb.append('DELETE\n');
+        sb.append('from ');
+        sb.append(tableName);
+        sb.append('\n');
+        sb.append('where id = #{id,jdbcType=BIGINT}\n');
+        sb.append('</delete>\n') ;
+
+        return sb.toString() ;
+    }
+
+    private static String createTestFile(List<Item> columnList,String doClassName,String doVarName,String daoClassName, String daoVarName){
+
+        String model = 'public class TMPXXXDaoTest extends TestBase {\n' +
+                '    private static final Logger logger = LoggerFactory.getLogger(TMPXXXDaoTest.class);\n' +
+                '\n' +
+                '    @Resource\n' +
+                '    private TMPXXXDao tmpXXXDao;\n' +
+                '\n' +
+                '    private Long id ;\n' +
+                '\n' +
+                '    @Test\n' +
+                '    public void testInsert(){\n' +
+                '        TMPXXXDO tmpXXXDO = create();\n' +
+                '        int result = tmpXXXDao.insert(tmpXXXDO);\n' +
+                '        Assert.assertTrue(result > 0);\n' +
+                '        id = tmpXXXDO.getId() ;\n' +
+                '        Assert.assertNotNull(id);\n' +
+                '        Assert.assertTrue(id > 0);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testInsert\')\n' +
+                '    public void testGetById(){\n' +
+                '        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);\n' +
+                '        Assert.assertNotNull(tmpXXXDO);\n' +
+                '        logger.info(\'testGetById获得对象： {}\', tmpXXXDO);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testGetById\')\n' +
+                '    public void testUpdate(){\n' +
+                '        TMPXXXDO tmpXXXDO = create();\n' +
+                '        tmpXXXDO.setId(id);\n' +
+                '        SET_STRING_PLACEHOLDER\n' +
+                '        int result = tmpXXXDao.update(tmpXXXDO);\n' +
+                '        Assert.assertTrue(result > 0);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testUpdate\')\n' +
+                '    public void testGetById2(){\n' +
+                '        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);\n' +
+                '        Assert.assertNotNull(tmpXXXDO);\n' +
+                '        logger.info(\'testGetById2获得对象： {}\', tmpXXXDO);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testGetById2\')\n' +
+                '    public void testDelete(){\n' +
+                '        int result = tmpXXXDao.delete(id);\n' +
+                '        Assert.assertTrue(result > 0);\n' +
+                '    }\n' +
+                '\n' +
+                '    @Test(dependsOnMethods = \'testDelete\')\n' +
+                '    public void testGetById3(){\n' +
+                '        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);\n' +
+                '        Assert.assertNull(tmpXXXDO);\n' +
+                '    }\n' +
+                '\n' +
+                '\n' +
+                '    private TMPXXXDO create(){\n' +
+                '        TMPXXXDO tmpXXXDO = new TMPXXXDO();\n' +
+                '        SET_STRING_PLACEHOLDER\n' +
+                '        return tmpXXXDO ;\n' +
+                '    }\n' +
+                '}' ;
+
+        model = model.replace('TMPXXXDao',daoClassName);
+        model = model.replace('tmpXXXDao',daoVarName);
+        model = model.replace('TMPXXXDO',doClassName);
+        model = model.replace('tmpXXXDO',doVarName);
+        String setString = getSetString(columnList,doVarName);
+        model = model.replace('SET_STRING_PLACEHOLDER', setString);
+        return model ;
+
+    }
+
+    private static String getSetString(List<Item> columnList,String doVarName){
+        StringBuilder sb = new StringBuilder('');
+        for(Item item:columnList){
+            if(!item.getColumn().equals('id')){
+                if(item.isCanEmpty()){
+                    sb.append('//') ;
+                }
+                sb.append(doVarName);
+                sb.append('.set');
+                sb.append(item.getName().substring(0,1).toUpperCase());
+                sb.append(item.getName().substring(1));
+                sb.append('(');
+
+                // 当有新的类型时，需要在此处添加
+                if(item.getJavaType().equals('Integer')){
+                    sb.append('0');
+                }else if(item.getJavaType().equals('Long')){
+                    sb.append('0L');
+                }else if(item.getJavaType().equals('String')){
+                    sb.append('\'hello world 测试\'');
+                }else if(item.getJavaType().equals('Date')){
+                    sb.append('new Date()');
+                }else{
+                    sb.append('');
+                }
+
+                sb.append(');\n');
+            }
+
+        }
+
+        return sb.toString() ;
+
+    }
+
+
+
+    private static List<Item> getColumnList(String data){
+        List<Item> result = new ArrayList<Item>();
+        String[] array = data.split(',') ;
+        for(String line : array){
+            if(!isKeyLine(line)){
+                Item item = new Item();
+                item.setColumn(getColumn(line));
+                item.setComment(getComment(line));
+                item.setSqlType(getType(line));
+                item.setCanEmpty(canEmpty(line));
+                if(!sqlJavaTypeMap.containsKey(item.getSqlType())){
+                    throw new RuntimeException('找不到对应类型') ;
+                }
+                item.setJavaType(sqlJavaTypeMap.get(item.getSqlType()));
+                item.setJdbcType(sqlJdbcTypeMap.get(item.getSqlType()));
+                item.setName(columnName2JavaName(item.getColumn()));
+                result.add(item);
+            }
+
+        }
+        return result ;
+    }
+
+    private static boolean isKeyLine(String line){
+        line = line.trim();
+        line = line.toUpperCase() ;
+        if(line.startsWith('PRIMARY')
+                || line.startsWith('KEY')
+                || line.startsWith('INDEX')
+                || line.startsWith('UNIQUE')
+                ){
+            return true ;
+        }
+        return false ;
+    }
+
+
+
+    private static String removeQuote(String data, int quote){
+        data = data.trim() ;
+        int begin = data.indexOf(quote);
+        if(begin > -1){
+            int end = data.indexOf(quote,begin+1);
+            if(end > -1){
+                return data.substring(begin+1,end) ;
+            }
+        }
+        return data ;
+    }
+
+    private static String getTableName(String firstLine){
+        String[] array = firstLine.split(' ');
+        int length = array.length;
+        return removeQuote(array[length-1],'`');
+    }
+
+    // 获取注释，COMMENT 之后第一个用 引号包起来的内容
+    private static String getComment(String line){
+        String[] array = line.split('COMMENT');
+        return removeQuote(array[1],'\'') ;
+    }
+
+    private static String getColumn(String line){
+        return removeQuote(line,'`');
+    }
+
+    private static boolean canEmpty(String line){
+        // 有默认值的认为插入是可以为空
+        if(line.contains('NOT NULL DEFAULT')){
+            return true ;
+        }
+        return !(line.contains('NOT NULL')) ;
+    }
+
+    private static String getType(String line){
+        line = line.trim() ;
+        String[] array = line.split(' ');
+        String name = array[1];
+        int end = name.indexOf('(');
+        if(end > 1){
+            return name.substring(0,end) ;
+        }
+        return name ;
+    }
+
+
+
+
+    private static String columnName2JavaName(String column){
+        column = column.toLowerCase() ;
+        String[] array = column.split('_') ;
+        StringBuilder sb = new StringBuilder('');
+        sb.append(array[0]);
+        for(int i=1; i<array.length; i++){
+            sb.append(array[i].substring(0,1).toUpperCase()) ;
+            sb.append(array[i].substring(1)) ;
+        }
+
+        return sb.toString() ;
+
+    }
+
+
+}
+
+class Item{
+    private String name; // java字段名
+    private String column ; // 数据库列名
+    private String sqlType ;
+    private String javaType;
+    private String jdbcType ;
+    private boolean canEmpty ;// 是否可为Null
+    private String comment ; //注释
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getColumn() {
+        return column;
+    }
+
+    public void setColumn(String column) {
+        this.column = column;
+    }
+
+    public String getSqlType() {
+        return sqlType;
+    }
+
+    public void setSqlType(String sqlType) {
+        this.sqlType = sqlType;
+    }
+
+    public String getJavaType() {
+        return javaType;
+    }
+
+    public void setJavaType(String javaType) {
+        this.javaType = javaType;
+    }
+
+    public String getJdbcType() {
+        return jdbcType;
+    }
+
+    public void setJdbcType(String jdbcType) {
+        this.jdbcType = jdbcType;
+    }
+
+    public boolean isCanEmpty() {
+        return canEmpty;
+    }
+
+    public void setCanEmpty(boolean canEmpty) {
+        this.canEmpty = canEmpty;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+}
+
+```。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://andy1202go.github.io/post/Mybatis%20Mapper-sheng-cheng-qi--MapperCreator-yuan-ma-fen-xiang.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
+<title>Mybatis Mapper生成器-MapperCreator源码分享</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Mybatis Mapper生成器-MapperCreator源码分享</h1>
+<div class="title-right">
+    <a href="https://andy1202go.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/andy1202go/andy1202go.github.io/issues/26" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p>来源：huzhiyong</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-s1">java</span>.<span class="pl-s1">io</span>.<span class="pl-s1">FileWriter</span>;
+<span class="pl-k">import</span> <span class="pl-s1">java</span>.<span class="pl-s1">io</span>.<span class="pl-s1">IOException</span>;
+<span class="pl-k">import</span> <span class="pl-s1">java</span>.<span class="pl-s1">util</span>.<span class="pl-s1">ArrayList</span>;
+<span class="pl-k">import</span> <span class="pl-s1">java</span>.<span class="pl-s1">util</span>.<span class="pl-s1">HashMap</span>;
+<span class="pl-k">import</span> <span class="pl-s1">java</span>.<span class="pl-s1">util</span>.<span class="pl-s1">List</span>;
+
+<span class="pl-c">/**</span>
+<span class="pl-c"> * Created by huzhiyong on 2017/2/7.</span>
+<span class="pl-c"> * 用于生成基本的mapper文件</span>
+<span class="pl-c"> * 输入：SQLyog 导出的建表语句</span>
+<span class="pl-c"> * 输出：1，基本Dao和DO类，2，mapper文件，3,测试代码  全部输出到 output.txt 文件</span>
+<span class="pl-c"> *</span>
+<span class="pl-c"> * sql规范：</span>
+<span class="pl-c"> * 1, 数据库字段名全小写，用下划线隔开</span>
+<span class="pl-c"> * 2，默认每个表都有 id 字段（自增主键） modified_date</span>
+<span class="pl-c"> * 3, 每列都要有注释，列注释当中不包括 英文逗号，数据库注释不包括 英文括号</span>
+<span class="pl-c"> * 4，删除掉索引行，当有联合索引时，会报错</span>
+<span class="pl-c"> */</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">MapperCreator</span> {
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">HashMap</span>&lt;<span class="pl-smi">String</span>,<span class="pl-smi">String</span>&gt; <span class="pl-s1">sqlJavaTypeMap</span> = <span class="pl-k">new</span> <span class="pl-smi">HashMap</span>&lt;&gt;();
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">HashMap</span>&lt;<span class="pl-smi">String</span>,<span class="pl-smi">String</span>&gt; <span class="pl-s1">sqlJdbcTypeMap</span> = <span class="pl-k">new</span> <span class="pl-smi">HashMap</span>&lt;&gt;();
+    <span class="pl-k">static</span>{
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"bigint"</span>, <span class="pl-s">"Long"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"int"</span>, <span class="pl-s">"Integer"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"tinyint"</span>, <span class="pl-s">"Integer"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"varchar"</span>, <span class="pl-s">"String"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"text"</span>, <span class="pl-s">"String"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"char"</span>, <span class="pl-s">"String"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"datetime"</span>, <span class="pl-s">"Date"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"timestamp"</span>, <span class="pl-s">"Date"</span>) ;
+        <span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"mediumtext"</span>, <span class="pl-s">"String"</span>) ;
+
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"bigint"</span>, <span class="pl-s">"BIGINT"</span>) ;
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"int"</span>, <span class="pl-s">"INTEGER"</span>) ;
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"tinyint"</span>, <span class="pl-s">"INTEGER"</span>) ;
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"varchar"</span>, <span class="pl-s">"VARCHAR"</span>) ;
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"text"</span>, <span class="pl-s">"VARCHAR"</span>) ;
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"char"</span>, <span class="pl-s">"CHAR"</span>) ;
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"datetime"</span>, <span class="pl-s">"TIMESTAMP"</span>) ;<span class="pl-c">// 注意，这里使用这个类型，不能直接使用DATE,mybatis的Date只有年月日</span>
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"timestamp"</span>, <span class="pl-s">"TIMESTAMP"</span>) ;
+        <span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">put</span>(<span class="pl-s">"mediumtext"</span>, <span class="pl-s">"VARCHAR"</span>) ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">DAO_END</span> = <span class="pl-s">"Dao"</span> ;
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">DO_END</span> = <span class="pl-s">"DO"</span> ;
+
+
+
+    <span class="pl-c">// 修改这两个参数</span>
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">OUTPUT_DIR</span> = <span class="pl-s">"C:<span class="pl-cce">\\</span>Users<span class="pl-cce">\\</span>jrliangbo<span class="pl-cce">\\</span>Downloads"</span> ;
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">PACKAGE_NAME</span> = <span class="pl-s">"com.heytap.mall.comment.core.domain.dao."</span> ;
+
+
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) <span class="pl-k">throws</span> <span class="pl-smi">Exception</span>{
+
+        <span class="pl-c">// 此处将sql建表语句粘出，注意sql规范</span>
+       <span class="pl-smi">String</span> <span class="pl-s1">sql</span> = <span class="pl-s">"CREATE TABLE `t_comment_liking` (<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id 自增主键',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `comment_id` bigint(20) NOT NULL COMMENT '评论id 评论id',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `user_id` varchar(64) DEFAULT NULL COMMENT '用户唯一标识 用户唯一标识',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `device_id` varchar(64) DEFAULT NULL COMMENT '设备id',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `liking` tinyint(1) DEFAULT NULL COMMENT '点赞 点赞与否，1点赞',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `data_status` tinyint(1) DEFAULT NULL COMMENT '数据有效性 数据是否有效，1有效',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `create_time` timestamp NOT NULL COMMENT '创建时间',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `modify_time` timestamp NOT NULL COMMENT '修改时间',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `created` varchar(32) NOT NULL DEFAULT '' COMMENT '创建人',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  `modified` varchar(32) NOT NULL DEFAULT '' COMMENT '更新人',<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">"  PRIMARY KEY (`id`)<span class="pl-cce">\n</span>"</span> +
+               <span class="pl-s">") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论点赞表 '"</span> ;
+
+
+        <span class="pl-s1">sql</span> = <span class="pl-s1">sql</span>.<span class="pl-en">replace</span>(<span class="pl-s">"<span class="pl-cce">\n</span>"</span>,<span class="pl-s">""</span>) ;
+        <span class="pl-en">process</span>(<span class="pl-s1">sql</span>) ;
+        <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"end"</span>);
+
+    }
+
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * 生成 java DO类</span>
+<span class="pl-c">     * 生成 Dao类</span>
+<span class="pl-c">     * 生成 mapper文件</span>
+<span class="pl-c">     * 生成 测试类</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">process</span>(<span class="pl-smi">String</span> <span class="pl-s1">allData</span>){
+        <span class="pl-smi">int</span> <span class="pl-s1">begin</span> = <span class="pl-s1">allData</span>.<span class="pl-en">indexOf</span>(<span class="pl-s">"("</span>);
+        <span class="pl-smi">int</span> <span class="pl-s1">end</span> = <span class="pl-s1">allData</span>.<span class="pl-en">lastIndexOf</span>(<span class="pl-s">")"</span>);
+
+        <span class="pl-smi">String</span> <span class="pl-s1">firstLine</span> = <span class="pl-s1">allData</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>, <span class="pl-s1">begin</span>) ;
+        <span class="pl-smi">String</span> <span class="pl-s1">columnLine</span> = <span class="pl-s1">allData</span>.<span class="pl-en">substring</span>(<span class="pl-s1">begin</span>+<span class="pl-c1">1</span>,<span class="pl-s1">end</span>);
+
+        <span class="pl-smi">String</span> <span class="pl-s1">tableName</span> = <span class="pl-en">getTableName</span>(<span class="pl-s1">firstLine</span>) ;
+
+        <span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">columnList</span> = <span class="pl-en">getColumnList</span>(<span class="pl-s1">columnLine</span>) ;
+
+        <span class="pl-smi">String</span> <span class="pl-s1">baseName</span> = <span class="pl-en">columnName2JavaName</span>(<span class="pl-s1">tableName</span>) ;
+        <span class="pl-smi">String</span> <span class="pl-s1">doVarName</span> = <span class="pl-s1">baseName</span> + <span class="pl-c1">DO_END</span> ;
+        <span class="pl-smi">String</span> <span class="pl-s1">daoVarName</span> = <span class="pl-s1">baseName</span> + <span class="pl-c1">DAO_END</span> ;
+        <span class="pl-smi">String</span> <span class="pl-s1">doClassName</span> = <span class="pl-s1">doVarName</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>,<span class="pl-c1">1</span>).<span class="pl-en">toUpperCase</span>() + <span class="pl-s1">doVarName</span>.<span class="pl-en">substring</span>(<span class="pl-c1">1</span>) ;
+        <span class="pl-smi">String</span> <span class="pl-s1">daoClassName</span> = <span class="pl-s1">daoVarName</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>,<span class="pl-c1">1</span>).<span class="pl-en">toUpperCase</span>() + <span class="pl-s1">daoVarName</span>.<span class="pl-en">substring</span>(<span class="pl-c1">1</span>) ;
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>) ;
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">doClassName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"-----------------------------------------------------------<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createDoFile</span>(<span class="pl-s1">columnList</span>)) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">daoClassName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"-----------------------------------------------------------<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createDaoFile</span>(<span class="pl-s1">doVarName</span>, <span class="pl-s1">doClassName</span>, <span class="pl-s1">daoClassName</span>)) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">baseName</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>,<span class="pl-c1">1</span>).<span class="pl-en">toUpperCase</span>());
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">baseName</span>.<span class="pl-en">substring</span>(<span class="pl-c1">1</span>));
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"Mapper.xml-------------------------------------------------<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createMapperFile</span>(<span class="pl-s1">columnList</span>,<span class="pl-s1">daoClassName</span>,<span class="pl-s1">doClassName</span>,<span class="pl-s1">tableName</span>));
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>);
+
+
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">daoClassName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"Test.java"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"-----------------------------------------------------------<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createTestFile</span>(<span class="pl-s1">columnList</span>,<span class="pl-s1">doClassName</span>,<span class="pl-s1">doVarName</span>,<span class="pl-s1">daoClassName</span>,<span class="pl-s1">daoVarName</span>)) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+
+
+        <span class="pl-en">writeToFile</span>(<span class="pl-c1">OUTPUT_DIR</span>, <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>()) ;
+
+        <span class="pl-k">return</span> ;
+    }
+
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">writeToFile</span>(<span class="pl-smi">String</span> <span class="pl-s1">dir</span>, <span class="pl-smi">String</span> <span class="pl-s1">data</span>){
+        <span class="pl-smi">String</span> <span class="pl-s1">filePath</span> = <span class="pl-s1">dir</span> + <span class="pl-s">"<span class="pl-cce">\\</span><span class="pl-cce">\\</span>"</span> + <span class="pl-s">"output.txt"</span> ;
+        <span class="pl-smi">FileWriter</span> <span class="pl-s1">fos</span>;
+        <span class="pl-k">try</span> {
+            <span class="pl-s1">fos</span> = <span class="pl-k">new</span> <span class="pl-smi">FileWriter</span>(<span class="pl-s1">filePath</span>);
+            <span class="pl-s1">fos</span>.<span class="pl-en">write</span>(<span class="pl-s1">data</span>);
+            <span class="pl-s1">fos</span>.<span class="pl-en">flush</span>();
+            <span class="pl-s1">fos</span>.<span class="pl-en">close</span>();
+        } <span class="pl-k">catch</span> (<span class="pl-smi">IOException</span> <span class="pl-s1">e</span>) {
+            <span class="pl-s1">e</span>.<span class="pl-en">printStackTrace</span>();
+        }
+    }
+
+
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createDoFile</span>(<span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">columnList</span>){
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>) ;
+        <span class="pl-k">for</span>(<span class="pl-smi">Item</span> <span class="pl-s1">item</span> : <span class="pl-s1">columnList</span>){
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"/**  "</span>);
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getComment</span>());
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"  */<span class="pl-cce">\n</span>"</span>);
+
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"private "</span>);
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJavaType</span>());
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">" "</span>);
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>()) ;
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">";<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>) ;
+        }
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>);
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createDaoFile</span>(<span class="pl-smi">String</span> <span class="pl-s1">doVarName</span>,<span class="pl-smi">String</span> <span class="pl-s1">doClassName</span>,<span class="pl-smi">String</span> <span class="pl-s1">daoClassName</span>){
+        <span class="pl-smi">String</span> <span class="pl-s1">base</span>  = <span class="pl-s">"@SuperDao<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"public interface TMPDAO {<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    int insert(TMPDO tmpdo);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    int update(TMPDO tmpdo);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    int delete(Long id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    TMPDO getById(Long id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"}"</span>;
+        <span class="pl-s1">base</span> = <span class="pl-s1">base</span>.<span class="pl-en">replace</span>(<span class="pl-s">"TMPDAO"</span>,<span class="pl-s1">daoClassName</span>);
+        <span class="pl-s1">base</span> = <span class="pl-s1">base</span>.<span class="pl-en">replace</span>(<span class="pl-s">"TMPDO"</span>,<span class="pl-s1">doClassName</span>);
+        <span class="pl-s1">base</span> = <span class="pl-s1">base</span>.<span class="pl-en">replace</span>(<span class="pl-s">"tmpdo"</span>,<span class="pl-s1">doVarName</span>);
+        <span class="pl-k">return</span> <span class="pl-s1">base</span> ;
+
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createMapperFile</span>(<span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">columnList</span>,<span class="pl-smi">String</span> <span class="pl-s1">daoClassName</span>,<span class="pl-smi">String</span> <span class="pl-s1">doClassName</span>,<span class="pl-smi">String</span> <span class="pl-s1">tableName</span>){
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">"&lt;?xml version=<span class="pl-cce">\"</span>1.0<span class="pl-cce">\"</span> encoding=<span class="pl-cce">\"</span>UTF-8<span class="pl-cce">\"</span> ?&gt;<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"&lt;!DOCTYPE mapper PUBLIC <span class="pl-cce">\"</span>-//mybatis.org//DTD Mapper 3.0//EN<span class="pl-cce">\"</span> <span class="pl-cce">\"</span>http://mybatis.org/dtd/mybatis-3-mapper.dtd<span class="pl-cce">\"</span> &gt;<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"&lt;mapper namespace=<span class="pl-cce">\"</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-c1">PACKAGE_NAME</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">daoClassName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;resultMap id=<span class="pl-cce">\"</span>BaseResultMap<span class="pl-cce">\"</span> type=<span class="pl-cce">\"</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">doClassName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>) ;
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;id column=<span class="pl-cce">\"</span>id<span class="pl-cce">\"</span> property=<span class="pl-cce">\"</span>id<span class="pl-cce">\"</span> jdbcType=<span class="pl-cce">\"</span>BIGINT<span class="pl-cce">\"</span>/&gt;<span class="pl-cce">\n</span>"</span>) ;
+
+        <span class="pl-k">for</span>(<span class="pl-smi">Item</span> <span class="pl-s1">item</span> : <span class="pl-s1">columnList</span>){
+            <span class="pl-k">if</span>(!<span class="pl-s1">item</span>.<span class="pl-en">getName</span>().<span class="pl-en">equals</span>(<span class="pl-s">"id"</span>)){
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;result column=<span class="pl-cce">\"</span>"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span> property=<span class="pl-cce">\"</span>"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span> jdbcType=<span class="pl-cce">\"</span>"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJdbcType</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span>/&gt;<span class="pl-cce">\n</span>"</span>);
+
+            }
+        }
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">" &lt;/resultMap&gt;<span class="pl-cce">\n</span>"</span>) ;
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;sql id=<span class="pl-cce">\"</span>Base_Column_List<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">columnList</span>.<span class="pl-en">get</span>(<span class="pl-c1">0</span>).<span class="pl-en">getColumn</span>());
+        <span class="pl-k">for</span>(<span class="pl-smi">int</span> <span class="pl-s1">i</span>=<span class="pl-c1">1</span>; <span class="pl-s1">i</span>&lt;<span class="pl-s1">columnList</span>.<span class="pl-en">size</span>(); <span class="pl-s1">i</span>++){
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">","</span>) ;
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">columnList</span>.<span class="pl-en">get</span>(<span class="pl-s1">i</span>).<span class="pl-en">getColumn</span>()) ;
+        }
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/sql&gt;<span class="pl-cce">\n</span>"</span>) ;
+
+        <span class="pl-c">// insert</span>
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createInsertSql</span>(<span class="pl-s1">columnList</span>, <span class="pl-s1">doClassName</span>, <span class="pl-s1">tableName</span>)) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>);
+
+        <span class="pl-c">// update</span>
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createUpdateSql</span>(<span class="pl-s1">columnList</span>, <span class="pl-s1">doClassName</span>, <span class="pl-s1">tableName</span>)) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>);
+
+        <span class="pl-c">// getById</span>
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createQuerySql</span>(<span class="pl-s1">tableName</span>)) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>);
+
+        <span class="pl-c">// delete</span>
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-en">createDeleteSql</span>(<span class="pl-s1">tableName</span>)) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span><span class="pl-cce">\n</span>"</span>);
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/mapper&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+
+    }
+
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createInsertSql</span>(<span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">columnList</span>,<span class="pl-smi">String</span> <span class="pl-s1">doClassName</span>,<span class="pl-smi">String</span> <span class="pl-s1">tableName</span>){
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;insert id=<span class="pl-cce">\"</span>insert<span class="pl-cce">\"</span> useGeneratedKeys=<span class="pl-cce">\"</span>true<span class="pl-cce">\"</span> keyProperty=<span class="pl-cce">\"</span>id<span class="pl-cce">\"</span> parameterType=<span class="pl-cce">\"</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">doClassName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"INSERT into "</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">tableName</span>) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;trim prefix=<span class="pl-cce">\"</span>(<span class="pl-cce">\"</span> suffix=<span class="pl-cce">\"</span>)<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-k">for</span>(<span class="pl-smi">Item</span> <span class="pl-s1">item</span> : <span class="pl-s1">columnList</span>){
+            <span class="pl-k">if</span>(!<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"id"</span>) &amp;&amp; !<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"modified_date"</span>)){
+                <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"created_date"</span>)){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"created_date,<span class="pl-cce">\n</span>"</span>);
+                }<span class="pl-k">else</span> <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">isCanEmpty</span>()){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;if test=<span class="pl-cce">\"</span>"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"!= null<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">",<span class="pl-cce">\n</span>"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/if&gt;<span class="pl-cce">\n</span>"</span>);
+                }<span class="pl-k">else</span>{
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">",<span class="pl-cce">\n</span>"</span>) ;
+                }
+            }
+        }
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"modified_date<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/trim&gt;<span class="pl-cce">\n</span>"</span>) ;
+
+
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;trim prefix=<span class="pl-cce">\"</span>values (<span class="pl-cce">\"</span> suffix=<span class="pl-cce">\"</span>)<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-k">for</span>(<span class="pl-smi">Item</span> <span class="pl-s1">item</span> : <span class="pl-s1">columnList</span>){
+            <span class="pl-k">if</span>(!<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"id"</span>) &amp;&amp; !<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"modified_date"</span>)){
+                <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"created_date"</span>)){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"current_timestamp,<span class="pl-cce">\n</span>"</span>);
+                }<span class="pl-k">else</span> <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">isCanEmpty</span>()){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;if test=<span class="pl-cce">\"</span>"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">" != null<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"#{"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">",jdbcType="</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJdbcType</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"},<span class="pl-cce">\n</span>"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/if&gt;<span class="pl-cce">\n</span>"</span>);
+                }<span class="pl-k">else</span>{
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"#{"</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">",jdbcType="</span>);
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJdbcType</span>());
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"},<span class="pl-cce">\n</span>"</span>);
+                }
+            }
+        }
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"current_timestamp<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/trim&gt;<span class="pl-cce">\n</span>"</span>) ;
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/insert&gt;<span class="pl-cce">\n</span>"</span>) ;
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+    }
+
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createUpdateSql</span>(<span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">columnList</span>,<span class="pl-smi">String</span> <span class="pl-s1">doClassName</span>,<span class="pl-smi">String</span> <span class="pl-s1">tableName</span>){
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;update id=<span class="pl-cce">\"</span>update<span class="pl-cce">\"</span> parameterType=<span class="pl-cce">\"</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">doClassName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"update "</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">tableName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;set&gt;<span class="pl-cce">\n</span>"</span>);
+
+
+        <span class="pl-k">for</span>(<span class="pl-smi">Item</span> <span class="pl-s1">item</span> : <span class="pl-s1">columnList</span>){
+            <span class="pl-k">if</span>(!<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"id"</span>)
+                    &amp;&amp; !<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"modified_date"</span>)
+                    &amp;&amp; !<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"created_date"</span>)){
+
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;if test=<span class="pl-cce">\"</span>"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">" != null<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">" = #{"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">",jdbcType="</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJdbcType</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"},<span class="pl-cce">\n</span>"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/if&gt;<span class="pl-cce">\n</span>"</span>);
+            }
+        }
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"modified_date = current_timestamp<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/set&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"where id = #{id,jdbcType=BIGINT}<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/update&gt;<span class="pl-cce">\n</span>"</span>);
+
+
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createQuerySql</span>(<span class="pl-smi">String</span> <span class="pl-s1">tableName</span>){
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;select id=<span class="pl-cce">\"</span>getById<span class="pl-cce">\"</span> resultMap=<span class="pl-cce">\"</span>BaseResultMap<span class="pl-cce">\"</span> parameterType=<span class="pl-cce">\"</span>java.lang.Long<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"SELECT<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;include refid=<span class="pl-cce">\"</span>Base_Column_List<span class="pl-cce">\"</span> /&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"from "</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">tableName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"where id = #{id,jdbcType=BIGINT}<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/select&gt;<span class="pl-cce">\n</span>"</span>) ;
+
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createDeleteSql</span>(<span class="pl-smi">String</span> <span class="pl-s1">tableName</span>){
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;delete id=<span class="pl-cce">\"</span>delete<span class="pl-cce">\"</span>  parameterType=<span class="pl-cce">\"</span>java.lang.Long<span class="pl-cce">\"</span>&gt;<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"DELETE<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"from "</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">tableName</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"where id = #{id,jdbcType=BIGINT}<span class="pl-cce">\n</span>"</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"&lt;/delete&gt;<span class="pl-cce">\n</span>"</span>) ;
+
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">createTestFile</span>(<span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">columnList</span>,<span class="pl-smi">String</span> <span class="pl-s1">doClassName</span>,<span class="pl-smi">String</span> <span class="pl-s1">doVarName</span>,<span class="pl-smi">String</span> <span class="pl-s1">daoClassName</span>, <span class="pl-smi">String</span> <span class="pl-s1">daoVarName</span>){
+
+        <span class="pl-smi">String</span> <span class="pl-s1">model</span> = <span class="pl-s">"public class TMPXXXDaoTest extends TestBase {<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    private static final Logger logger = LoggerFactory.getLogger(TMPXXXDaoTest.class);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    @Resource<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    private TMPXXXDao tmpXXXDao;<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    private Long id ;<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    @Test<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    public void testInsert(){<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        TMPXXXDO tmpXXXDO = create();<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        int result = tmpXXXDao.insert(tmpXXXDO);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertTrue(result &gt; 0);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        id = tmpXXXDO.getId() ;<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertNotNull(id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertTrue(id &gt; 0);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    }<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    @Test(dependsOnMethods = <span class="pl-cce">\"</span>testInsert<span class="pl-cce">\"</span>)<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    public void testGetById(){<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertNotNull(tmpXXXDO);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        logger.info(<span class="pl-cce">\"</span>testGetById获得对象： {}<span class="pl-cce">\"</span>, tmpXXXDO);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    }<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    @Test(dependsOnMethods = <span class="pl-cce">\"</span>testGetById<span class="pl-cce">\"</span>)<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    public void testUpdate(){<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        TMPXXXDO tmpXXXDO = create();<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        tmpXXXDO.setId(id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        SET_STRING_PLACEHOLDER<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        int result = tmpXXXDao.update(tmpXXXDO);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertTrue(result &gt; 0);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    }<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    @Test(dependsOnMethods = <span class="pl-cce">\"</span>testUpdate<span class="pl-cce">\"</span>)<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    public void testGetById2(){<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertNotNull(tmpXXXDO);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        logger.info(<span class="pl-cce">\"</span>testGetById2获得对象： {}<span class="pl-cce">\"</span>, tmpXXXDO);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    }<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    @Test(dependsOnMethods = <span class="pl-cce">\"</span>testGetById2<span class="pl-cce">\"</span>)<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    public void testDelete(){<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        int result = tmpXXXDao.delete(id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertTrue(result &gt; 0);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    }<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    @Test(dependsOnMethods = <span class="pl-cce">\"</span>testDelete<span class="pl-cce">\"</span>)<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    public void testGetById3(){<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        TMPXXXDO tmpXXXDO = tmpXXXDao.getById(id);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        Assert.assertNull(tmpXXXDO);<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    }<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    private TMPXXXDO create(){<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        TMPXXXDO tmpXXXDO = new TMPXXXDO();<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        SET_STRING_PLACEHOLDER<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"        return tmpXXXDO ;<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"    }<span class="pl-cce">\n</span>"</span> +
+                <span class="pl-s">"}"</span> ;
+
+        <span class="pl-s1">model</span> = <span class="pl-s1">model</span>.<span class="pl-en">replace</span>(<span class="pl-s">"TMPXXXDao"</span>,<span class="pl-s1">daoClassName</span>);
+        <span class="pl-s1">model</span> = <span class="pl-s1">model</span>.<span class="pl-en">replace</span>(<span class="pl-s">"tmpXXXDao"</span>,<span class="pl-s1">daoVarName</span>);
+        <span class="pl-s1">model</span> = <span class="pl-s1">model</span>.<span class="pl-en">replace</span>(<span class="pl-s">"TMPXXXDO"</span>,<span class="pl-s1">doClassName</span>);
+        <span class="pl-s1">model</span> = <span class="pl-s1">model</span>.<span class="pl-en">replace</span>(<span class="pl-s">"tmpXXXDO"</span>,<span class="pl-s1">doVarName</span>);
+        <span class="pl-smi">String</span> <span class="pl-s1">setString</span> = <span class="pl-en">getSetString</span>(<span class="pl-s1">columnList</span>,<span class="pl-s1">doVarName</span>);
+        <span class="pl-s1">model</span> = <span class="pl-s1">model</span>.<span class="pl-en">replace</span>(<span class="pl-s">"SET_STRING_PLACEHOLDER"</span>, <span class="pl-s1">setString</span>);
+        <span class="pl-k">return</span> <span class="pl-s1">model</span> ;
+
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">getSetString</span>(<span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">columnList</span>,<span class="pl-smi">String</span> <span class="pl-s1">doVarName</span>){
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>);
+        <span class="pl-k">for</span>(<span class="pl-smi">Item</span> <span class="pl-s1">item</span>:<span class="pl-s1">columnList</span>){
+            <span class="pl-k">if</span>(!<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>().<span class="pl-en">equals</span>(<span class="pl-s">"id"</span>)){
+                <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">isCanEmpty</span>()){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"//"</span>) ;
+                }
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">doVarName</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">".set"</span>);
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>().<span class="pl-en">substring</span>(<span class="pl-c1">0</span>,<span class="pl-c1">1</span>).<span class="pl-en">toUpperCase</span>());
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">item</span>.<span class="pl-en">getName</span>().<span class="pl-en">substring</span>(<span class="pl-c1">1</span>));
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"("</span>);
+
+                <span class="pl-c">// 当有新的类型时，需要在此处添加</span>
+                <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJavaType</span>().<span class="pl-en">equals</span>(<span class="pl-s">"Integer"</span>)){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"0"</span>);
+                }<span class="pl-k">else</span> <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJavaType</span>().<span class="pl-en">equals</span>(<span class="pl-s">"Long"</span>)){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"0L"</span>);
+                }<span class="pl-k">else</span> <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJavaType</span>().<span class="pl-en">equals</span>(<span class="pl-s">"String"</span>)){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"<span class="pl-cce">\"</span>hello world 测试<span class="pl-cce">\"</span>"</span>);
+                }<span class="pl-k">else</span> <span class="pl-k">if</span>(<span class="pl-s1">item</span>.<span class="pl-en">getJavaType</span>().<span class="pl-en">equals</span>(<span class="pl-s">"Date"</span>)){
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">"new Date()"</span>);
+                }<span class="pl-k">else</span>{
+                    <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">""</span>);
+                }
+
+                <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">");<span class="pl-cce">\n</span>"</span>);
+            }
+
+        }
+
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+
+    }
+
+
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-en">getColumnList</span>(<span class="pl-smi">String</span> <span class="pl-s1">data</span>){
+        <span class="pl-smi">List</span>&lt;<span class="pl-smi">Item</span>&gt; <span class="pl-s1">result</span> = <span class="pl-k">new</span> <span class="pl-smi">ArrayList</span>&lt;<span class="pl-smi">Item</span>&gt;();
+        <span class="pl-smi">String</span>[] <span class="pl-s1">array</span> = <span class="pl-s1">data</span>.<span class="pl-en">split</span>(<span class="pl-s">","</span>) ;
+        <span class="pl-k">for</span>(<span class="pl-smi">String</span> <span class="pl-s1">line</span> : <span class="pl-s1">array</span>){
+            <span class="pl-k">if</span>(!<span class="pl-en">isKeyLine</span>(<span class="pl-s1">line</span>)){
+                <span class="pl-smi">Item</span> <span class="pl-s1">item</span> = <span class="pl-k">new</span> <span class="pl-smi">Item</span>();
+                <span class="pl-s1">item</span>.<span class="pl-en">setColumn</span>(<span class="pl-en">getColumn</span>(<span class="pl-s1">line</span>));
+                <span class="pl-s1">item</span>.<span class="pl-en">setComment</span>(<span class="pl-en">getComment</span>(<span class="pl-s1">line</span>));
+                <span class="pl-s1">item</span>.<span class="pl-en">setSqlType</span>(<span class="pl-en">getType</span>(<span class="pl-s1">line</span>));
+                <span class="pl-s1">item</span>.<span class="pl-en">setCanEmpty</span>(<span class="pl-en">canEmpty</span>(<span class="pl-s1">line</span>));
+                <span class="pl-k">if</span>(!<span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">containsKey</span>(<span class="pl-s1">item</span>.<span class="pl-en">getSqlType</span>())){
+                    <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">RuntimeException</span>(<span class="pl-s">"找不到对应类型"</span>) ;
+                }
+                <span class="pl-s1">item</span>.<span class="pl-en">setJavaType</span>(<span class="pl-s1">sqlJavaTypeMap</span>.<span class="pl-en">get</span>(<span class="pl-s1">item</span>.<span class="pl-en">getSqlType</span>()));
+                <span class="pl-s1">item</span>.<span class="pl-en">setJdbcType</span>(<span class="pl-s1">sqlJdbcTypeMap</span>.<span class="pl-en">get</span>(<span class="pl-s1">item</span>.<span class="pl-en">getSqlType</span>()));
+                <span class="pl-s1">item</span>.<span class="pl-en">setName</span>(<span class="pl-en">columnName2JavaName</span>(<span class="pl-s1">item</span>.<span class="pl-en">getColumn</span>()));
+                <span class="pl-s1">result</span>.<span class="pl-en">add</span>(<span class="pl-s1">item</span>);
+            }
+
+        }
+        <span class="pl-k">return</span> <span class="pl-s1">result</span> ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-en">isKeyLine</span>(<span class="pl-smi">String</span> <span class="pl-s1">line</span>){
+        <span class="pl-s1">line</span> = <span class="pl-s1">line</span>.<span class="pl-en">trim</span>();
+        <span class="pl-s1">line</span> = <span class="pl-s1">line</span>.<span class="pl-en">toUpperCase</span>() ;
+        <span class="pl-k">if</span>(<span class="pl-s1">line</span>.<span class="pl-en">startsWith</span>(<span class="pl-s">"PRIMARY"</span>)
+                || <span class="pl-s1">line</span>.<span class="pl-en">startsWith</span>(<span class="pl-s">"KEY"</span>)
+                || <span class="pl-s1">line</span>.<span class="pl-en">startsWith</span>(<span class="pl-s">"INDEX"</span>)
+                || <span class="pl-s1">line</span>.<span class="pl-en">startsWith</span>(<span class="pl-s">"UNIQUE"</span>)
+                ){
+            <span class="pl-k">return</span> <span class="pl-c1">true</span> ;
+        }
+        <span class="pl-k">return</span> <span class="pl-c1">false</span> ;
+    }
+
+
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">removeQuote</span>(<span class="pl-smi">String</span> <span class="pl-s1">data</span>, <span class="pl-smi">int</span> <span class="pl-s1">quote</span>){
+        <span class="pl-s1">data</span> = <span class="pl-s1">data</span>.<span class="pl-en">trim</span>() ;
+        <span class="pl-smi">int</span> <span class="pl-s1">begin</span> = <span class="pl-s1">data</span>.<span class="pl-en">indexOf</span>(<span class="pl-s1">quote</span>);
+        <span class="pl-k">if</span>(<span class="pl-s1">begin</span> &gt; -<span class="pl-c1">1</span>){
+            <span class="pl-smi">int</span> <span class="pl-s1">end</span> = <span class="pl-s1">data</span>.<span class="pl-en">indexOf</span>(<span class="pl-s1">quote</span>,<span class="pl-s1">begin</span>+<span class="pl-c1">1</span>);
+            <span class="pl-k">if</span>(<span class="pl-s1">end</span> &gt; -<span class="pl-c1">1</span>){
+                <span class="pl-k">return</span> <span class="pl-s1">data</span>.<span class="pl-en">substring</span>(<span class="pl-s1">begin</span>+<span class="pl-c1">1</span>,<span class="pl-s1">end</span>) ;
+            }
+        }
+        <span class="pl-k">return</span> <span class="pl-s1">data</span> ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">getTableName</span>(<span class="pl-smi">String</span> <span class="pl-s1">firstLine</span>){
+        <span class="pl-smi">String</span>[] <span class="pl-s1">array</span> = <span class="pl-s1">firstLine</span>.<span class="pl-en">split</span>(<span class="pl-s">" "</span>);
+        <span class="pl-smi">int</span> <span class="pl-s1">length</span> = <span class="pl-s1">array</span>.<span class="pl-s1">length</span>;
+        <span class="pl-k">return</span> <span class="pl-en">removeQuote</span>(<span class="pl-s1">array</span>[<span class="pl-s1">length</span>-<span class="pl-c1">1</span>],<span class="pl-s">'`'</span>);
+    }
+
+    <span class="pl-c">// 获取注释，COMMENT 之后第一个用 引号包起来的内容</span>
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">getComment</span>(<span class="pl-smi">String</span> <span class="pl-s1">line</span>){
+        <span class="pl-smi">String</span>[] <span class="pl-s1">array</span> = <span class="pl-s1">line</span>.<span class="pl-en">split</span>(<span class="pl-s">"COMMENT"</span>);
+        <span class="pl-k">return</span> <span class="pl-en">removeQuote</span>(<span class="pl-s1">array</span>[<span class="pl-c1">1</span>],<span class="pl-s">'\''</span>) ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">getColumn</span>(<span class="pl-smi">String</span> <span class="pl-s1">line</span>){
+        <span class="pl-k">return</span> <span class="pl-en">removeQuote</span>(<span class="pl-s1">line</span>,<span class="pl-s">'`'</span>);
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-en">canEmpty</span>(<span class="pl-smi">String</span> <span class="pl-s1">line</span>){
+        <span class="pl-c">// 有默认值的认为插入是可以为空</span>
+        <span class="pl-k">if</span>(<span class="pl-s1">line</span>.<span class="pl-en">contains</span>(<span class="pl-s">"NOT NULL DEFAULT"</span>)){
+            <span class="pl-k">return</span> <span class="pl-c1">true</span> ;
+        }
+        <span class="pl-k">return</span> !(<span class="pl-s1">line</span>.<span class="pl-en">contains</span>(<span class="pl-s">"NOT NULL"</span>)) ;
+    }
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">getType</span>(<span class="pl-smi">String</span> <span class="pl-s1">line</span>){
+        <span class="pl-s1">line</span> = <span class="pl-s1">line</span>.<span class="pl-en">trim</span>() ;
+        <span class="pl-smi">String</span>[] <span class="pl-s1">array</span> = <span class="pl-s1">line</span>.<span class="pl-en">split</span>(<span class="pl-s">" "</span>);
+        <span class="pl-smi">String</span> <span class="pl-s1">name</span> = <span class="pl-s1">array</span>[<span class="pl-c1">1</span>];
+        <span class="pl-smi">int</span> <span class="pl-s1">end</span> = <span class="pl-s1">name</span>.<span class="pl-en">indexOf</span>(<span class="pl-s">"("</span>);
+        <span class="pl-k">if</span>(<span class="pl-s1">end</span> &gt; <span class="pl-c1">1</span>){
+            <span class="pl-k">return</span> <span class="pl-s1">name</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>,<span class="pl-s1">end</span>) ;
+        }
+        <span class="pl-k">return</span> <span class="pl-s1">name</span> ;
+    }
+
+
+
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">columnName2JavaName</span>(<span class="pl-smi">String</span> <span class="pl-s1">column</span>){
+        <span class="pl-s1">column</span> = <span class="pl-s1">column</span>.<span class="pl-en">toLowerCase</span>() ;
+        <span class="pl-smi">String</span>[] <span class="pl-s1">array</span> = <span class="pl-s1">column</span>.<span class="pl-en">split</span>(<span class="pl-s">"_"</span>) ;
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>(<span class="pl-s">""</span>);
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">array</span>[<span class="pl-c1">0</span>]);
+        <span class="pl-k">for</span>(<span class="pl-smi">int</span> <span class="pl-s1">i</span>=<span class="pl-c1">1</span>; <span class="pl-s1">i</span>&lt;<span class="pl-s1">array</span>.<span class="pl-s1">length</span>; <span class="pl-s1">i</span>++){
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">array</span>[<span class="pl-s1">i</span>].<span class="pl-en">substring</span>(<span class="pl-c1">0</span>,<span class="pl-c1">1</span>).<span class="pl-en">toUpperCase</span>()) ;
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">array</span>[<span class="pl-s1">i</span>].<span class="pl-en">substring</span>(<span class="pl-c1">1</span>)) ;
+        }
+
+        <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">toString</span>() ;
+
+    }
+
+
+}
+
+<span class="pl-k">class</span> <span class="pl-smi">Item</span>{
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">name</span>; <span class="pl-c">// java字段名</span>
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">column</span> ; <span class="pl-c">// 数据库列名</span>
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">sqlType</span> ;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">javaType</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">jdbcType</span> ;
+    <span class="pl-k">private</span> <span class="pl-smi">boolean</span> <span class="pl-s1">canEmpty</span> ;<span class="pl-c">// 是否可为Null</span>
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">comment</span> ; <span class="pl-c">//注释</span>
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getName</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">name</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setName</span>(<span class="pl-smi">String</span> <span class="pl-s1">name</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s1">name</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getColumn</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">column</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setColumn</span>(<span class="pl-smi">String</span> <span class="pl-s1">column</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">column</span> = <span class="pl-s1">column</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getSqlType</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">sqlType</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setSqlType</span>(<span class="pl-smi">String</span> <span class="pl-s1">sqlType</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">sqlType</span> = <span class="pl-s1">sqlType</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getJavaType</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">javaType</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setJavaType</span>(<span class="pl-smi">String</span> <span class="pl-s1">javaType</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">javaType</span> = <span class="pl-s1">javaType</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getJdbcType</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">jdbcType</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setJdbcType</span>(<span class="pl-smi">String</span> <span class="pl-s1">jdbcType</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">jdbcType</span> = <span class="pl-s1">jdbcType</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">isCanEmpty</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">canEmpty</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setCanEmpty</span>(<span class="pl-smi">boolean</span> <span class="pl-s1">canEmpty</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">canEmpty</span> = <span class="pl-s1">canEmpty</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getComment</span>() {
+        <span class="pl-k">return</span> <span class="pl-s1">comment</span>;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setComment</span>(<span class="pl-smi">String</span> <span class="pl-s1">comment</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">comment</span> = <span class="pl-s1">comment</span>;
+    }
+}</pre></div></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+</div>
+    <div id="footer">Copyright © <span id="year"></span><a href="https://andy1202go.github.io"> Andy's Blog </a>
+<p>
+<span id="runday"></span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a>
+</p>
+
+<script>
+if(""!=""){
+    var now=new Date();
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("year").innerHTML=now.getFullYear();
+    if(""!=""){document.getElementById("runday").innerHTML=" • "+"网站运行"+diffDay+"天"+" • ";}
+    else{document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";}
+}
+</script>
+</div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n\n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","andy1202go/andy1202go.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+</script>
+
+
+</html>
