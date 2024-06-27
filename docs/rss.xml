@@ -1,5 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:14:57 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>Linux 入门 Part3</title><link>https://andy1202go.github.io/post/Linux%20-ru-men-%20Part3.html</link><description>## 2 Shell语言的知识内容&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:17:32 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>Python菜鸟入门</title><link>https://andy1202go.github.io/post/Python-cai-niao-ru-men.html</link><description>## [[Python3 教程 | 菜鸟教程](https://www.runoob.com/python/python-tutorial.html)](https://www.runoob.com/python/python-tutorial.html)&#13;
+&#13;
+**[[Python Tutor: Visualize code](https://pythontutor.com/visualize.html#mode=edit)](https://pythontutor.com/visualize.html#mode=edit)**&#13;
+&#13;
+### Python 发展历史&#13;
+&#13;
+Python 是由 Guido van Rossum 在八十年代末和九十年代初，在荷兰国家数学和计算机科学研究所设计出来的。</description><guid isPermaLink="true">https://andy1202go.github.io/post/Python-cai-niao-ru-men.html</guid><pubDate>Thu, 27 Jun 2024 07:16:53 +0000</pubDate></item><item><title>Linux 入门 Part3</title><link>https://andy1202go.github.io/post/Linux%20-ru-men-%20Part3.html</link><description>## 2 Shell语言的知识内容&#13;
 &#13;
 略&#13;
 &#13;
