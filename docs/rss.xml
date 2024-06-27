@@ -1,5 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:17:32 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>Python菜鸟入门</title><link>https://andy1202go.github.io/post/Python-cai-niao-ru-men.html</link><description>## [[Python3 教程 | 菜鸟教程](https://www.runoob.com/python/python-tutorial.html)](https://www.runoob.com/python/python-tutorial.html)&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 07:20:50 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>业务系统要求浅要总结</title><link>https://andy1202go.github.io/post/ye-wu-xi-tong-yao-qiu-qian-yao-zong-jie.html</link><description># 业务系统要求&#13;
+&#13;
+一句话目标：建立好负责的项目&#13;
+&#13;
+项目要达到&#13;
+&#13;
+|              | 性能要求  开发要求    效率要求  质量要求 |&#13;
+| ------------ | ---------------------------------------- |&#13;
+| **应用视角** | 高并发   开发速度快  并行开发  高可用    |&#13;
+| **底层视角** | 云原生    分布式      微服务    k8s      |&#13;
+| **抽象视角** | 流量治理  服务治理    资源治理  数据治理 |&#13;
+&#13;
+## 应用视角&#13;
+&#13;
+### 高并发系统&#13;
+&#13;
+#### 什么是高并发？&#13;
+&#13;
+&gt; 高并发是指特定的系统或应用程序可以同时处理大量的并发处理请求，要求其能够同时应付高流量的访问。</description><guid isPermaLink="true">https://andy1202go.github.io/post/ye-wu-xi-tong-yao-qiu-qian-yao-zong-jie.html</guid><pubDate>Thu, 27 Jun 2024 07:20:02 +0000</pubDate></item><item><title>Python菜鸟入门</title><link>https://andy1202go.github.io/post/Python-cai-niao-ru-men.html</link><description>## [[Python3 教程 | 菜鸟教程](https://www.runoob.com/python/python-tutorial.html)](https://www.runoob.com/python/python-tutorial.html)&#13;
 &#13;
 **[[Python Tutor: Visualize code](https://pythontutor.com/visualize.html#mode=edit)](https://pythontutor.com/visualize.html#mode=edit)**&#13;
 &#13;
