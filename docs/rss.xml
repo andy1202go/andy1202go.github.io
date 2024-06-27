@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 08:27:37 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>常用CURL指南</title><link>https://andy1202go.github.io/post/chang-yong-CURL-zhi-nan.html</link><description>## 常用命令&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 27 Jun 2024 08:37:08 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>给爸妈购机攻略</title><link>https://andy1202go.github.io/post/gei-ba-ma-gou-ji-gong-lve.html</link><description>电池容量大	4000毫安以上，能达到5000最好&#13;
+充电快	闪充，问一下充满要多久&#13;
+内存大	6个G以上最好，越大越好&#13;
+存储空间大	256个G以上，越大越好&#13;
+好看	看妈喜欢哪个就行，手机壳可以看要不要选&#13;
+屏幕护眼	问一下是什么屏幕，LCD是最好的，OLED也行，自己玩一下，体验下刺眼不&#13;
+轻便	体验下手感，现在的手机很多比较重，达到200克了（四两），最好轻一点，长时间拿着玩不累手和手腕&#13;
+售后方便	推荐oppo，有啥不会的电话或者去店里问下&#13;
+购物方式	建议去店里体验下，问下上面这几项内容，就能评估好坏了。</description><guid isPermaLink="true">https://andy1202go.github.io/post/gei-ba-ma-gou-ji-gong-lve.html</guid><pubDate>Thu, 27 Jun 2024 08:36:41 +0000</pubDate></item><item><title>常用CURL指南</title><link>https://andy1202go.github.io/post/chang-yong-CURL-zhi-nan.html</link><description>## 常用命令&#13;
 &#13;
 ```&#13;
 curl www.baidu.com get百度&#13;
