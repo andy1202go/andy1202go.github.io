@@ -16,7 +16,7 @@
 <meta property="og:url" content="https://andy1202go.github.io/post/JavaScript%287%29%20-mian-xiang-dui-xiang-bian-cheng.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>JavaScript(7) 面向对象编程</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 </head>
 <style>
@@ -82,7 +82,265 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     }
 };
 </code></pre>
-<p>我们看这个<code class="notranslate">robot</code>对象有名字，有身高，还会跑，有点像小明，干脆就根据它来“创建”小明得了！</p></div>
+<p>我们看这个<code class="notranslate">robot</code>对象有名字，有身高，还会跑，有点像小明，干脆就根据它来“创建”小明得了！<br>
+于是我们把它改名为<code class="notranslate">Student</code>，然后创建出<code class="notranslate">xiaoming</code>：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-v">Student</span> <span class="pl-c1">=</span> <span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'Robot'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">height</span>: <span class="pl-c1">1.2</span><span class="pl-kos">,</span>
+    <span class="pl-en">run</span>: <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">' is running...'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
+
+<span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'小明'</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
+
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">__proto__</span> <span class="pl-c1">=</span> <span class="pl-v">Student</span><span class="pl-kos">;</span></pre></div>
+<p>注意最后一行代码把<code class="notranslate">xiaoming</code>的原型指向了对象<code class="notranslate">Student</code>，看上去<code class="notranslate">xiaoming</code>仿佛是从<code class="notranslate">Student</code>继承下来的：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">name</span><span class="pl-kos">;</span> <span class="pl-c">// '小明'</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-en">run</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 小明 is running...</span></pre></div>
+<p>就是先实例化父类实例，然后使用 is a ，表示需要的类是啥。</p>
+<p>在JavaScrip代码运行时期，你可以把<code class="notranslate">xiaoming</code>从<code class="notranslate">Student</code>变成<code class="notranslate">Bird</code>，或者变成任何对象。</p>
+<p><em>请注意</em>，上述代码仅用于演示目的。在编写JavaScript代码时，不要直接用<code class="notranslate">obj.__proto__</code>去改变一个对象的原型，并且，低版本的IE也无法使用<code class="notranslate">__proto__</code>。<code class="notranslate">Object.create()</code>方法可以传入一个原型对象，并创建一个基于该原型的新对象，但是新对象什么属性都没有，因此，我们可以编写一个函数来创建</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// 原型对象:</span>
+<span class="pl-k">var</span> <span class="pl-v">Student</span> <span class="pl-c1">=</span> <span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'Robot'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">height</span>: <span class="pl-c1">1.2</span><span class="pl-kos">,</span>
+    <span class="pl-en">run</span>: <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">' is running...'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
+
+<span class="pl-k">function</span> <span class="pl-en">createStudent</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-c">// 基于Student原型创建一个新对象:</span>
+    <span class="pl-k">var</span> <span class="pl-s1">s</span> <span class="pl-c1">=</span> <span class="pl-v">Object</span><span class="pl-kos">.</span><span class="pl-en">create</span><span class="pl-kos">(</span><span class="pl-v">Student</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-c">// 初始化新对象:</span>
+    <span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">name</span><span class="pl-kos">;</span>
+    <span class="pl-k">return</span> <span class="pl-s1">s</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-en">createStudent</span><span class="pl-kos">(</span><span class="pl-s">'小明'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-en">run</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 小明 is running...</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">__proto__</span> <span class="pl-c1">===</span> <span class="pl-v">Student</span><span class="pl-kos">;</span> <span class="pl-c">// true</span></pre></div>
+<h2>1 创建对象</h2>
+<p>JavaScript对每个创建的对象都会设置一个原型，指向它的原型对象。</p>
+<p>当我们用<code class="notranslate">obj.xxx</code>访问一个对象的属性时，JavaScript引擎先在当前对象上查找该属性，如果没有找到，就到其原型对象上找，如果还没有找到，就一直上溯到<code class="notranslate">Object.prototype</code>对象，最后，如果还没有找到，就只能返回<code class="notranslate">undefined</code>。</p>
+<p>例如，创建一个<code class="notranslate">Array</code>对象：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">]</span><span class="pl-kos">;</span></pre></div>
+<p>其原型链是：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s1">arr</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-v">Array</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-v">Object</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-c1">null</span></pre></div>
+<p>函数也是对象，函数也是一个对象，它的原型链是：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s1">foo</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-v">Function</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-v">Object</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-c1">null</span></pre></div>
+<p>之前用过的Array的一些方法，就是定义在Array.prototype里面的；apply()是定义在Function.prototype里面的。</p>
+<h3>构造函数</h3>
+<p>JavaScript提供了除了直接{}创建对象的方式，构造函数。</p>
+<p>先定义一个构造函数</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-v">Student</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">name</span><span class="pl-kos">;</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">hello</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'Hello, '</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">'!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span></pre></div>
+<p>使用new来生成一个Student的对象</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Student</span><span class="pl-kos">(</span><span class="pl-s">'小明'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">name</span><span class="pl-kos">;</span> <span class="pl-c">// '小明'</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-en">hello</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// Hello, 小明!</span></pre></div>
+<p>几点注意事项：</p>
+<ul>
+<li>
+<p>构造函数，也是函数，也就是对象</p>
+</li>
+<li>
+<p>构造函数没有return，如果直接用，会返回undefined</p>
+</li>
+<li>
+<p>xiaoming的原型链是：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s1">xiaoming</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-v">Object</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">--</span><span class="pl-c1">--</span><span class="pl-c1">&gt;</span> <span class="pl-c1">null</span></pre></div>
+</li>
+<li>
+<p>用<code class="notranslate">new Student()</code>创建的对象还从原型上获得了一个<code class="notranslate">constructor</code>属性，它指向函数<code class="notranslate">Student</code>本身：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">constructor</span> <span class="pl-c1">===</span> <span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-c1">constructor</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
+<span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-c1">constructor</span> <span class="pl-c1">===</span> <span class="pl-v">Student</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
+
+<span class="pl-v">Object</span><span class="pl-kos">.</span><span class="pl-en">getPrototypeOf</span><span class="pl-kos">(</span><span class="pl-s1">xiaoming</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
+
+<span class="pl-s1">xiaoming</span> <span class="pl-k">instanceof</span> <span class="pl-v">Student</span><span class="pl-kos">;</span> <span class="pl-c">// true</span></pre></div>
+<p>乱是真的乱...</p>
+</li>
+</ul>
+<p>如果新建一个对象xiaohong，xiaoming和xiaohong虽然都有同一个方法，但是是不同的，虽然函数名称和代码都是相同的！</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">name</span><span class="pl-kos">;</span> <span class="pl-c">// '小明'</span>
+<span class="pl-s1">xiaohong</span><span class="pl-kos">.</span><span class="pl-c1">name</span><span class="pl-kos">;</span> <span class="pl-c">// '小红'</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">hello</span><span class="pl-kos">;</span> <span class="pl-c">// function: Student.hello()</span>
+<span class="pl-s1">xiaohong</span><span class="pl-kos">.</span><span class="pl-c1">hello</span><span class="pl-kos">;</span> <span class="pl-c">// function: Student.hello()</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">hello</span> <span class="pl-c1">===</span> <span class="pl-s1">xiaohong</span><span class="pl-kos">.</span><span class="pl-c1">hello</span><span class="pl-kos">;</span> <span class="pl-c">// false</span></pre></div>
+<p>要想让创建的对象共享某些方法，应该把方法写在prototype中，Array和Function就是这么做的吧</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-v">Student</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">name</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-en">hello</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'Hello, '</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">'!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span></pre></div>
+<h3>不要忘记写new</h3>
+<p>如果直接用了Student，后果很严重</p>
+<blockquote>
+<p>在strict模式下，<code class="notranslate">this.name = name</code>将报错，因为<code class="notranslate">this</code>绑定为<code class="notranslate">undefined</code>，在非strict模式下，<code class="notranslate">this.name = name</code>不报错，因为<code class="notranslate">this</code>绑定为<code class="notranslate">window</code>，于是无意间创建了全局变量<code class="notranslate">name</code>，并且返回<code class="notranslate">undefined</code>，这个结果更糟糕。</p>
+<p>所以，调用构造函数千万不要忘记写<code class="notranslate">new</code>。为了区分普通函数和构造函数，按照约定，构造函数首字母应当大写，而普通函数首字母应当小写，这样，一些语法检查工具如[<a href="http://www.jslint.com/" rel="nofollow">jslint</a>](<a href="http://www.jslint.com/)%E5%B0%86%E5%8F%AF%E4%BB%A5%E5%B8%AE%E4%BD%A0%E6%A3%80%E6%B5%8B%E5%88%B0%E6%BC%8F%E5%86%99%E7%9A%84%60new%60%E3%80%82" rel="nofollow">http://www.jslint.com/)将可以帮你检测到漏写的`new`。</a></p>
+</blockquote>
+<p>构造函数，约定俗成，<strong>首字母大写！！！</strong></p>
+<h3>最佳实践</h3>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-v">Student</span><span class="pl-kos">(</span><span class="pl-s1">props</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">props</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">||</span> <span class="pl-s">'匿名'</span><span class="pl-kos">;</span> <span class="pl-c">// 默认值为'匿名'</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">grade</span> <span class="pl-c1">=</span> <span class="pl-s1">props</span><span class="pl-kos">.</span><span class="pl-c1">grade</span> <span class="pl-c1">||</span> <span class="pl-c1">1</span><span class="pl-kos">;</span> <span class="pl-c">// 默认值为1</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-en">hello</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'Hello, '</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">'!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
+
+<span class="pl-k">function</span> <span class="pl-en">createStudent</span><span class="pl-kos">(</span><span class="pl-s1">props</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-v">Student</span><span class="pl-kos">(</span><span class="pl-s1">props</span> <span class="pl-c1">||</span> <span class="pl-kos">{</span><span class="pl-kos">}</span><span class="pl-kos">)</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-en">createStudent</span><span class="pl-kos">(</span><span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'小明'</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">grade</span><span class="pl-kos">;</span> <span class="pl-c">// 1</span></pre></div>
+<ol>
+<li>工厂模式，create封装所有new操作</li>
+<li>props参数，可以传入自定义参数，也可以有默认值</li>
+</ol>
+<h3>练习</h3>
+<p>请利用构造函数定义<code class="notranslate">Cat</code>，并让所有的Cat对象有一个<code class="notranslate">name</code>属性，并共享一个方法<code class="notranslate">say()</code>，返回字符串<code class="notranslate">'Hello, xxx!'</code>：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
+<span class="pl-k">function</span> <span class="pl-v">Cat</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">name</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-v">Cat</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-en">say</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s">"Hello, "</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">"!"</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-k">function</span> <span class="pl-en">createCat</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-v">Cat</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-c">// 测试:</span>
+<span class="pl-k">var</span> <span class="pl-s1">kitty</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Cat</span><span class="pl-kos">(</span><span class="pl-s">'Kitty'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">doraemon</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Cat</span><span class="pl-kos">(</span><span class="pl-s">'哆啦A梦'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">kitty</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">===</span> <span class="pl-s">'Kitty'</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">say</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-k">typeof</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">say</span> <span class="pl-c1">===</span> <span class="pl-s">'function'</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-en">say</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-s">'Hello, Kitty!'</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">say</span> <span class="pl-c1">===</span> <span class="pl-s1">doraemon</span><span class="pl-kos">.</span><span class="pl-c1">say</span>
+<span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
+<h2>2 原型继承</h2>
+<p>一笔乱账...</p>
+<p>直接记住最佳实践吧</p>
+<blockquote>
+<p>JavaScript的原型继承实现方式就是：</p>
+<ol>
+<li>定义新的构造函数，并在内部用<code class="notranslate">call()</code>调用希望“继承”的构造函数，并绑定<code class="notranslate">this</code>；</li>
+<li>借助中间函数<code class="notranslate">F</code>实现原型链继承，最好通过封装的<code class="notranslate">inherits</code>函数完成；</li>
+<li>继续在新的构造函数的原型上定义新方法。</li>
+</ol>
+</blockquote>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// 2 借助中间函数`F`实现原型链继承，最好通过封装的`inherits`函数完成；</span>
+<span class="pl-k">function</span> <span class="pl-en">inherits</span><span class="pl-kos">(</span><span class="pl-v">Child</span><span class="pl-kos">,</span> <span class="pl-v">Parent</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">var</span> <span class="pl-v">F</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span><span class="pl-kos">}</span><span class="pl-kos">;</span>
+    <span class="pl-v">F</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">=</span> <span class="pl-v">Parent</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">;</span>
+    <span class="pl-v">Child</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">F</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-v">Child</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-c1">constructor</span> <span class="pl-c1">=</span> <span class="pl-v">Child</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-k">function</span> <span class="pl-v">Student</span><span class="pl-kos">(</span><span class="pl-s1">props</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">props</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">||</span> <span class="pl-s">'Unnamed'</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-en">hello</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'Hello, '</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">'!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-c">// 1 定义新的构造函数，并在内部用`call()`调用希望“继承”的构造函数，并绑定`this`；</span>
+<span class="pl-k">function</span> <span class="pl-v">PrimaryStudent</span><span class="pl-kos">(</span><span class="pl-s1">props</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-v">Student</span><span class="pl-kos">.</span><span class="pl-en">call</span><span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">,</span> <span class="pl-s1">props</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">grade</span> <span class="pl-c1">=</span> <span class="pl-s1">props</span><span class="pl-kos">.</span><span class="pl-c1">grade</span> <span class="pl-c1">||</span> <span class="pl-c1">1</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-c">// 实现原型继承链:</span>
+<span class="pl-en">inherits</span><span class="pl-kos">(</span><span class="pl-v">PrimaryStudent</span><span class="pl-kos">,</span> <span class="pl-v">Student</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+
+<span class="pl-c">// 绑定其他方法到PrimaryStudent原型:</span>
+<span class="pl-c">// 3 继续在新的构造函数的原型上定义新方法。</span>
+<span class="pl-v">PrimaryStudent</span><span class="pl-kos">.</span><span class="pl-c1">prototype</span><span class="pl-kos">.</span><span class="pl-en">getGrade</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">grade</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span></pre></div>
+<h2>3 class继承</h2>
+<p>es6引入了class关键字，对类的定义还有继承都是极大的利好。</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">class</span> <span class="pl-v">Student</span> <span class="pl-kos">{</span>
+    <span class="pl-en">constructor</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">name</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+
+    <span class="pl-en">hello</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'Hello, '</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">'!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span></pre></div>
+<p>继承</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">class</span> <span class="pl-v">PrimaryStudent</span> <span class="pl-k">extends</span> <span class="pl-v">Student</span> <span class="pl-kos">{</span>
+    <span class="pl-en">constructor</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">,</span> <span class="pl-s1">grade</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">super</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 记得用super调用父类的构造方法!</span>
+        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">grade</span> <span class="pl-c1">=</span> <span class="pl-s1">grade</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+
+    <span class="pl-en">myGrade</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'I am at grade '</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">grade</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span></pre></div>
+<h3>练习</h3>
+<p>请利用<code class="notranslate">class</code>重新定义<code class="notranslate">Cat</code>，并让它从已有的<code class="notranslate">Animal</code>继承，然后新增一个方法<code class="notranslate">say()</code>，返回字符串<code class="notranslate">'Hello, xxx!'</code>：</p>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
+<span class="pl-k">class</span> <span class="pl-v">Animal</span> <span class="pl-kos">{</span>
+    <span class="pl-en">constructor</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">=</span> <span class="pl-s1">name</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-k">class</span> <span class="pl-v">Cat</span> <span class="pl-k">extends</span> <span class="pl-v">Animal</span> <span class="pl-kos">{</span>
+    <span class="pl-en">constructor</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">super</span><span class="pl-kos">(</span><span class="pl-s1">name</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+
+    <span class="pl-en">say</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">return</span> <span class="pl-s">"Hello, "</span> <span class="pl-c1">+</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">+</span> <span class="pl-s">"!"</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span>
+
+<span class="pl-c">// 测试:</span>
+<span class="pl-k">var</span> <span class="pl-s1">kitty</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Cat</span><span class="pl-kos">(</span><span class="pl-s">'Kitty'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">doraemon</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Cat</span><span class="pl-kos">(</span><span class="pl-s">'哆啦A梦'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-kos">(</span><span class="pl-k">new</span> <span class="pl-v">Cat</span><span class="pl-kos">(</span><span class="pl-s">'x'</span><span class="pl-kos">)</span> <span class="pl-k">instanceof</span> <span class="pl-v">Animal</span><span class="pl-kos">)</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">name</span> <span class="pl-c1">===</span> <span class="pl-s">'Kitty'</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">say</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-k">typeof</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">say</span> <span class="pl-c1">===</span> <span class="pl-s">'function'</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-en">say</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-s">'Hello, Kitty!'</span>
+    <span class="pl-c1">&amp;&amp;</span> <span class="pl-s1">kitty</span><span class="pl-kos">.</span><span class="pl-c1">say</span> <span class="pl-c1">===</span> <span class="pl-s1">doraemon</span><span class="pl-kos">.</span><span class="pl-c1">say</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
+<h2>参考资料</h2>
+<ol>
+<li>[<a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023022126220448" rel="nofollow">面向对象编程</a>](<a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023022126220448" rel="nofollow">https://www.liaoxuefeng.com/wiki/1022910821149312/1023022126220448</a>)</li>
+</ol></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
 <div class="comments" id="comments"></div>
