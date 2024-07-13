@@ -15,11 +15,11 @@
 得到目前的每日身价：
 
 $$
-value = 350000 + \int_0^Dln(x+1)dx-(age-35)^2*D
+value = 250000 + \int_0^Dln(x+1)dx-(age-35)^2*D
 $$
 
 $$
-D = (age-30)*daysCount
+D = (age-27)*daysCount
 $$
 
 让我们开始这个游戏~
