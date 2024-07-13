@@ -19,7 +19,7 @@ value = 250000 + \int_0^Dln(x+1)dx-(age-35)^2*D
 $$
 
 $$
-D = (age-27)*daysCount
+D = (age-25)*daysCount
 $$
 
 让我们开始这个游戏~
