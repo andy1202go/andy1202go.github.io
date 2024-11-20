@@ -423,7 +423,7 @@ curl -u 'bob:12345' https://google.com/login
 <meta property="og:url" content="https://andy1202go.github.io/post/chang-yong-CURL-zhi-nan.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>常用CURL指南</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -507,23 +507,19 @@ curl --user name:password www.baidu.com
 <h3>GET命令的多个参数问题</h3>
 <p>会有&amp;在URL中，不同操作系统的写法不同<a href="https://blog.csdn.net/sinat_27818621/article/details/104517435" rel="nofollow">https://blog.csdn.net/sinat_27818621/article/details/104517435</a></p>
 <p>linux：</p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl localhost:8080/test?a=1\&amp;b=2
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl localhost:8080/test<span class="pl-k">?</span>a=1<span class="pl-cce">\&amp;</span>b=2</pre></div>
 <p>windows</p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -s "http://localhost:8080/get?name=zhangsan&amp;age=12&amp;sex=1"
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -s <span class="pl-s"><span class="pl-pds">"</span>http://localhost:8080/get?name=zhangsan&amp;age=12&amp;sex=1<span class="pl-pds">"</span></span></pre></div>
 <h2>CookBook</h2>
 <h3>Make a POST Request (TLDR: Use -X POST argument)</h3>
 <ol>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#send-empty-post-request" rel="nofollow">Send an Empty POST Request</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -X POST https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -X POST https://sth.com</pre></div>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#post-form-data" rel="nofollow">Send a POST Request with Form Data</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -d 'a=1&amp;b=2' -X POST https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -d <span class="pl-s"><span class="pl-pds">'</span>a=1&amp;b=2<span class="pl-pds">'</span></span> -X POST https://sth.com</pre></div>
 <blockquote>
 <p>When using the <code class="notranslate">-d</code> argument, curl also sets the <code class="notranslate">Content-Type</code> header to <code class="notranslate">application/x-www-form-urlencoded</code>.</p>
 <p>Note that the <code class="notranslate">key=value</code> data should be URL-escaped.</p>
@@ -531,36 +527,31 @@ curl --user name:password www.baidu.com
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#skipping-x-argument" rel="nofollow">Skipping the -X Argument</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -d 'a=1&amp;b=2' https://sht.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -d <span class="pl-s"><span class="pl-pds">'</span>a=1&amp;b=2<span class="pl-pds">'</span></span> https://sht.com</pre></div>
 <blockquote>
 <p>When <code class="notranslate">-d</code> is used, curl implicitly sets the request's type to POST.</p>
 </blockquote>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#neater-way-to-post" rel="nofollow">A Neater Way to POST Data</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -d 'a=1' -d 'b=2' https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -d <span class="pl-s"><span class="pl-pds">'</span>a=1<span class="pl-pds">'</span></span> -d <span class="pl-s"><span class="pl-pds">'</span>b=2<span class="pl-pds">'</span></span> https://sth.com</pre></div>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#post-with-redirect" rel="nofollow">Send a POST Request and Follow a Redirect</a></p>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#post-json-data" rel="nofollow">Send a POST Request with JSON Data</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -d '{"a":2,"b":1}' -H 'Content-Type:application/json' https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -d <span class="pl-s"><span class="pl-pds">'</span>{"a":2,"b":1}<span class="pl-pds">'</span></span> -H <span class="pl-s"><span class="pl-pds">'</span>Content-Type:application/json<span class="pl-pds">'</span></span> https://sth.com</pre></div>
 <p>必须手动声明Content-Type头为application/json</p>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#post-xml-data" rel="nofollow">Send a POST Request with XML Data</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -d '&lt;user&gt;1&lt;/user&gt;' -H 'Content-Type:text/xml' https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -d <span class="pl-s"><span class="pl-pds">'</span>&lt;user&gt;1&lt;/user&gt;<span class="pl-pds">'</span></span> -H <span class="pl-s"><span class="pl-pds">'</span>Content-Type:text/xml<span class="pl-pds">'</span></span> https://sth.com</pre></div>
 <p>注意Content-Type</p>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/make-post-request#post-plain-text-data" rel="nofollow">Send a POST Request with Plain Text Data</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -d 'hello world' -H 'Content-Type:text/plain' https://sht.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -d <span class="pl-s"><span class="pl-pds">'</span>hello world<span class="pl-pds">'</span></span> -H <span class="pl-s"><span class="pl-pds">'</span>Content-Type:text/plain<span class="pl-pds">'</span></span> https://sht.com</pre></div>
 <p>注意Content-Type</p>
 </li>
 <li>
@@ -571,8 +562,7 @@ curl --user name:password www.baidu.com
 <blockquote>
 <p>So far, all recipes have been using the <code class="notranslate">-d</code> argument to add POST data to requests. This argument assumes that your data is URL-encoded already. If it is not, then there can be some trouble. If your data is not URL-encoded, then replace <code class="notranslate">-d</code> with <code class="notranslate">--data-urlencode</code>. It works exactly the same way as <code class="notranslate">-d</code>, except the data gets URL-encoded by curl before it's sent out on the wire.</p>
 </blockquote>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl --data-urlencode 'a=1' https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl --data-urlencode <span class="pl-s"><span class="pl-pds">'</span>a=1<span class="pl-pds">'</span></span> https://sth.com</pre></div>
 <p>-d是假设参数已经url编码好了的，--data-urlencode是对参数执行url编码</p>
 </li>
 <li>
@@ -595,16 +585,14 @@ curl --user name:password www.baidu.com
 <ol>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/construct-query-string#construct-two-query-arguments" rel="nofollow">Construct Two Query Arguments</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -G -d 'a=1' -d 'b=2' https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -G -d <span class="pl-s"><span class="pl-pds">'</span>a=1<span class="pl-pds">'</span></span> -d <span class="pl-s"><span class="pl-pds">'</span>b=2<span class="pl-pds">'</span></span> https://sth.com</pre></div>
 <blockquote>
 <p>Be careful – if you forget the <code class="notranslate">-G</code> argument, then curl will make a POST request instead!</p>
 </blockquote>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/construct-query-string#url-encode-query-argument" rel="nofollow">URL-encode a Query Argument</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -G --data-urlencode 'comment=this cookbook is awesome' https://catonmat.net
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -G --data-urlencode <span class="pl-s"><span class="pl-pds">'</span>comment=this cookbook is awesome<span class="pl-pds">'</span></span> https://catonmat.net</pre></div>
 </li>
 </ol>
 <h3>Add HTTP Headers (TLDR: Use -H 'Header: Value' argument)</h3>
@@ -613,23 +601,20 @@ curl --user name:password www.baidu.com
 <li><a href="https://catonmat.net/cookbooks/curl/add-http-headers#add-two-header" rel="nofollow">Add Two Headers</a></li>
 <li><a href="https://catonmat.net/cookbooks/curl/add-http-headers#add-an-empty-header" rel="nofollow">Add an Empty Header</a></li>
 </ol>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -H 'Accept-Language: en-US' -H 'Secret-Message: xyzzy' https://google.com
-curl -H 'Puppies;' https://google.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -H <span class="pl-s"><span class="pl-pds">'</span>Accept-Language: en-US<span class="pl-pds">'</span></span> -H <span class="pl-s"><span class="pl-pds">'</span>Secret-Message: xyzzy<span class="pl-pds">'</span></span> https://google.com
+curl -H <span class="pl-s"><span class="pl-pds">'</span>Puppies;<span class="pl-pds">'</span></span> https://google.com</pre></div>
 <h3>Change the User Agent (TLDR: Use -A 'User Agent' argument)</h3>
 <p>浏览器啥的设置</p>
 <h3>Set Cookies (TLDR: Use -b name=value argument)</h3>
 <ol>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/set-cookies#add-cookie" rel="nofollow">Add a Cookie</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -b 'user_id=abc' https://sth.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -b <span class="pl-s"><span class="pl-pds">'</span>user_id=abc<span class="pl-pds">'</span></span> https://sth.com</pre></div>
 <p>在一个get请求中，添加了一个cookie，Cookie: user_id=abc</p>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/set-cookies#add-two-cookies" rel="nofollow">Add Two Cookies</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -b 'session=abcdef' -b 'loggedin=true' https://google.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -b <span class="pl-s"><span class="pl-pds">'</span>session=abcdef<span class="pl-pds">'</span></span> -b <span class="pl-s"><span class="pl-pds">'</span>loggedin=true<span class="pl-pds">'</span></span> https://google.com</pre></div>
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/set-cookies#add-empty-cookie" rel="nofollow">Add an Empty Cookie</a></p>
@@ -647,14 +632,12 @@ curl -H 'Puppies;' https://google.com
 <p>重定向</p>
 <h3>Use the Basic HTTP Authentication (TLDR: Use -u user:pass argument)</h3>
 <p>基础的HTTP登录，可以传递用户名和密码的</p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -u 'bob:12345' https://google.com/login
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -u <span class="pl-s"><span class="pl-pds">'</span>bob:12345<span class="pl-pds">'</span></span> https://google.com/login</pre></div>
 <h3>Print the Response Headers (TLDR: Use -i argument)</h3>
 <ol>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/print-response-headers#print-headers-and-response" rel="nofollow">Print the Response Headers and Body (together)</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -i https://catonmat.net
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -i https://catonmat.net</pre></div>
 <p>注意这里一定是小写的-i，大写的功能是不一样的。结果会先打印response header，然后是空一行，然后是响应结果。</p>
 </li>
 <li>
@@ -671,8 +654,7 @@ curl -H 'Puppies;' https://google.com
 <p>how to make curl silent so that it doesn't print progress bar, errors, and other output that can get in the way</p>
 </blockquote>
 <h3>Save the Response to a File (TLDR: Use -o file argument)</h3>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -o response.txt https://google.com?q=kitties
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -o response.txt https://google.com<span class="pl-k">?</span>q=kitties</pre></div>
 <h3>Make Curl Slow (TLDR: Use --limit-rate 8k (8KB/sec) argument)</h3>
 <p>神奇，可以通过--limit-rate来限制curl的速度，也不知道为啥需要这个</p>
 <h3>Debug Curl Requests (TLDR: Use -v or --trace arguments)</h3>
@@ -680,8 +662,7 @@ curl -H 'Puppies;' https://google.com
 <ol>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/debug-curl-requests#make-curl-verbose" rel="nofollow">Make Curl Verbose</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl -v https://www.baidu.com
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -v https://www.baidu.com</pre></div>
 <p>会把整个过程详细的打印出来；具体怎么看，参考下文：</p>
 <blockquote>
 <p>This recipe uses the <code class="notranslate">-v</code> argument to make curl print detailed information about the request and the response. Lines prefixed by <code class="notranslate">&gt;</code> is the data sent to the server, lines prefixed by <code class="notranslate">&lt;</code> is the data received from the server, and lines starting with <code class="notranslate">*</code> is misc information, such as connection information, SSL handshake information, and protocol information.</p>
@@ -689,8 +670,7 @@ curl -H 'Puppies;' https://google.com
 </li>
 <li>
 <p><a href="https://catonmat.net/cookbooks/curl/debug-curl-requests#detailed-trace" rel="nofollow">Detailed Trace</a></p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl --trace - https://catonmat.net
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl --trace - https://catonmat.net</pre></div>
 <p>16进制打印中间详细结果，感觉目前用不到。注意命令比较特殊。</p>
 </li>
 <li>
@@ -713,8 +693,7 @@ curl -H 'Puppies;' https://google.com
 </ol>
 <h3>Make a GET Request (TLDR: No arguments required, it's the default)</h3>
 <p>默认的curl就是发送GET请求</p>
-<pre lang="shell" class="notranslate"><code class="notranslate">curl https://catonmat.net
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl https://catonmat.net</pre></div>
 <h2>参考文献</h2>
 <p>1 <a href="https://catonmat.net/cookbooks/curl" rel="nofollow">《curl cookbook》</a></p>
 <p>2 <a href="https://www.ruanyifeng.com/blog/2011/09/curl.html" rel="nofollow">《curl 初学者教程》</a></p>
