@@ -119,7 +119,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>
 <p>Object提供的toString方法，不好用，是类名@十六进制的展示，看不懂啥意思</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//    * It is recommended that all subclasses override this method.    </span>
-<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-s1">toString</span>() {
+<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span>() {
         <span class="pl-k">return</span> <span class="pl-en">getClass</span>().<span class="pl-en">getName</span>() + <span class="pl-s">"@"</span> + <span class="pl-smi">Integer</span>.<span class="pl-en">toHexString</span>(<span class="pl-en">hashCode</span>());
     }</pre></div>
 </li>
@@ -147,7 +147,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <span class="pl-c">     *           &lt;code&gt;yyyy-mm-dd hh:mm:ss.fffffffff&lt;/code&gt; format</span>
 <span class="pl-c">     */</span>
     <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"deprecation"</span>)
-    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-s1">toString</span> () {
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span> () {
 
         <span class="pl-smi">int</span> <span class="pl-s1">year</span> = <span class="pl-en">super</span>.<span class="pl-en">getYear</span>() + <span class="pl-c1">1900</span>;
         <span class="pl-smi">int</span> <span class="pl-s1">month</span> = <span class="pl-en">super</span>.<span class="pl-en">getMonth</span>() + <span class="pl-c1">1</span>;
@@ -251,7 +251,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <span class="pl-c">     *</span>
 <span class="pl-c">     * @return a string representation of this collection</span>
 <span class="pl-c">     */</span>
-    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-s1">toString</span>() {
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span>() {
         <span class="pl-smi">Iterator</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">it</span> = <span class="pl-en">iterator</span>();
         <span class="pl-k">if</span> (! <span class="pl-s1">it</span>.<span class="pl-en">hasNext</span>())
             <span class="pl-k">return</span> <span class="pl-s">"[]"</span>;
@@ -280,7 +280,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <h2>13 谨慎的重写clone方法</h2>
 <h3>为什么</h3>
 <p>因为Object中的clone()方法，是受保护的，你不能，不借助反射 （详见第 65 条），仅仅因为它实现了 Cloneable 接口，就调用对象上的 clone 方法。</p>
-<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">protected</span> <span class="pl-k">native</span> <span class="pl-smi">Object</span> <span class="pl-s1">clone</span>() <span class="pl-k">throws</span> <span class="pl-s1">CloneNotSupportedException</span>;</pre></div>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">protected</span> <span class="pl-k">native</span> <span class="pl-smi">Object</span> <span class="pl-en">clone</span>() <span class="pl-k">throws</span> <span class="pl-smi">CloneNotSupportedException</span>;</pre></div>
 <p>Cloneable 接口的目的，仅仅是做个标记</p>
 <blockquote>
 <p>既然 Cloneable 接口不包含任何方法，那它用来做什么？ 它决定了 Object 的受保护的 clone 方法实现的行为：如果一个类实现了 Cloneable 接口，那么 Object 的 clone 方法将返回该对象的逐个属性（field-by-field）拷贝；否则会抛出 <code class="notranslate">CloneNotSupportedException</code> 异常。这是一个非常反常的接口使用，而不应该被效仿。 通常情况下，实现一个接口用来表示可以为客户做什么。但对于 Cloneable 接口，它会修改父类上受保护方法的行为。</p>
@@ -296,7 +296,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-c">/**</span>
 <span class="pl-c">     * Overrides Cloneable</span>
 <span class="pl-c">     */</span>
-    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-s1">clone</span>()
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">clone</span>()
     {
         <span class="pl-smi">DateFormat</span> <span class="pl-s1">other</span> = (<span class="pl-smi">DateFormat</span>) <span class="pl-en">super</span>.<span class="pl-en">clone</span>();
         <span class="pl-s1">other</span>.<span class="pl-s1">calendar</span> = (<span class="pl-smi">Calendar</span>) <span class="pl-s1">calendar</span>.<span class="pl-en">clone</span>();
@@ -318,7 +318,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <span class="pl-c">     * @return a shallow copy of this set</span>
 <span class="pl-c">     */</span>
     <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"unchecked"</span>)
-    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-s1">clone</span>() {
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">clone</span>() {
         <span class="pl-k">try</span> {
             <span class="pl-smi">HashSet</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">newSet</span> = (<span class="pl-smi">HashSet</span>&lt;<span class="pl-smi">E</span>&gt;) <span class="pl-en">super</span>.<span class="pl-en">clone</span>();
             <span class="pl-s1">newSet</span>.<span class="pl-s1">map</span> = (<span class="pl-smi">HashMap</span>&lt;<span class="pl-smi">E</span>, <span class="pl-smi">Object</span>&gt;) <span class="pl-s1">map</span>.<span class="pl-en">clone</span>();
@@ -362,7 +362,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>编写方法也和equals类似，关键区别是对入参不用在意，允许抛出异常这样子。</p>
 <p>如果有多个属性，应该注意比较的顺序。</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Multiple-field `Comparable` with primitive fields</span>
-<span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">compareTo</span>(<span class="pl-smi">PhoneNumber</span> <span class="pl-s1">pn</span>) {
+<span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compareTo</span>(<span class="pl-smi">PhoneNumber</span> <span class="pl-s1">pn</span>) {
     <span class="pl-smi">int</span> <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">areaCode</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">areaCode</span>);
     <span class="pl-k">if</span> (<span class="pl-s1">result</span> == <span class="pl-c1">0</span>) {
         <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">prefix</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">prefix</span>);
@@ -381,9 +381,9 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     .<span class="pl-en">comparingInt</span>(<span class="pl-smi">EqualsTest</span>::<span class="pl-s1">getValueInt</span>);
 
     <span class="pl-c1">@</span><span class="pl-c1">Override</span>
-    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">compareTo</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compareTo</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
        <span class="pl-k">try</span> {
-            <span class="pl-k">return</span> <span class="pl-smi">COMPARATOR</span>.<span class="pl-en">compare</span>(<span class="pl-smi">this</span>, (<span class="pl-smi">EqualsTest</span>) <span class="pl-s1">o</span>);
+            <span class="pl-k">return</span> <span class="pl-c1">COMPARATOR</span>.<span class="pl-en">compare</span>(<span class="pl-smi">this</span>, (<span class="pl-smi">EqualsTest</span>) <span class="pl-s1">o</span>);
         } <span class="pl-k">catch</span> (<span class="pl-smi">Exception</span> <span class="pl-s1">e</span>) {
             <span class="pl-c">// TODO: handle exception</span>
             <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">UnsupportedOperationException</span>(<span class="pl-s">"Unimplemented method 'compareTo'"</span>);

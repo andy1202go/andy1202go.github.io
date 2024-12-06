@@ -120,7 +120,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>垃圾收集语言中的内存泄漏（更适当地称为无意的对象保留 unintentional object retentions）是隐蔽的。 如果无意中保留了对象引用，那么不仅这个对象排除在垃圾回收之外，而且该对象引用的任何对象也是如此。 即使只有少数对象引用被无意地保留下来，也可以阻止垃圾回收机制对许多对象的回收，这对性能产生很大的影响。</p>
 <p>　　这类问题的解决方法很简单：一旦对象引用过期，将它们设置为 null。 在我们的 <code class="notranslate">Stack</code> 类的情景下，只要从栈中弹出，元素的引用就设置为过期。 <code class="notranslate">pop</code> 方法的修正版本如下所示：</p>
 </blockquote>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-s1">pop</span>() {
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">pop</span>() {
     <span class="pl-k">if</span> (<span class="pl-s1">size</span> == <span class="pl-c1">0</span>)
         <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">EmptyStackException</span>();
     <span class="pl-smi">Object</span> <span class="pl-s1">result</span> = <span class="pl-s1">elements</span>[--<span class="pl-s1">size</span>];
@@ -162,7 +162,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <span class="pl-c">     * @exception  IOException  if an I/O error occurs.</span>
 <span class="pl-c">     * @see        java.io.FileInputStream#close()</span>
 <span class="pl-c">     */</span>
-    <span class="pl-k">protected</span> <span class="pl-smi">void</span> <span class="pl-s1">finalize</span>() <span class="pl-k">throws</span> <span class="pl-s1">IOException</span> {
+    <span class="pl-k">protected</span> <span class="pl-smi">void</span> <span class="pl-en">finalize</span>() <span class="pl-k">throws</span> <span class="pl-smi">IOException</span> {
         <span class="pl-k">if</span> ((<span class="pl-s1">fd</span> != <span class="pl-c1">null</span>) &amp;&amp;  (<span class="pl-s1">fd</span> != <span class="pl-smi">FileDescriptor</span>.<span class="pl-s1">in</span>)) {
             <span class="pl-c">/* if fd is shared, the references in FileDescriptor</span>
 <span class="pl-c">             * will ensure that finalizer is only called when</span>
@@ -215,7 +215,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>对于使用要关闭的资源，一律使用try-with-resource，Java7及以上版本就行。</p>
 <p>使用try-finally语句，对多个资源不友好</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// try-finally is ugly when used with more than one resource!</span>
-<span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-s1">copy</span>(<span class="pl-smi">String</span> <span class="pl-s1">src</span>, <span class="pl-smi">String</span> <span class="pl-s1">dst</span>) <span class="pl-k">throws</span> <span class="pl-s1">IOException</span> {
+<span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">copy</span>(<span class="pl-smi">String</span> <span class="pl-s1">src</span>, <span class="pl-smi">String</span> <span class="pl-s1">dst</span>) <span class="pl-k">throws</span> <span class="pl-smi">IOException</span> {
     <span class="pl-smi">InputStream</span> <span class="pl-s1">in</span> = <span class="pl-k">new</span> <span class="pl-smi">FileInputStream</span>(<span class="pl-s1">src</span>);
     <span class="pl-k">try</span> {
         <span class="pl-smi">OutputStream</span> <span class="pl-s1">out</span> = <span class="pl-k">new</span> <span class="pl-smi">FileOutputStream</span>(<span class="pl-s1">dst</span>);
@@ -234,7 +234,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>而且针对finally语句块的异常没有处理，针对其他异常的catch也比较复杂。</p>
 <p>上面的case，用try-with-resource重写：</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// try-with-resources on multiple resources - short and sweet</span>
-<span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-s1">copy</span>(<span class="pl-smi">String</span> <span class="pl-s1">src</span>, <span class="pl-smi">String</span> <span class="pl-s1">dst</span>) <span class="pl-k">throws</span> <span class="pl-s1">IOException</span> {
+<span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">copy</span>(<span class="pl-smi">String</span> <span class="pl-s1">src</span>, <span class="pl-smi">String</span> <span class="pl-s1">dst</span>) <span class="pl-k">throws</span> <span class="pl-smi">IOException</span> {
     <span class="pl-k">try</span> (<span class="pl-smi">InputStream</span> <span class="pl-s1">in</span> = <span class="pl-k">new</span> <span class="pl-smi">FileInputStream</span>(<span class="pl-s1">src</span>);
          <span class="pl-smi">OutputStream</span> <span class="pl-s1">out</span> = <span class="pl-k">new</span> <span class="pl-smi">FileOutputStream</span>(<span class="pl-s1">dst</span>)) {
         <span class="pl-smi">byte</span>[] <span class="pl-s1">buf</span> = <span class="pl-k">new</span> <span class="pl-smi">byte</span>[<span class="pl-c1">BUFFER_SIZE</span>];

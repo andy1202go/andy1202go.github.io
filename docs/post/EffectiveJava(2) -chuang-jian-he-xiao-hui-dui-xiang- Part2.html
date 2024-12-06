@@ -192,7 +192,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>缓存创建开销昂贵的对象</li>
 </ul>
 <p>第三种有个典型case，比如正则匹配，如果使用String.matches的话，每次会创建一个Pattern实例，不如把Pattern静态final写好，每次使用就行了</p>
-<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-s1">isRomanNumeral</span>(<span class="pl-smi">String</span> <span class="pl-s1">s</span>) {
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-en">isRomanNumeral</span>(<span class="pl-smi">String</span> <span class="pl-s1">s</span>) {
         <span class="pl-k">return</span> <span class="pl-s1">s</span>.<span class="pl-en">matches</span>(<span class="pl-s">"^(?=.)M*(C[MD]|D?C{0,3})"</span>
                 + <span class="pl-s">"(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"</span>);
     }
@@ -201,8 +201,8 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
             <span class="pl-s">"^(?=.)M*(C[MD]|D?C{0,3})"</span>
                     + <span class="pl-s">"(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"</span>);
 
-    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-s1">isRomanNumeralGood</span>(<span class="pl-smi">String</span> <span class="pl-s1">s</span>) {
-        <span class="pl-k">return</span> <span class="pl-smi">ROMAN</span>.<span class="pl-en">matcher</span>(<span class="pl-s1">s</span>).<span class="pl-en">matches</span>();
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">boolean</span> <span class="pl-en">isRomanNumeralGood</span>(<span class="pl-smi">String</span> <span class="pl-s1">s</span>) {
+        <span class="pl-k">return</span> <span class="pl-c1">ROMAN</span>.<span class="pl-en">matcher</span>(<span class="pl-s1">s</span>).<span class="pl-en">matches</span>();
     }</pre></div>
 <p>实测差距可能在一倍。</p>
 <blockquote>
@@ -213,14 +213,14 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>例如，Map 接口的 <code class="notranslate">keySet</code> 方法返回 Map 对象的 Set 视图，包含 Map 中的所有 key。 天真地说，似乎每次调用 <code class="notranslate">keySet</code> 都必须创建一个新的 Set 实例，但是对给定 Map 对象的 <code class="notranslate">keySet</code> 的每次调用都返回相同的 Set 实例。 尽管返回的 Set 实例通常是可变的，但是所有返回的对象在功能上都是相同的：当其中一个返回的对象发生变化时，所有其他对象也都变化，因为它们全部由相同的 Map 实例支持。 虽然创建 <code class="notranslate">keySet</code> 视图对象的多个实例基本上是无害的，但这是没有必要的，也没有任何好处。</p>
 </blockquote>
 <p>另一个需要注意会创建不必要对象的场景是自动装箱。本义是好的，但用不好，性能差距很大</p>
-<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">long</span> <span class="pl-s1">autoBoxingElasps</span>() {
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">long</span> <span class="pl-en">autoBoxingElasps</span>() {
         <span class="pl-smi">Long</span> <span class="pl-s1">sum</span> = <span class="pl-c1">0L</span>;
         <span class="pl-k">for</span> (<span class="pl-smi">long</span> <span class="pl-s1">i</span> = <span class="pl-c1">0</span>; <span class="pl-s1">i</span> &lt;= <span class="pl-smi">Integer</span>.<span class="pl-c1">MAX_VALUE</span>; <span class="pl-s1">i</span>++)
             <span class="pl-s1">sum</span> += <span class="pl-s1">i</span>;
         <span class="pl-k">return</span> <span class="pl-s1">sum</span>;
     }
 
-    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">long</span> <span class="pl-s1">autoBoxingElaspsGood</span>() {
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">long</span> <span class="pl-en">autoBoxingElaspsGood</span>() {
         <span class="pl-smi">long</span> <span class="pl-s1">sum</span> = <span class="pl-c1">0L</span>;
         <span class="pl-k">for</span> (<span class="pl-smi">long</span> <span class="pl-s1">i</span> = <span class="pl-c1">0</span>; <span class="pl-s1">i</span> &lt;= <span class="pl-smi">Integer</span>.<span class="pl-c1">MAX_VALUE</span>; <span class="pl-s1">i</span>++)
             <span class="pl-s1">sum</span> += <span class="pl-s1">i</span>;

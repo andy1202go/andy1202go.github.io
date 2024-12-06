@@ -89,7 +89,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </blockquote>
 <h2>10 重写equals方法时遵守通用约定</h2>
 <p>Object的equals方法</p>
-<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-s1">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">obj</span>) {
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">obj</span>) {
         <span class="pl-k">return</span> (<span class="pl-smi">this</span> == <span class="pl-s1">obj</span>);
     }</pre></div>
 <p>重写equals方法，看起来简单，但很容易出错，且出错后代价巨大，即出现问题后不好排查到是equals方法导致，而且可能很多方法都依赖equals方法。</p>
@@ -119,7 +119,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>如果你非常厌恶风险，可以重写 equals 方法，以确保不会被意外调用：</li>
 </ul>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Override</span> 
-<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-s1">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
     <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">AssertionError</span>(); <span class="pl-c">// Method is never called</span>
 }</pre></div>
 </blockquote>
@@ -129,7 +129,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>一句话来说，<strong>值类</strong>。</p>
 <p>也就是表示值的类，比如String，比如Integer</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//Integer's    </span>
-<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-s1">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">obj</span>) {
+<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">obj</span>) {
         <span class="pl-k">if</span> (<span class="pl-s1">obj</span> <span class="pl-k">instanceof</span> <span class="pl-smi">Integer</span>) {
             <span class="pl-k">return</span> <span class="pl-s1">value</span> == ((<span class="pl-smi">Integer</span>)<span class="pl-s1">obj</span>).<span class="pl-en">intValue</span>();
         }
@@ -185,7 +185,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">s</span>.<span class="pl-en">equals</span>(<span class="pl-s1">cis</span>)); <span class="pl-c">// false</span></pre></div>
 <p>　　要消除这个问题，只需删除 equals 方法中与 String 类相互操作的恶意尝试。这样做之后，可以将该方法重构为单个返回语句:</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Override</span>
-<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-s1">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
     <span class="pl-k">return</span> <span class="pl-s1">o</span> <span class="pl-k">instanceof</span> <span class="pl-smi">CaseInsensitiveString</span> &amp;&amp;
             ((<span class="pl-smi">CaseInsensitiveString</span>) <span class="pl-s1">o</span>).<span class="pl-s1">s</span>.<span class="pl-en">equalsIgnoreCase</span>(<span class="pl-s1">s</span>);
 }</pre></div>
@@ -221,7 +221,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>　　equals 方法应该是什么样子？如果完全忽略，则实现是从 Point 类上继承的，颜色信息在 equals 方法比较中被忽略。虽然这并不违反 equals 约定，但这显然是不可接受的。假设你写了一个 equals 方法，它只在它的参数是另一个具有相同位置和颜色的 ColorPoint 实例时返回 true：</p>
 </blockquote>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Override</span>
-<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-s1">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
     <span class="pl-k">if</span> (!(<span class="pl-s1">o</span> <span class="pl-k">instanceof</span> <span class="pl-smi">Point</span>))
         <span class="pl-k">return</span> <span class="pl-c1">false</span>;
     <span class="pl-c">// If o is a normal Point, do a color-blind comparison</span>
@@ -344,7 +344,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>非官方要求，对象不能等于null。</p>
 <p>专门加一个判断是不必要的。 为了测试它的参数是否相等，equals 方法必须首先将其参数转换为合适类型，以便调用访问器或允许访问的属性。 在执行类型转换之前，该方法必须使用 instanceof 运算符来检查其参数是否是正确的类型：</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Override</span> 
-<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-s1">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+<span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
     <span class="pl-k">if</span> (!(<span class="pl-s1">o</span> <span class="pl-k">instanceof</span> <span class="pl-smi">MyType</span>))
         <span class="pl-k">return</span> <span class="pl-c1">false</span>;
     <span class="pl-smi">MyType</span> <span class="pl-s1">mt</span> = (<span class="pl-smi">MyType</span>) <span class="pl-s1">o</span>;
@@ -386,7 +386,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     }
 }
 
-    <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-s1">testEquals</span>(){
+    <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">testEquals</span>(){
         <span class="pl-smi">EqualsTest</span> <span class="pl-s1">e1</span> = <span class="pl-k">new</span> <span class="pl-smi">EqualsTest</span>();
         <span class="pl-s1">e1</span>.<span class="pl-en">setValueStr</span>(<span class="pl-s">"shit"</span>);
         <span class="pl-smi">EqualsTest</span> <span class="pl-s1">e2</span> = <span class="pl-k">new</span> <span class="pl-smi">EqualsTest</span>();
@@ -431,7 +431,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </li>
 <li>
 <p>声明要写对：</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-s1">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">obj</span>){
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-smi">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-s1">obj</span>){
     
 }</pre></div>
 </li>
@@ -472,7 +472,7 @@ a. 比较属性 <code class="notranslate">f</code> 与属性 <code class="notran
 </blockquote>
 <p>文字描述有点晦涩难懂，直接看例子</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Override</span> 
-<span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">hashCode</span>() {
+<span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">hashCode</span>() {
     <span class="pl-c">//step 1</span>
     <span class="pl-smi">int</span> <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">hashCode</span>(<span class="pl-s1">areaCode</span>);
     <span class="pl-c">//step 2</span>
@@ -487,7 +487,7 @@ a. 比较属性 <code class="notranslate">f</code> 与属性 <code class="notran
 </blockquote>
 <p>其他实现也有用其他素数的，比如URI的：</p>
 <div class="highlight highlight-source-java"><pre class="notranslate">  <span class="pl-c1">@</span><span class="pl-c1">Override</span>
-  <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">hashCode</span>() {
+  <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">hashCode</span>() {
     <span class="pl-smi">int</span> <span class="pl-s1">hash</span> = <span class="pl-c1">5</span>;
     <span class="pl-s1">hash</span> = <span class="pl-c1">41</span> * <span class="pl-s1">hash</span> + <span class="pl-smi">Objects</span>.<span class="pl-en">hashCode</span>(<span class="pl-smi">this</span>.<span class="pl-s1">m_scheme</span>);
     <span class="pl-s1">hash</span> = <span class="pl-c1">41</span> * <span class="pl-s1">hash</span> + <span class="pl-smi">Objects</span>.<span class="pl-en">hashCode</span>(<span class="pl-smi">this</span>.<span class="pl-s1">m_userinfo</span>);
@@ -508,7 +508,7 @@ a. 比较属性 <code class="notranslate">f</code> 与属性 <code class="notran
 <li>
 <p>如果一个类是不可变的，并且计算哈希码的代价很大，那么可以考虑在对象中缓存哈希码，而不是在每次请求时重新计算哈希码。</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//String</span>
-    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-s1">hashCode</span>() {
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">hashCode</span>() {
         <span class="pl-smi">int</span> <span class="pl-s1">h</span> = <span class="pl-s1">hash</span>;
         <span class="pl-c">//here is lazy</span>
         <span class="pl-k">if</span> (<span class="pl-s1">h</span> == <span class="pl-c1">0</span> &amp;&amp; <span class="pl-s1">value</span>.<span class="pl-s1">length</span> &gt; <span class="pl-c1">0</span>) {

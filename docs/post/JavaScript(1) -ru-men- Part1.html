@@ -92,11 +92,11 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p>怎么嵌入html：直接script标签中写入，或者script标签用src属性引入js文件；推荐后者</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">&lt;</span><span class="pl-ent">script</span> <span class="pl-c1">src</span><span class="pl-c1">=</span><span class="pl-s">"scripts/abbey/15.js"</span><span class="pl-c1">&gt;</span><span class="pl-c1">&lt;</span><span class="pl-c1">/</span><span class="pl-ent">script</span><span class="pl-c1">&gt;</span>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">&lt;</span><span class="pl-s1">script</span> <span class="pl-c1">src</span><span class="pl-c1">=</span><span class="pl-s">"scripts/abbey/15.js"</span><span class="pl-c1">&gt;</span><span class="pl-kos">&lt;/</span><span class="pl-s1">script</span><span class="pl-c1">&gt;</span>
 <span class="pl-s1">或者</span>
 <span class="pl-c1">&lt;</span><span class="pl-s1">script</span> <span class="pl-s1">type</span><span class="pl-c1">=</span><span class="pl-s">"text/javascript"</span><span class="pl-c1">&gt;</span>
   ...
-<span class="pl-c1">&lt;</span><span class="pl-c1">/</span><span class="pl-ent">script</span><span class="pl-c1">&gt;</span></pre></div>
+&lt;/<span class="pl-s1">script</span><span class="pl-c1">&gt;</span></pre></div>
 </li>
 <li>
 <p>如何编写：推荐vscode</p>
@@ -108,7 +108,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>这种方式运行部分JavaScript代码没有问题，但由于浏览器的安全限制，以<code class="notranslate">file://</code>开头的地址无法执行如联网等JavaScript代码，最终，你还是需要架设一个Web服务器，然后以<code class="notranslate">http://</code>开头的地址来正常执行所有JavaScript代码。</p>
 </blockquote>
 <p>就使用python自带的server服务吧</p>
-<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-s1">python</span> <span class="pl-c1">-</span><span class="pl-s1">m</span> <span class="pl-s1">http</span>.<span class="pl-s1">server</span></pre></div>
+<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-s1">python</span> <span class="pl-c1">-</span><span class="pl-s1">m</span> <span class="pl-s1">http</span>.<span class="pl-c1">server</span></pre></div>
 </li>
 <li>
 <p>helloworld:alter()</p>

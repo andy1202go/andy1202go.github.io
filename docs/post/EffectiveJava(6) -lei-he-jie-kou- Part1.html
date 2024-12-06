@@ -119,8 +119,8 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 
 <span class="pl-c">//or</span>
 <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Thing</span>[] <span class="pl-c1">PRIVATE_VALUES</span> = { ... };
-<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Thing</span>[] <span class="pl-s1">values</span>() {
-    <span class="pl-k">return</span> <span class="pl-smi">PRIVATE_VALUES</span>.<span class="pl-en">clone</span>();
+<span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Thing</span>[] <span class="pl-en">values</span>() {
+    <span class="pl-k">return</span> <span class="pl-c1">PRIVATE_VALUES</span>.<span class="pl-en">clone</span>();
 }</pre></div>
 </li>
 </ol>
@@ -133,7 +133,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>内部类除了能够提供更好的封装以外，还具有一些特殊的性质，如内部类可以直接访问到外部类中的成员，包括私有的成员。</p>
 <p>在 Java 的集合框架中大量地使用了内部类，比如集合类中迭代器的实现。这些迭代器实现了同样的接口（Iterator Interface），但是具体的实现又各不相同。外部类也不必关心它们的具体实现方法，只需要按照约定的接口进行访问即可。</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//ArrayList</span>
-    <span class="pl-k">public</span> <span class="pl-smi">Iterator</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">iterator</span>() {
+    <span class="pl-k">public</span> <span class="pl-smi">Iterator</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-en">iterator</span>() {
         <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">Itr</span>();
     }
 
