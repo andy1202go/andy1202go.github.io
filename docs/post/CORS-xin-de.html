@@ -10,39 +10,13 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="## 1 定位
-
-- 基础内容
-- 知道有哪些，是什么，怎么用
-- 分为入门、基础、高级、实战
-
-## 2 期望
-
-- 对数据结构和算法有初步认知
-- 在平时设计和编写代码能用起来
-
-## 3 老生常谈，为什么要学习数据结构和算法
-
-因为要从唯一性原理出发，探查本质。">
-<meta property="og:title" content="数据结构与算法之美(1) 开篇">
-<meta property="og:description" content="## 1 定位
-
-- 基础内容
-- 知道有哪些，是什么，怎么用
-- 分为入门、基础、高级、实战
-
-## 2 期望
-
-- 对数据结构和算法有初步认知
-- 在平时设计和编写代码能用起来
-
-## 3 老生常谈，为什么要学习数据结构和算法
-
-因为要从唯一性原理出发，探查本质。">
+<meta name="description" content="多次受到CORS问题困扰，每次都是一知半解的解决了，不如这次来探寻下。">
+<meta property="og:title" content="CORS心得">
+<meta property="og:description" content="多次受到CORS问题困扰，每次都是一知半解的解决了，不如这次来探寻下。">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://andy1202go.github.io/post/shu-ju-jie-gou-yu-suan-fa-zhi-mei-%281%29%20-kai-pian.html">
+<meta property="og:url" content="https://andy1202go.github.io/post/CORS-xin-de.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
-<title>数据结构与算法之美(1) 开篇</title>
+<title>CORS心得</title>
 
 
 
@@ -75,7 +49,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 
 <body>
     <div id="header">
-<h1 class="postTitle">数据结构与算法之美(1) 开篇</h1>
+<h1 class="postTitle">CORS心得</h1>
 <div class="title-right">
     <a href="https://andy1202go.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
         <svg class="octicon" width="16" height="16">
@@ -83,7 +57,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
     
-    <a href="https://github.com/andy1202go/andy1202go.github.io/issues/23" target="_blank" class="btn btn-invisible circle" title="Issue">
+    <a href="https://github.com/andy1202go/andy1202go.github.io/issues/35" target="_blank" class="btn btn-invisible circle" title="Issue">
         <svg class="octicon" width="16" height="16">
             <path id="pathIssue" fill-rule="evenodd"></path>
         </svg>
@@ -99,48 +73,54 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h2>1 定位</h2>
+<div class="markdown-body" id="postBody"><p>多次受到CORS问题困扰，每次都是一知半解的解决了，不如这次来探寻下。</p>
+<p>找到核心解释：MDN社区的解释。</p>
+<p>然后最核心，是对CORS的理解：</p>
+<blockquote>
+<p>跨源资源共享标准新增了一组 [<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers" rel="nofollow">HTTP 标头</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers)%E5%AD%97%E6%AE%B5%EF%BC%8C%E5%85%81%E8%AE%B8%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%A3%B0%E6%98%8E%E5%93%AA%E4%BA%9B%E6%BA%90%E7%AB%99%E9%80%9A%E8%BF%87%E6%B5%8F%E8%A7%88%E5%99%A8%E6%9C%89%E6%9D%83%E9%99%90%E8%AE%BF%E9%97%AE%E5%93%AA%E4%BA%9B%E8%B5%84%E6%BA%90%E3%80%82%E5%8F%A6%E5%A4%96%EF%BC%8C%E8%A7%84%E8%8C%83%E8%A6%81%E6%B1%82%EF%BC%8C%E5%AF%B9%E9%82%A3%E4%BA%9B%E5%8F%AF%E8%83%BD%E5%AF%B9%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%95%B0%E6%8D%AE%E4%BA%A7%E7%94%9F%E5%89%AF%E4%BD%9C%E7%94%A8%E7%9A%84" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers)字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。另外，规范要求，对那些可能对服务器数据产生副作用的</a> HTTP 请求方法（特别是 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Methods/GET" rel="nofollow"><code class="notranslate">[GET](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Methods/GET)</code></a> 以外的 HTTP 请求，或者搭配某些 [<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/MIME_types" rel="nofollow">MIME 类型</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/MIME_types)%E7%9A%84" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/MIME_types)的</a> <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Methods/POST" rel="nofollow"><code class="notranslate">[POST](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Methods/POST)</code></a> 请求），浏览器必须首先使用 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Methods/OPTIONS" rel="nofollow"><code class="notranslate">[OPTIONS](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Methods/OPTIONS)</code></a> 方法发起一个预检请求（preflight request），从而获知服务端是否允许该跨源请求。服务器确认允许之后，才发起实际的 HTTP 请求。在预检请求的返回中，服务器端也可以通知客户端，是否需要携带身份凭证（例如 [<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Cookies" rel="nofollow">Cookie</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Cookies" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Cookies</a>) 和 [<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Authentication" rel="nofollow">HTTP 认证</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Authentication)%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%EF%BC%89%E3%80%82" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Authentication)相关数据）。</a></p>
+<p>CORS 请求失败会产生错误，但是为了安全，在 JavaScript 代码层面<em>无法</em>获知到底具体是哪里出了问题。你只能查看浏览器的控制台以得知具体是哪里出现了错误。</p>
+</blockquote>
+<h2>关键点：</h2>
 <ul>
-<li>基础内容</li>
-<li>知道有哪些，是什么，怎么用</li>
-<li>分为入门、基础、高级、实战</li>
+<li>服务器声明的</li>
+<li>基于HTTP标头的</li>
+<li>应对跨域资源访问的</li>
+<li>为了安全目的设立的</li>
 </ul>
-<h2>2 期望</h2>
-<ul>
-<li>对数据结构和算法有初步认知</li>
-<li>在平时设计和编写代码能用起来</li>
-</ul>
-<h2>3 老生常谈，为什么要学习数据结构和算法</h2>
-<p>因为要从唯一性原理出发，探查本质。</p>
-<p>因为如果事业上有追求，做优秀的研发工程师，就应该写出达到开源水平的代码的。所谓达到开源水平，就是你写的代码，经得起其他程序员的使用，经得起各种业务场景的调用，达到各种机构——比如Apache——收录的标准。</p>
-<p>因为如果事业长青，需要掌握底层原理，才能在不断的技术变革中，快速切换，快速学习领悟。</p>
-<h2>4 如何系统高效的学习数据结构和算法</h2>
-<p>先搞清楚定义。</p>
+<h2>其他需要熟知的信息：</h2>
+<ol>
+<li>
+<p>简单请求</p>
+</li>
+<li>
+<p>非简单请求的预检请求，prefilght</p>
+</li>
+<li>
+<p>附带身份凭证的请求，也就是请求会发送的更多，响应声明也要更加严格</p>
+</li>
+<li>
+<p>一些Headers：</p>
 <blockquote>
-<p>从广义上讲，数据结构就是指一组数据的存储结构。算法就是操作数据的一组方法。</p>
-<p>从狭义上讲，也就是我们专栏要讲的，是指某些著名的数据结构和算法，比如队列、栈、堆、二分查找、动态规划等。这些都是前人智慧的结晶，我们可以直接拿来用。我们要讲的这些经典数据结构和算法，都是前人从很多实际操作场景中抽象出来的，经过非常多的求证和检验，可以高效地帮助我们解决很多实际的开发问题。</p>
+<p>Origin</p>
+<p>Access-Control-Request-Method</p>
+<p>Access-Control-Request-Headers</p>
+<p>Access-Control-Allow-Origin</p>
+<p>Vary</p>
+<p>Access-Control-Allow-Methods</p>
+<p>Access-Control-Allow-Headers</p>
+<p>Access-Control-Allow-Credentials</p>
+<p>Access-Control-Max-Age 预检请求缓存时长(s)</p>
+<p>Access-Control-Expose-Headers</p>
 </blockquote>
-<p>最重点的是，<strong>为什么数据结构和算法总是一起出现，两者是啥关系？</strong></p>
-<p>答案是：相辅相成。</p>
-<p>算法都是建立在特定数据结构上的，单独的数据结构没有很大的意义。</p>
-<p>其次，搞清楚总目标，或者说根本目标是什么。这里我认为是</p>
-<blockquote>
-<p>数据结构和算法解决的是如何更省、更快地存储和处理数据的问题</p>
-</blockquote>
-<p>所以，用于评估算法性能的方法——复杂度分析——就必须要熟练掌握。</p>
-<p>最后，知道我们要学习的范围，如下图所示。</p>
-<p><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/273da65ce0a7ff05b3a1193d394f86a0a5c63dd7943cae47dfc1037fc3c7f13b/68747470733a2f2f7374617469633030312e6765656b62616e672e6f72672f7265736f757263652f696d6167652f39312f61372f39313365306162616265343361326435373236376466356335663038333261372e6a70673f77683d313533342a33333338"><img src="https://camo.githubusercontent.com/273da65ce0a7ff05b3a1193d394f86a0a5c63dd7943cae47dfc1037fc3c7f13b/68747470733a2f2f7374617469633030312e6765656b62616e672e6f72672f7265736f757263652f696d6167652f39312f61372f39313365306162616265343361326435373236376466356335663038333261372e6a70673f77683d313533342a33333338" alt="img" data-canonical-src="https://static001.geekbang.org/resource/image/91/a7/913e0ababe43a2d57267df5c5f0832a7.jpg?wh=1534*3338" style="max-width: 100%;"></a></p>
-<p>简单来记，搞定最常用的<strong>10个数据结构10个算法</strong></p>
-<blockquote>
-<p>这里面有 10 个数据结构：数组、链表、栈、队列、散列表、二叉树、堆、跳表、图、Trie 树；10 个算法：递归、排序、二分查找、搜索、哈希算法、贪心算法、分治算法、回溯算法、动态规划、字符串匹配算法。</p>
-</blockquote>
-<p>具体到方法：</p>
-<ul>
-<li>边学边练：这里的练，可以是刷题，可以是日常代码的复杂度分析，可以是源代码阅读时候的分析</li>
-<li>多问多思考</li>
-<li>打怪升级</li>
-<li>沉淀且有耐心</li>
-</ul></div>
+</li>
+<li>
+<p>常见错误：[<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/CORS" rel="nofollow">跨源资源共享（CORS）</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/CORS" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/CORS</a>)</p>
+</li>
+</ol>
+<h2>参考</h2>
+<p>[<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/CORS" rel="nofollow">跨源资源共享（CORS）</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/CORS" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/CORS</a>)</p>
+<p>[<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/MIME_types" rel="nofollow">MIME 类型（IANA 媒体类型）</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/MIME_types" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/MIME_types</a>)</p>
+<p>[<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Content-Type" rel="nofollow">Content-Type</a>](<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Content-Type" rel="nofollow">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Content-Type</a>)</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
