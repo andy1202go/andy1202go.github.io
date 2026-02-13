@@ -111,7 +111,7 @@ xiaoming.age(); // 今年调用是25,明年调用就变成26了
 <meta property="og:url" content="https://andy1202go.github.io/post/JavaScript%284%29%20-han-shu-%20Part2.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>JavaScript(4) 函数 Part2</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -135,7 +135,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
-
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
 </style>
 
 
@@ -169,18 +179,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     <div id="content">
 <div class="markdown-body" id="postBody"><h2>3 方法</h2>
 <p>在一个对象中绑定函数，是这个对象的方法，举例</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var xiaoming = {
-    name: '小明',
-    birth: 1990,
-    age: function () {
-        var y = new Date().getFullYear();
-        return y - this.birth;
-    }
-};
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'小明'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">birth</span>: <span class="pl-c1">1990</span><span class="pl-kos">,</span>
+    <span class="pl-en">age</span>: <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">var</span> <span class="pl-s1">y</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Date</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">getFullYear</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-k">return</span> <span class="pl-s1">y</span> <span class="pl-c1">-</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">birth</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
 
-xiaoming.age; // function xiaoming.age()
-xiaoming.age(); // 今年调用是25,明年调用就变成26了
-</code></pre>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-c1">age</span><span class="pl-kos">;</span> <span class="pl-c">// function xiaoming.age()</span>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-en">age</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 今年调用是25,明年调用就变成26了</span></pre></div>
 <h4>this和that</h4>
 <ul>
 <li>
@@ -191,252 +200,232 @@ xiaoming.age(); // 今年调用是25,明年调用就变成26了
 </li>
 <li>
 <p>修复方法是使用一个that在函数一开始就捕获this，后续都使用that，利用嵌套函数变量作用域</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">'use strict';
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
 
-var xiaoming = {
-    name: '小明',
-    birth: 1990,
-    age: function () {
-        var that = this; // 在方法内部一开始就捕获this
-        function getAgeFromBirth() {
-            var y = new Date().getFullYear();
-            return y - that.birth; // 用that而不是this
-        }
-        return getAgeFromBirth();
-    }
-};
+<span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'小明'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">birth</span>: <span class="pl-c1">1990</span><span class="pl-kos">,</span>
+    <span class="pl-en">age</span>: <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">var</span> <span class="pl-s1">that</span> <span class="pl-c1">=</span> <span class="pl-smi">this</span><span class="pl-kos">;</span> <span class="pl-c">// 在方法内部一开始就捕获this</span>
+        <span class="pl-k">function</span> <span class="pl-en">getAgeFromBirth</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-k">var</span> <span class="pl-s1">y</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Date</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">getFullYear</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+            <span class="pl-k">return</span> <span class="pl-s1">y</span> <span class="pl-c1">-</span> <span class="pl-s1">that</span><span class="pl-kos">.</span><span class="pl-c1">birth</span><span class="pl-kos">;</span> <span class="pl-c">// 用that而不是this</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">return</span> <span class="pl-en">getAgeFromBirth</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
 
-xiaoming.age(); // 25
-</code></pre>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-en">age</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 25</span></pre></div>
 </li>
 </ul>
 <h4>apply</h4>
 <p>函数本身都具有apply方法。apply方法可以接收两个参数，第一个参数是需要绑定的this变量，第二个是array，标识函数本身的参数。</p>
 <p>上面的例子就可以写为</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">function getAge() {
-    var y = new Date().getFullYear();
-    return y - this.birth;
-}
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-en">getAge</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">var</span> <span class="pl-s1">y</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Date</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">getFullYear</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-k">return</span> <span class="pl-s1">y</span> <span class="pl-c1">-</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">birth</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
 
-var xiaoming{
-    name:'小明',
-    birth:1990,
-    age:getAge
-};
+<span class="pl-k">var</span> <span class="pl-s1">xiaoming</span><span class="pl-kos"></span><span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>:<span class="pl-s">'小明'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">birth</span>:<span class="pl-c1">1990</span><span class="pl-kos">,</span>
+    <span class="pl-c1">age</span>:<span class="pl-s1">getAge</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
 
-xiaoming.age(); 
-getAge.apply(xiaoming,[]);
-</code></pre>
+<span class="pl-s1">xiaoming</span><span class="pl-kos">.</span><span class="pl-en">age</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> 
+<span class="pl-s1">getAge</span><span class="pl-kos">.</span><span class="pl-en">apply</span><span class="pl-kos">(</span><span class="pl-s1">xiaoming</span><span class="pl-kos">,</span><span class="pl-kos">[</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <p>另一个和apply方法类似的是call，区别在于第二个入参</p>
 <ul>
 <li><code class="notranslate">apply()</code>把参数打包成<code class="notranslate">Array</code>再传入；</li>
 <li><code class="notranslate">call()</code>把参数按顺序传入。</li>
 </ul>
-<pre lang="javascript" class="notranslate"><code class="notranslate">Math.max.apply(null, [3, 5, 4]); // 5
-Math.max.call(null, 3, 5, 4); // 5
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-v">Math</span><span class="pl-kos">.</span><span class="pl-c1">max</span><span class="pl-kos">.</span><span class="pl-en">apply</span><span class="pl-kos">(</span><span class="pl-c1">null</span><span class="pl-kos">,</span> <span class="pl-kos">[</span><span class="pl-c1">3</span><span class="pl-kos">,</span> <span class="pl-c1">5</span><span class="pl-kos">,</span> <span class="pl-c1">4</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 5</span>
+<span class="pl-v">Math</span><span class="pl-kos">.</span><span class="pl-c1">max</span><span class="pl-kos">.</span><span class="pl-en">call</span><span class="pl-kos">(</span><span class="pl-c1">null</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">,</span> <span class="pl-c1">5</span><span class="pl-kos">,</span> <span class="pl-c1">4</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 5</span></pre></div>
 <p>对普通函数调用，我们通常把<code class="notranslate">this</code>绑定为<code class="notranslate">null</code>。</p>
 <h4>装饰器</h4>
 <p>利用<code class="notranslate">apply()</code>，我们还可以动态改变函数的行为。</p>
 <p>比如在原函数执行前做些事情。</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">'use strict';
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
 
-var count = 0;
-var oldParseInt = parseInt; // 保存原函数
+<span class="pl-k">var</span> <span class="pl-s1">count</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">oldParseInt</span> <span class="pl-c1">=</span> <span class="pl-s1">parseInt</span><span class="pl-kos">;</span> <span class="pl-c">// 保存原函数</span>
 
-window.parseInt = function () {
-    // do sth before invocation
-    count += 1;
-    return oldParseInt.apply(null, arguments); // 调用原函数
-};
-// 测试:
-parseInt('10');
-parseInt('20');
-parseInt('30');
-console.log('count = ' + count); // 3
-</code></pre>
+<span class="pl-smi">window</span><span class="pl-kos">.</span><span class="pl-en">parseInt</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-c">// do sth before invocation</span>
+    <span class="pl-s1">count</span> <span class="pl-c1">+=</span> <span class="pl-c1">1</span><span class="pl-kos">;</span>
+    <span class="pl-k">return</span> <span class="pl-s1">oldParseInt</span><span class="pl-kos">.</span><span class="pl-en">apply</span><span class="pl-kos">(</span><span class="pl-c1">null</span><span class="pl-kos">,</span> <span class="pl-smi">arguments</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 调用原函数</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
+<span class="pl-c">// 测试:</span>
+<span class="pl-en">parseInt</span><span class="pl-kos">(</span><span class="pl-s">'10'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-en">parseInt</span><span class="pl-kos">(</span><span class="pl-s">'20'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-en">parseInt</span><span class="pl-kos">(</span><span class="pl-s">'30'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'count = '</span> <span class="pl-c1">+</span> <span class="pl-s1">count</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 3</span></pre></div>
 <h2>4 高阶函数</h2>
 <p>高阶函数英文叫Higher-order function。那么什么是高阶函数？</p>
 <p>JavaScript的函数其实都指向某个变量。既然变量可以指向函数，函数的参数能接收变量，那么<strong>一个函数就可以接收另一个函数作为参数</strong>，这种函数就称之为高阶函数。</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">function add(x, y, f) {
-    return f(x) + f(y);
-}
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-en">add</span><span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">,</span> <span class="pl-s1">y</span><span class="pl-kos">,</span> <span class="pl-s1">f</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">f</span><span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">)</span> <span class="pl-c1">+</span> <span class="pl-s1">f</span><span class="pl-kos">(</span><span class="pl-s1">y</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
 <h3>4.1 map/reduce</h3>
 <p>map/reduce是针对批量处理大数据的一种处理思路，就是对大数据，先拆解，然后组装；或者，按照英文名称含义，先做数据的匹配，然后整理输出。</p>
 <h4>map</h4>
 <p>把f(x)作用在Array的每一个元素并把结果生成一个新的Array</p>
 <p>javaScript中map定义在Array中，含义如上。</p>
 <p>也就是针对数组中的每个元素，做操作</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-arr.map(String); // ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">,</span> <span class="pl-c1">4</span><span class="pl-kos">,</span> <span class="pl-c1">5</span><span class="pl-kos">,</span> <span class="pl-c1">6</span><span class="pl-kos">,</span> <span class="pl-c1">7</span><span class="pl-kos">,</span> <span class="pl-c1">8</span><span class="pl-kos">,</span> <span class="pl-c1">9</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">map</span><span class="pl-kos">(</span><span class="pl-v">String</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['1', '2', '3', '4', '5', '6', '7', '8', '9']</span></pre></div>
 <h4>reduce</h4>
 <blockquote>
 <p>Array的<code class="notranslate">reduce()</code>把一个函数作用在这个<code class="notranslate">Array</code>的<code class="notranslate">[x1, x2, x3...]</code>上，这个函数必须接收两个参数，<code class="notranslate">reduce()</code>把结果继续和序列的下一个元素做累积计算，其效果就是：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">[x1, x2, x3, x4].reduce(f) = f(f(f(x1, x2), x3), x4)
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-kos">[</span><span class="pl-s1">x1</span><span class="pl-kos">,</span> <span class="pl-s1">x2</span><span class="pl-kos">,</span> <span class="pl-s1">x3</span><span class="pl-kos">,</span> <span class="pl-s1">x4</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-en">reduce</span><span class="pl-kos">(</span><span class="pl-s1">f</span><span class="pl-kos">)</span> <span class="pl-c1">=</span> <span class="pl-s1">f</span><span class="pl-kos">(</span><span class="pl-en">f</span><span class="pl-kos">(</span><span class="pl-en">f</span><span class="pl-kos">(</span><span class="pl-s1">x1</span><span class="pl-kos">,</span> <span class="pl-s1">x2</span><span class="pl-kos">)</span><span class="pl-kos">,</span> <span class="pl-s1">x3</span><span class="pl-kos">)</span><span class="pl-kos">,</span> <span class="pl-s1">x4</span><span class="pl-kos">)</span></pre></div>
 </blockquote>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [1, 3, 5, 7, 9];
-arr.reduce(function (x, y) {
-    return x + y;
-}); // 25
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">,</span> <span class="pl-c1">5</span><span class="pl-kos">,</span> <span class="pl-c1">7</span><span class="pl-kos">,</span> <span class="pl-c1">9</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">reduce</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">,</span> <span class="pl-s1">y</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">x</span> <span class="pl-c1">+</span> <span class="pl-s1">y</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 25</span></pre></div>
 <p>如果数组元素只有1个，那么还需要提供一个额外的初始参数以便至少凑够两：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [123];
-arr.reduce(function (x, y) {
-    return x + y;
-}, 0); // 123
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">123</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">reduce</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">,</span> <span class="pl-s1">y</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">x</span> <span class="pl-c1">+</span> <span class="pl-s1">y</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">,</span> <span class="pl-c1">0</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 123</span></pre></div>
 <h4>练习</h4>
 <p>请把用户输入的不规范的英文名字，变为首字母大写，其他小写的规范名字。输入：<code class="notranslate">['adam', 'LISA', 'barT']</code>，输出：<code class="notranslate">['Adam', 'Lisa', 'Bart']</code>。</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">function normalize(arr) {
-    let stand = function (str) {
-        if (str.length === 1) {
-            return str.toUpperCase();
-        }
-        let fir = str.substring(0, 1);
-        let res = str.substring(1);
-        return fir.toUpperCase() + res.toLowerCase();
-    }
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-en">normalize</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">let</span> <span class="pl-en">stand</span> <span class="pl-c1">=</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">str</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">str</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">===</span> <span class="pl-c1">1</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-k">return</span> <span class="pl-s1">str</span><span class="pl-kos">.</span><span class="pl-en">toUpperCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">let</span> <span class="pl-s1">fir</span> <span class="pl-c1">=</span> <span class="pl-s1">str</span><span class="pl-kos">.</span><span class="pl-en">substring</span><span class="pl-kos">(</span><span class="pl-c1">0</span><span class="pl-kos">,</span> <span class="pl-c1">1</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-k">let</span> <span class="pl-s1">res</span> <span class="pl-c1">=</span> <span class="pl-s1">str</span><span class="pl-kos">.</span><span class="pl-en">substring</span><span class="pl-kos">(</span><span class="pl-c1">1</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-k">return</span> <span class="pl-s1">fir</span><span class="pl-kos">.</span><span class="pl-en">toUpperCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">+</span> <span class="pl-s1">res</span><span class="pl-kos">.</span><span class="pl-en">toLowerCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
 
-    return arr.map(stand);
-}
-// function normalize(arr) {
-//     return arr.map(function get_norm(x) { return x.slice(0, 1).toUpperCase() + x.slice(1).toLowerCase(); });
-// }
-// 测试:
-if (normalize(['adam', 'LISA', 'barT']).toString() === ['Adam', 'Lisa', 'Bart'].toString()) {
-    console.log('测试通过!');
-}
-else {
-    console.log('测试失败!');
-}
-</code></pre>
+    <span class="pl-k">return</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">map</span><span class="pl-kos">(</span><span class="pl-en">stand</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+<span class="pl-c">// function normalize(arr) {</span>
+<span class="pl-c">//     return arr.map(function get_norm(x) { return x.slice(0, 1).toUpperCase() + x.slice(1).toLowerCase(); });</span>
+<span class="pl-c">// }</span>
+<span class="pl-c">// 测试:</span>
+<span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-en">normalize</span><span class="pl-kos">(</span><span class="pl-kos">[</span><span class="pl-s">'adam'</span><span class="pl-kos">,</span> <span class="pl-s">'LISA'</span><span class="pl-kos">,</span> <span class="pl-s">'barT'</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-kos">[</span><span class="pl-s">'Adam'</span><span class="pl-kos">,</span> <span class="pl-s">'Lisa'</span><span class="pl-kos">,</span> <span class="pl-s">'Bart'</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+<span class="pl-k">else</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
 <p>小明希望利用<code class="notranslate">map()</code>把字符串变成整数，他写的代码很简洁：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">'use strict';
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
 
-var arr = ['1', '2', '3'];
-var r;
-r = arr.map(parseInt);//应该使用Number，原因是parseInt实际是两个参数的函数方法，见下面链接
-console.log(r);
-</code></pre>
+<span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'1'</span><span class="pl-kos">,</span> <span class="pl-s">'2'</span><span class="pl-kos">,</span> <span class="pl-s">'3'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">r</span><span class="pl-kos">;</span>
+<span class="pl-s1">r</span> <span class="pl-c1">=</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">map</span><span class="pl-kos">(</span><span class="pl-s1">parseInt</span><span class="pl-kos">)</span><span class="pl-kos">;</span><span class="pl-c">//应该使用Number，原因是parseInt实际是两个参数的函数方法，见下面链接</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">r</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <p>结果竟然是<code class="notranslate">1, NaN, NaN</code>，小明百思不得其解，请帮他找到原因并修正代码。</p>
 <p>提示：参考[<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map" rel="nofollow">Array.prototype.map()的文档</a>](<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)%E3%80%82" rel="nofollow">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)。</a></p>
 <h3>4.2 filter</h3>
 <p>类似map函数，filter是Array的过滤函数，根据过滤条件对Array进行过滤。</p>
 <p>例如，在一个<code class="notranslate">Array</code>中，删掉偶数，只保留奇数，可以这么写：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [1, 2, 4, 5, 6, 9, 10, 15];
-var r = arr.filter(function (x) {
-    return x % 2 !== 0;
-});
-r; // [1, 5, 9, 15]
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">4</span><span class="pl-kos">,</span> <span class="pl-c1">5</span><span class="pl-kos">,</span> <span class="pl-c1">6</span><span class="pl-kos">,</span> <span class="pl-c1">9</span><span class="pl-kos">,</span> <span class="pl-c1">10</span><span class="pl-kos">,</span> <span class="pl-c1">15</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">r</span> <span class="pl-c1">=</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">filter</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">x</span> <span class="pl-c1">%</span> <span class="pl-c1">2</span> <span class="pl-c1">!==</span> <span class="pl-c1">0</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">r</span><span class="pl-kos">;</span> <span class="pl-c">// [1, 5, 9, 15]</span></pre></div>
 <p>一般来说，filter函数就一个参数就够了，但是实际上可以有三个参数，后两个标识元素的位置和数组本身</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['A', 'B', 'C'];
-var r = arr.filter(function (element, index, self) {
-    console.log(element); // 依次打印'A', 'B', 'C'
-    console.log(index); // 依次打印0, 1, 2
-    console.log(self); // self就是变量arr
-    return true;
-});
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'A'</span><span class="pl-kos">,</span> <span class="pl-s">'B'</span><span class="pl-kos">,</span> <span class="pl-s">'C'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">r</span> <span class="pl-c1">=</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">filter</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">element</span><span class="pl-kos">,</span> <span class="pl-s1">index</span><span class="pl-kos">,</span> <span class="pl-s1">self</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">element</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 依次打印'A', 'B', 'C'</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">index</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 依次打印0, 1, 2</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">self</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// self就是变量arr</span>
+    <span class="pl-k">return</span> <span class="pl-c1">true</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <p>利用<code class="notranslate">filter</code>，可以巧妙地去除<code class="notranslate">Array</code>的重复元素：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">`use strict`
-var
-    r,
-    arr = ['apple', 'strawberry', 'banana', 'pear', 'apple', 'orange', 'orange', 'strawberry'];
-r = arr.filter(function (element, index, self) {
-    return self.indexOf(element) === index;
-});
-console.log(r.toString());
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">`use strict`</span>
+<span class="pl-k">var</span>
+    <span class="pl-s1">r</span><span class="pl-kos">,</span>
+    <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'apple'</span><span class="pl-kos">,</span> <span class="pl-s">'strawberry'</span><span class="pl-kos">,</span> <span class="pl-s">'banana'</span><span class="pl-kos">,</span> <span class="pl-s">'pear'</span><span class="pl-kos">,</span> <span class="pl-s">'apple'</span><span class="pl-kos">,</span> <span class="pl-s">'orange'</span><span class="pl-kos">,</span> <span class="pl-s">'orange'</span><span class="pl-kos">,</span> <span class="pl-s">'strawberry'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-s1">r</span> <span class="pl-c1">=</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">filter</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">element</span><span class="pl-kos">,</span> <span class="pl-s1">index</span><span class="pl-kos">,</span> <span class="pl-s1">self</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">self</span><span class="pl-kos">.</span><span class="pl-en">indexOf</span><span class="pl-kos">(</span><span class="pl-s1">element</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-s1">index</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">r</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <h4>练习</h4>
 <p>请尝试用<code class="notranslate">filter()</code>筛选出素数：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">function get_primes(arr) {
-    return arr.filter(function (x) {
-        if (x === 1) {
-            return false;
-        }
-        if (x === 2) {
-            return true;
-        }
-        let i = 2;
-        while (i &lt; x) {
-            if (x % i !== 0) {
-                i++;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    });
-}
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-en">get_primes</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">filter</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">x</span> <span class="pl-c1">===</span> <span class="pl-c1">1</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-k">return</span> <span class="pl-c1">false</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">x</span> <span class="pl-c1">===</span> <span class="pl-c1">2</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-k">return</span> <span class="pl-c1">true</span><span class="pl-kos">;</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">let</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">2</span><span class="pl-kos">;</span>
+        <span class="pl-k">while</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">x</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+            <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">x</span> <span class="pl-c1">%</span> <span class="pl-s1">i</span> <span class="pl-c1">!==</span> <span class="pl-c1">0</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+                <span class="pl-s1">i</span><span class="pl-c1">++</span><span class="pl-kos">;</span>
+            <span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-kos">{</span>
+                <span class="pl-k">return</span> <span class="pl-c1">false</span><span class="pl-kos">;</span>
+            <span class="pl-kos">}</span>
+        <span class="pl-kos">}</span>
+        <span class="pl-k">return</span> <span class="pl-c1">true</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
 
-// 测试:
-var
-    x,
-    r,
-    arr = [];
-for (x = 1; x &lt; 100; x++) {
-    arr.push(x);
-}
-r = get_primes(arr);
-if (r.toString() === [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97].toString()) {
-    console.log('测试通过!');
-} else {
-    console.log('测试失败: ' + r.toString());
-}
-</code></pre>
+<span class="pl-c">// 测试:</span>
+<span class="pl-k">var</span>
+    <span class="pl-s1">x</span><span class="pl-kos">,</span>
+    <span class="pl-s1">r</span><span class="pl-kos">,</span>
+    <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span><span class="pl-kos">;</span> <span class="pl-s1">x</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">100</span><span class="pl-kos">;</span> <span class="pl-s1">x</span><span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">push</span><span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+<span class="pl-s1">r</span> <span class="pl-c1">=</span> <span class="pl-en">get_primes</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">r</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-kos">[</span><span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">,</span> <span class="pl-c1">5</span><span class="pl-kos">,</span> <span class="pl-c1">7</span><span class="pl-kos">,</span> <span class="pl-c1">11</span><span class="pl-kos">,</span> <span class="pl-c1">13</span><span class="pl-kos">,</span> <span class="pl-c1">17</span><span class="pl-kos">,</span> <span class="pl-c1">19</span><span class="pl-kos">,</span> <span class="pl-c1">23</span><span class="pl-kos">,</span> <span class="pl-c1">29</span><span class="pl-kos">,</span> <span class="pl-c1">31</span><span class="pl-kos">,</span> <span class="pl-c1">37</span><span class="pl-kos">,</span> <span class="pl-c1">41</span><span class="pl-kos">,</span> <span class="pl-c1">43</span><span class="pl-kos">,</span> <span class="pl-c1">47</span><span class="pl-kos">,</span> <span class="pl-c1">53</span><span class="pl-kos">,</span> <span class="pl-c1">59</span><span class="pl-kos">,</span> <span class="pl-c1">61</span><span class="pl-kos">,</span> <span class="pl-c1">67</span><span class="pl-kos">,</span> <span class="pl-c1">71</span><span class="pl-kos">,</span> <span class="pl-c1">73</span><span class="pl-kos">,</span> <span class="pl-c1">79</span><span class="pl-kos">,</span> <span class="pl-c1">83</span><span class="pl-kos">,</span> <span class="pl-c1">89</span><span class="pl-kos">,</span> <span class="pl-c1">97</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败: '</span> <span class="pl-c1">+</span> <span class="pl-s1">r</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
 <h3>4.3 sort</h3>
 <p>javaScript自带的Array的sort方法，会把元素都转成string，再按照ASCII码处理，所以对数字类型的排序很不友好。</p>
 <p>解决办法就是sort中传入compare函数，比如</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [10, 20, 1, 2];
-arr.sort(function (x, y) {
-    return x - y;
-}); // [1,2,10,20]
-console.log(arr);
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">10</span><span class="pl-kos">,</span> <span class="pl-c1">20</span><span class="pl-kos">,</span> <span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">sort</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">x</span><span class="pl-kos">,</span> <span class="pl-s1">y</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">x</span> <span class="pl-c1">-</span> <span class="pl-s1">y</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// [1,2,10,20]</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <blockquote>
 <p>最后友情提示，<code class="notranslate">sort()</code>方法会直接对<code class="notranslate">Array</code>进行修改，它返回的结果仍是当前<code class="notranslate">Array</code>：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var a1 = ['B', 'A', 'C'];
-var a2 = a1.sort();
-a1; // ['A', 'B', 'C']
-a2; // ['A', 'B', 'C']
-a1 === a2; // true, a1和a2是同一对象
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">a1</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'B'</span><span class="pl-kos">,</span> <span class="pl-s">'A'</span><span class="pl-kos">,</span> <span class="pl-s">'C'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">a2</span> <span class="pl-c1">=</span> <span class="pl-s1">a1</span><span class="pl-kos">.</span><span class="pl-en">sort</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">a1</span><span class="pl-kos">;</span> <span class="pl-c">// ['A', 'B', 'C']</span>
+<span class="pl-s1">a2</span><span class="pl-kos">;</span> <span class="pl-c">// ['A', 'B', 'C']</span>
+<span class="pl-s1">a1</span> <span class="pl-c1">===</span> <span class="pl-s1">a2</span><span class="pl-kos">;</span> <span class="pl-c">// true, a1和a2是同一对象</span></pre></div>
 </blockquote>
 <h3>4.4  Array</h3>
 <p>Array还提供了很多高阶函数</p>
 <h4>every()</h4>
 <p>可以判断数组的所有元素是否满足测试条件</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['Apple', 'pear', 'orange'];
-console.log(arr.every(function (s) {
-    return s.length &gt; 0;
-})); // true, 因为每个元素都满足s.length&gt;0
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'Apple'</span><span class="pl-kos">,</span> <span class="pl-s">'pear'</span><span class="pl-kos">,</span> <span class="pl-s">'orange'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">every</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">&gt;</span> <span class="pl-c1">0</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// true, 因为每个元素都满足s.length&gt;0</span>
 
-console.log(arr.every(function (s) {
-    return s.toLowerCase() === s;
-})); // false, 因为不是每个元素都全部是小写
-</code></pre>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">every</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">toLowerCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-s1">s</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// false, 因为不是每个元素都全部是小写</span></pre></div>
 <h4>find()</h4>
 <p>用于查找符合条件的第一个元素，如果找到了，返回这个元素，否则，返回<code class="notranslate">undefined</code></p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['Apple', 'pear', 'orange'];
-console.log(arr.find(function (s) {
-    return s.toLowerCase() === s;
-})); // 'pear', 因为pear全部是小写
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'Apple'</span><span class="pl-kos">,</span> <span class="pl-s">'pear'</span><span class="pl-kos">,</span> <span class="pl-s">'orange'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">find</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">toLowerCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-s1">s</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'pear', 因为pear全部是小写</span>
 
-console.log(arr.find(function (s) {
-    return s.toUpperCase() === s;
-})); // undefined, 因为没有全部是大写的元素
-</code></pre>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">find</span><span class="pl-kos">(</span><span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">return</span> <span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">toUpperCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-s1">s</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// undefined, 因为没有全部是大写的元素</span></pre></div>
 <h4>findIndex()</h4>
 <p>也是查找符合条件的第一个元素，不同之处在于<code class="notranslate">findIndex()</code>会返回这个元素的索引，如果没有找到，返回<code class="notranslate">-1</code></p>
 <h4>forEach()</h4>
 <p><code class="notranslate">forEach()</code>和<code class="notranslate">map()</code>类似，它也把每个元素依次作用于传入的函数，但不会返回新的数组。<code class="notranslate">forEach()</code>常用于遍历数组，因此，传入的函数不需要返回值</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['Apple', 'pear', 'orange'];
-arr.forEach(console.log); // 依次打印每个元素
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'Apple'</span><span class="pl-kos">,</span> <span class="pl-s">'pear'</span><span class="pl-kos">,</span> <span class="pl-s">'orange'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">forEach</span><span class="pl-kos">(</span><span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-c1">log</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 依次打印每个元素</span></pre></div>
 <h2></h2></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
@@ -462,7 +451,7 @@ if(""!=""){
 </script></div>
 </body>
 <script>
-var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
 var utterancesLoad=0;
 
 let themeSettings={
@@ -536,7 +525,70 @@ function iFrameLoading(){
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
 
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
 
 </script>
 
