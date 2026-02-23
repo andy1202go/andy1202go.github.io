@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://andy1202go.github.io/post/JavaScript%281%29%20-ru-men-%20Part1.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>JavaScript(1) 入门 Part1</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -41,17 +41,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
-.copy-feedback {
-    display: none;
-    position: absolute;
-    top: 10px;
-    right: 50px;
-    color: var(--color-fg-on-emphasis);
-    background-color: var(--color-fg-muted);
-    border-radius: 3px;
-    padding: 5px 8px;
-    font-size: 12px;
-}
+
 </style>
 
 
@@ -92,11 +82,12 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p>怎么嵌入html：直接script标签中写入，或者script标签用src属性引入js文件；推荐后者</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">&lt;</span><span class="pl-s1">script</span> <span class="pl-c1">src</span><span class="pl-c1">=</span><span class="pl-s">"scripts/abbey/15.js"</span><span class="pl-c1">&gt;</span><span class="pl-kos">&lt;/</span><span class="pl-s1">script</span><span class="pl-c1">&gt;</span>
-<span class="pl-s1">或者</span>
-<span class="pl-c1">&lt;</span><span class="pl-s1">script</span> <span class="pl-s1">type</span><span class="pl-c1">=</span><span class="pl-s">"text/javascript"</span><span class="pl-c1">&gt;</span>
+<pre lang="javascript" class="notranslate"><code class="notranslate">&lt;script src="scripts/abbey/15.js"&gt;&lt;/script&gt;
+或者
+&lt;script type="text/javascript"&gt;
   ...
-&lt;/<span class="pl-s1">script</span><span class="pl-c1">&gt;</span></pre></div>
+&lt;/script&gt;
+</code></pre>
 </li>
 <li>
 <p>如何编写：推荐vscode</p>
@@ -108,20 +99,22 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>这种方式运行部分JavaScript代码没有问题，但由于浏览器的安全限制，以<code class="notranslate">file://</code>开头的地址无法执行如联网等JavaScript代码，最终，你还是需要架设一个Web服务器，然后以<code class="notranslate">http://</code>开头的地址来正常执行所有JavaScript代码。</p>
 </blockquote>
 <p>就使用python自带的server服务吧</p>
-<div class="highlight highlight-source-python"><pre class="notranslate"><span class="pl-s1">python</span> <span class="pl-c1">-</span><span class="pl-s1">m</span> <span class="pl-s1">http</span>.<span class="pl-c1">server</span></pre></div>
+<pre lang="python" class="notranslate"><code class="notranslate">python -m http.server
+</code></pre>
 </li>
 <li>
 <p>helloworld:alter()</p>
-<div class="highlight highlight-text-html-basic"><pre class="notranslate"><span class="pl-kos">&lt;</span><span class="pl-ent">html</span><span class="pl-kos">&gt;</span>
-<span class="pl-kos">&lt;</span><span class="pl-ent">head</span><span class="pl-kos">&gt;</span>
-  <span class="pl-kos">&lt;</span><span class="pl-ent">script</span><span class="pl-kos">&gt;</span>
-    <span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s">'Hello, world'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-  <span class="pl-kos">&lt;/</span><span class="pl-ent">script</span><span class="pl-kos">&gt;</span>
-<span class="pl-kos">&lt;/</span><span class="pl-ent">head</span><span class="pl-kos">&gt;</span>
-<span class="pl-kos">&lt;</span><span class="pl-ent">body</span><span class="pl-kos">&gt;</span>
+<pre lang="html" class="notranslate"><code class="notranslate">&lt;html&gt;
+&lt;head&gt;
+  &lt;script&gt;
+    alert('Hello, world');
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
   ...
-<span class="pl-kos">&lt;/</span><span class="pl-ent">body</span><span class="pl-kos">&gt;</span>
-<span class="pl-kos">&lt;/</span><span class="pl-ent">html</span><span class="pl-kos">&gt;</span></pre></div>
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 </li>
 </ul>
 <h2>2 基本语法</h2>
@@ -136,22 +129,24 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p>JavaScript不区分整数和浮点数，统一用Number表示</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">123</span><span class="pl-kos">;</span> <span class="pl-c">// 整数123</span>
-<span class="pl-c1">0.456</span><span class="pl-kos">;</span> <span class="pl-c">// 浮点数0.456</span>
-<span class="pl-c1">1.2345e3</span><span class="pl-kos">;</span> <span class="pl-c">// 科学计数法表示1.2345x1000，等同于1234.5</span>
-<span class="pl-c1">-</span><span class="pl-c1">99</span><span class="pl-kos">;</span> <span class="pl-c">// 负数</span>
-<span class="pl-v">NaN</span><span class="pl-kos">;</span> <span class="pl-c">// NaN表示Not a Number，当无法计算结果时用NaN表示</span>
-<span class="pl-v">Infinity</span><span class="pl-kos">;</span> <span class="pl-c">// Infinity表示无限大，当数值超过了JavaScript的Number所能表示的最大值时，就表示为Infinity</span>
-<span class="pl-c1">0xa5b4c3d2</span><span class="pl-kos">;</span> <span class="pl-c">//16进制表达，0x开头</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">123; // 整数123
+0.456; // 浮点数0.456
+1.2345e3; // 科学计数法表示1.2345x1000，等同于1234.5
+-99; // 负数
+NaN; // NaN表示Not a Number，当无法计算结果时用NaN表示
+Infinity; // Infinity表示无限大，当数值超过了JavaScript的Number所能表示的最大值时，就表示为Infinity
+0xa5b4c3d2; //16进制表达，0x开头
+</code></pre>
 </li>
 <li>
 <p>正常的四则运算，注意计算得到NaN的情况</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">1</span> <span class="pl-c1">+</span> <span class="pl-c1">2</span><span class="pl-kos">;</span> <span class="pl-c">// 3</span>
-<span class="pl-kos">(</span><span class="pl-c1">1</span> <span class="pl-c1">+</span> <span class="pl-c1">2</span><span class="pl-kos">)</span> <span class="pl-c1">*</span> <span class="pl-c1">5</span> <span class="pl-c1">/</span> <span class="pl-c1">2</span><span class="pl-kos">;</span> <span class="pl-c">// 7.5</span>
-<span class="pl-c1">2</span> <span class="pl-c1">/</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-c">// Infinity</span>
-<span class="pl-c1">0</span> <span class="pl-c1">/</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-c">// NaN</span>
-<span class="pl-c1">10</span> <span class="pl-c1">%</span> <span class="pl-c1">3</span><span class="pl-kos">;</span> <span class="pl-c">// 1</span>
-<span class="pl-c1">10.5</span> <span class="pl-c1">%</span> <span class="pl-c1">3</span><span class="pl-kos">;</span> <span class="pl-c">// 1.5</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">1 + 2; // 3
+(1 + 2) * 5 / 2; // 7.5
+2 / 0; // Infinity
+0 / 0; // NaN
+10 % 3; // 1
+10.5 % 3; // 1.5
+</code></pre>
 </li>
 </ul>
 <h3>字符串</h3>
@@ -159,9 +154,10 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>单引号双引号都行</li>
 </ul>
 <h3>布尔值</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">true</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-c1">true</span>
-<span class="pl-c1">true</span> <span class="pl-c1">||</span> <span class="pl-c1">false</span>
-<span class="pl-c1">!</span><span class="pl-c1">false</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">true &amp;&amp; true
+true || false
+!false
+</code></pre>
 <h3>比较运算符</h3>
 <p>除了一般的大于小于，几个比较特殊的要重点注意</p>
 <ul>
@@ -173,15 +169,16 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </li>
 <li>
 <p>浮点数的比较，受限于计算机对无限小数的精度问题，只能特殊处理如下</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">2</span> <span class="pl-c1">&gt;</span> <span class="pl-c1">5</span><span class="pl-kos">;</span> <span class="pl-c">// false</span>
-<span class="pl-c1">5</span> <span class="pl-c1">&gt;=</span> <span class="pl-c1">2</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
-<span class="pl-c1">7</span> <span class="pl-c1">==</span> <span class="pl-c1">7</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
-<span class="pl-c1">false</span> <span class="pl-c1">==</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
-<span class="pl-c1">false</span> <span class="pl-c1">===</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-c">// false</span>
-<span class="pl-v">NaN</span> <span class="pl-c1">===</span> <span class="pl-v">NaN</span><span class="pl-kos">;</span> <span class="pl-c">// false</span>
-<span class="pl-en">isNaN</span><span class="pl-kos">(</span><span class="pl-v">NaN</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
-<span class="pl-c1">1</span> <span class="pl-c1">/</span> <span class="pl-c1">3</span> <span class="pl-c1">===</span> <span class="pl-kos">(</span><span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-c1">2</span> <span class="pl-c1">/</span> <span class="pl-c1">3</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// false</span>
-<span class="pl-v">Math</span><span class="pl-kos">.</span><span class="pl-en">abs</span><span class="pl-kos">(</span><span class="pl-c1">1</span> <span class="pl-c1">/</span> <span class="pl-c1">3</span> <span class="pl-c1">-</span> <span class="pl-kos">(</span><span class="pl-c1">1</span> <span class="pl-c1">-</span> <span class="pl-c1">2</span> <span class="pl-c1">/</span> <span class="pl-c1">3</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">0.0000001</span><span class="pl-kos">;</span> <span class="pl-c">// true</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">2 &gt; 5; // false
+5 &gt;= 2; // true
+7 == 7; // true
+false == 0; // true
+false === 0; // false
+NaN === NaN; // false
+isNaN(NaN); // true
+1 / 3 === (1 - 2 / 3); // false
+Math.abs(1 / 3 - (1 - 2 / 3)) &lt; 0.0000001; // true
+</code></pre>
 </li>
 </ul>
 <h3>null和undifined</h3>
@@ -202,39 +199,42 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>[]中，逗号分隔</li>
 <li>强烈建议直接使用<code class="notranslate">[]</code>初始化，而不是new Array()</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3.14</span><span class="pl-kos">,</span> <span class="pl-s">'Hello'</span><span class="pl-kos">,</span> <span class="pl-c1">null</span><span class="pl-kos">,</span> <span class="pl-c1">true</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-k">new</span> <span class="pl-v">Array</span><span class="pl-kos">(</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 创建了数组[1, 2, 3]</span>
-<span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3.14</span><span class="pl-kos">,</span> <span class="pl-s">'Hello'</span><span class="pl-kos">,</span> <span class="pl-c1">null</span><span class="pl-kos">,</span> <span class="pl-c1">true</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-kos">]</span><span class="pl-kos">;</span> <span class="pl-c">// 返回索引为0的元素，即1</span>
-<span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">5</span><span class="pl-kos">]</span><span class="pl-kos">;</span> <span class="pl-c">// 返回索引为5的元素，即true</span>
-<span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">6</span><span class="pl-kos">]</span><span class="pl-kos">;</span> <span class="pl-c">// 索引超出了范围，返回undefined</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">[1, 2, 3.14, 'Hello', null, true];
+new Array(1, 2, 3); // 创建了数组[1, 2, 3]
+var arr = [1, 2, 3.14, 'Hello', null, true];
+arr[0]; // 返回索引为0的元素，即1
+arr[5]; // 返回索引为5的元素，即true
+arr[6]; // 索引超出了范围，返回undefined
+</code></pre>
 <h3>对象</h3>
 <ul>
 <li>一组由键值对组成的无需集合</li>
 <li>获取对象的属性是对象变量.属性名</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">person</span><span class="pl-c1">=</span><span class="pl-kos">{</span>
-    <span class="pl-c1">name</span>:<span class="pl-s">'Shit'</span><span class="pl-kos">,</span>
-    <span class="pl-c1">age</span>:<span class="pl-c1">20</span><span class="pl-kos">,</span>
-    <span class="pl-c1">zipCode</span>:<span class="pl-c1">null</span><span class="pl-kos">,</span>
-    <span class="pl-c1">tags</span>:<span class="pl-kos">[</span><span class="pl-s">'js'</span><span class="pl-kos">,</span><span class="pl-s">'java'</span><span class="pl-kos">]</span>
-<span class="pl-kos">}</span>
-<span class="pl-s1">person</span><span class="pl-kos">.</span><span class="pl-c1">name</span><span class="pl-kos">;</span>
-<span class="pl-s1">person</span><span class="pl-kos">.</span><span class="pl-c1">tags</span><span class="pl-kos">;</span>
-<span class="pl-s1">person</span><span class="pl-kos">.</span><span class="pl-c1">tags</span><span class="pl-kos">;</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var person={
+    name:'Shit',
+    age:20,
+    zipCode:null,
+    tags:['js','java']
+}
+person.name;
+person.tags;
+person.tags;
+</code></pre>
 <h3>变量</h3>
 <ul>
 <li>动态语言，不需要在初始化时候指定类型</li>
 <li>变量名是大小写英文、数字、<code class="notranslate">$</code>和<code class="notranslate">_</code>的组合，且不能用数字开头</li>
 <li>strict模式下，必需有var才能申明变量</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span> <span class="pl-c">//启用strict模式</span>
-<span class="pl-k">var</span> <span class="pl-s1">a</span><span class="pl-kos">;</span> <span class="pl-c">// 申明了变量a，此时a的值为undefined</span>
-<span class="pl-k">var</span> <span class="pl-s1">$b</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span><span class="pl-kos">;</span> <span class="pl-c">// 申明了变量$b，同时给$b赋值，此时$b的值为1</span>
-<span class="pl-k">var</span> <span class="pl-s1">s_007</span> <span class="pl-c1">=</span> <span class="pl-s">'007'</span><span class="pl-kos">;</span> <span class="pl-c">// s_007是一个字符串</span>
-<span class="pl-k">var</span> <span class="pl-v">Answer</span> <span class="pl-c1">=</span> <span class="pl-c1">true</span><span class="pl-kos">;</span> <span class="pl-c">// Answer是一个布尔值true</span>
-<span class="pl-k">var</span> <span class="pl-s1">t</span> <span class="pl-c1">=</span> <span class="pl-c1">null</span><span class="pl-kos">;</span> <span class="pl-c">// t的值是null</span>
-<span class="pl-s1">abc</span> <span class="pl-c1">=</span> <span class="pl-s">'Hello, world'</span><span class="pl-kos">;</span> <span class="pl-c">//报错</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">'use strict'; //启用strict模式
+var a; // 申明了变量a，此时a的值为undefined
+var $b = 1; // 申明了变量$b，同时给$b赋值，此时$b的值为1
+var s_007 = '007'; // s_007是一个字符串
+var Answer = true; // Answer是一个布尔值true
+var t = null; // t的值是null
+abc = 'Hello, world'; //报错
+</code></pre>
 <h3>类型转换</h3>
 <p><a href="https://www.runoob.com/js/js-type-conversion.html" rel="nofollow">https://www.runoob.com/js/js-type-conversion.html</a></p>
 <ul>
@@ -258,41 +258,46 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p>ASCII字符可以以<code class="notranslate">\x##</code>形式的十六进制表示</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'\x41'</span><span class="pl-kos">;</span> <span class="pl-c">// 完全等同于 'A'</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">'\x41'; // 完全等同于 'A'
+</code></pre>
 </li>
 <li>
 <p>还可以用<code class="notranslate">\u####</code>表示一个Unicode字符</p>
 </li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'\u4e2d\u6587'</span><span class="pl-kos">;</span> <span class="pl-c">// 完全等同于 '中文''\x41'</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">'\u4e2d\u6587'; // 完全等同于 '中文''\x41'
+</code></pre>
 <h3>多行字符串</h3>
 <p>用反引号，注意有换行符</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">strLong</span> <span class="pl-c1">=</span> <span class="pl-s">`fd</span>
-<span class="pl-s">asd</span>
-<span class="pl-s">dfd`</span><span class="pl-kos">;</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var strLong = `fd
+asd
+dfd`;
+</code></pre>
 <h3>模板字符串</h3>
 <ul>
 <li>几个字符串可以用加号连接</li>
 <li>更多的可以用模板字符串连接</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">'小明'</span><span class="pl-kos">;</span>
-<span class="pl-k">var</span> <span class="pl-s1">age</span> <span class="pl-c1">=</span> <span class="pl-c1">20</span><span class="pl-kos">;</span>
-<span class="pl-k">var</span> <span class="pl-s1">message</span> <span class="pl-c1">=</span> <span class="pl-s">'你好, '</span> <span class="pl-c1">+</span> <span class="pl-s1">name</span> <span class="pl-c1">+</span> <span class="pl-s">', 你今年'</span> <span class="pl-c1">+</span> <span class="pl-s1">age</span> <span class="pl-c1">+</span> <span class="pl-s">'岁了!'</span><span class="pl-kos">;</span>
-<span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s1">message</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var name = '小明';
+var age = 20;
+var message = '你好, ' + name + ', 你今年' + age + '岁了!';
+alert(message);
 
-<span class="pl-k">var</span> <span class="pl-s1">name</span> <span class="pl-c1">=</span> <span class="pl-s">'小明'</span><span class="pl-kos">;</span>
-<span class="pl-k">var</span> <span class="pl-s1">age</span> <span class="pl-c1">=</span> <span class="pl-c1">20</span><span class="pl-kos">;</span>
-<span class="pl-k">var</span> <span class="pl-s1">message</span> <span class="pl-c1">=</span> <span class="pl-s">`你好, <span class="pl-s1"><span class="pl-kos">${</span><span class="pl-s1">name</span><span class="pl-kos">}</span></span>, 你今年<span class="pl-s1"><span class="pl-kos">${</span><span class="pl-s1">age</span><span class="pl-kos">}</span></span>岁了!`</span><span class="pl-kos">;</span>
-<span class="pl-en">alert</span><span class="pl-kos">(</span><span class="pl-s1">message</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
+var name = '小明';
+var age = 20;
+var message = `你好, ${name}, 你今年${age}岁了!`;
+alert(message);
+</code></pre>
 <h3>常用函数</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">s</span> <span class="pl-c1">=</span> <span class="pl-s">'Hello, world!'</span><span class="pl-kos">;</span>
-<span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span>
-<span class="pl-s1">s</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">toUpperCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">toLowerCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">indexOf</span><span class="pl-kos">(</span><span class="pl-s">"H"</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">subString</span><span class="pl-kos">(</span><span class="pl-c1">0</span><span class="pl-kos">,</span><span class="pl-c1">3</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-s1">s</span><span class="pl-kos">.</span><span class="pl-en">includes</span><span class="pl-kos">(</span><span class="pl-s">"sdfa"</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var s = 'Hello, world!';
+s.length;
+s[0];
+s.toUpperCase();
+s.toLowerCase();
+s.indexOf("H");
+s.subString(0,3);
+s.includes("sdfa");
+</code></pre>
 <ul>
 <li><em>需要特别注意的是</em>，字符串是不可变的，如果对字符串的某个索引赋值，不会有任何错误，但是，也没有任何效果</li>
 </ul>
@@ -303,59 +308,64 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>可以直接改变长度，不会报错，但不建议这么做；访问到没有值的时候，报undefined</li>
 <li>可以直接修改某个位置的值</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-c">// 3</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">=</span> <span class="pl-c1">6</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// arr变为[1, 2, 3, undefined, undefined, undefined]</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-c1">length</span> <span class="pl-c1">=</span> <span class="pl-c1">2</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// arr变为[1, 2]</span>
-<span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">5</span><span class="pl-kos">]</span> <span class="pl-c1">=</span> <span class="pl-s">'x'</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// arr变为[1, 2, 3, undefined, undefined, 'x']</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [1, 2, 3];
+arr.length; // 3
+arr.length = 6;
+arr; // arr变为[1, 2, 3, undefined, undefined, undefined]
+arr.length = 2;
+arr; // arr变为[1, 2]
+var arr = [1, 2, 3];
+arr[5] = 'x';
+arr; // arr变为[1, 2, 3, undefined, undefined, 'x']
+</code></pre>
 <h3>indexOf</h3>
 <p>可以通过<code class="notranslate">indexOf()</code>来搜索一个指定的元素的位置：即获取索引</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">10</span><span class="pl-kos">,</span> <span class="pl-c1">20</span><span class="pl-kos">,</span> <span class="pl-s">'30'</span><span class="pl-kos">,</span> <span class="pl-s">'xyz'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">indexOf</span><span class="pl-kos">(</span><span class="pl-c1">10</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 元素10的索引为0</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">indexOf</span><span class="pl-kos">(</span><span class="pl-c1">20</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 元素20的索引为1</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">indexOf</span><span class="pl-kos">(</span><span class="pl-c1">30</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 元素30没有找到，返回-1</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">indexOf</span><span class="pl-kos">(</span><span class="pl-s">'30'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 元素'30'的索引为2</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [10, 20, '30', 'xyz'];
+arr.indexOf(10); // 元素10的索引为0
+arr.indexOf(20); // 元素20的索引为1
+arr.indexOf(30); // 元素30没有找到，返回-1
+arr.indexOf('30'); // 元素'30'的索引为2
+</code></pre>
 <h3>slice</h3>
 <ul>
 <li>就是String的subString的数组版本，截取数组的一部分返回；</li>
 <li>也是左闭右开</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'A'</span><span class="pl-kos">,</span> <span class="pl-s">'B'</span><span class="pl-kos">,</span> <span class="pl-s">'C'</span><span class="pl-kos">,</span> <span class="pl-s">'D'</span><span class="pl-kos">,</span> <span class="pl-s">'E'</span><span class="pl-kos">,</span> <span class="pl-s">'F'</span><span class="pl-kos">,</span> <span class="pl-s">'G'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">slice</span><span class="pl-kos">(</span><span class="pl-c1">0</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 从索引0开始，到索引3结束，但不包括索引3: ['A', 'B', 'C']</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">slice</span><span class="pl-kos">(</span><span class="pl-c1">3</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 从索引3开始到结束: ['D', 'E', 'F', 'G']</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+arr.slice(0, 3); // 从索引0开始，到索引3结束，但不包括索引3: ['A', 'B', 'C']
+arr.slice(3); // 从索引3开始到结束: ['D', 'E', 'F', 'G']
+</code></pre>
 <h3>push和pop</h3>
 <ul>
 <li>队尾的操作</li>
 <li>pop()是有返回的</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">push</span><span class="pl-kos">(</span><span class="pl-s">'A'</span><span class="pl-kos">,</span> <span class="pl-s">'B'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 返回Array新的长度: 4</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// [1, 2, 'A', 'B']</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">pop</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// pop()返回'B'</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// [1, 2, 'A']</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">pop</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">pop</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">pop</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 连续pop 3次</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// []</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">pop</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 空数组继续pop不会报错，而是返回undefined</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// []</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [1, 2];
+arr.push('A', 'B'); // 返回Array新的长度: 4
+arr; // [1, 2, 'A', 'B']
+arr.pop(); // pop()返回'B'
+arr; // [1, 2, 'A']
+arr.pop(); arr.pop(); arr.pop(); // 连续pop 3次
+arr; // []
+arr.pop(); // 空数组继续pop不会报错，而是返回undefined
+arr; // []
+</code></pre>
 <h3>unshift和shift</h3>
 <ul>
 <li>直译是“移位”，就是平移</li>
 <li>所以是在头部的增删动作</li>
 <li>shift()是有返回的</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">unshift</span><span class="pl-kos">(</span><span class="pl-s">'A'</span><span class="pl-kos">,</span> <span class="pl-s">'B'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 返回Array新的长度: 4</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// ['A', 'B', 1, 2]</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">shift</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'A'</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// ['B', 1, 2]</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">shift</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">shift</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">shift</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 连续shift 3次</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// []</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">shift</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 空数组继续shift不会报错，而是返回undefined</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// []</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [1, 2];
+arr.unshift('A', 'B'); // 返回Array新的长度: 4
+arr; // ['A', 'B', 1, 2]
+arr.shift(); // 'A'
+arr; // ['B', 1, 2]
+arr.shift(); arr.shift(); arr.shift(); // 连续shift 3次
+arr; // []
+arr.shift(); // 空数组继续shift不会报错，而是返回undefined
+arr; // []
+</code></pre>
 <h3>sort</h3>
 <ul>
 <li>正序排序</li>
@@ -368,16 +378,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>没有见过的方法，直译是“接合”</li>
 <li>可以从指定的索引开始删除若干元素，然后再从该位置添加若干元素：</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'Microsoft'</span><span class="pl-kos">,</span> <span class="pl-s">'Apple'</span><span class="pl-kos">,</span> <span class="pl-s">'Yahoo'</span><span class="pl-kos">,</span> <span class="pl-s">'AOL'</span><span class="pl-kos">,</span> <span class="pl-s">'Excite'</span><span class="pl-kos">,</span> <span class="pl-s">'Oracle'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-c">// 从索引2开始删除3个元素,然后再添加两个元素:</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">splice</span><span class="pl-kos">(</span><span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">,</span> <span class="pl-s">'Google'</span><span class="pl-kos">,</span> <span class="pl-s">'Facebook'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 返回删除的元素 ['Yahoo', 'AOL', 'Excite']</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// ['Microsoft', 'Apple', 'Google', 'Facebook', 'Oracle']</span>
-<span class="pl-c">// 只删除,不添加:</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">splice</span><span class="pl-kos">(</span><span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['Google', 'Facebook']</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// ['Microsoft', 'Apple', 'Oracle']</span>
-<span class="pl-c">// 只添加,不删除:</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">splice</span><span class="pl-kos">(</span><span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">0</span><span class="pl-kos">,</span> <span class="pl-s">'Google'</span><span class="pl-kos">,</span> <span class="pl-s">'Facebook'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 返回[],因为没有删除任何元素</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// ['Microsoft', 'Apple', 'Google', 'Facebook', 'Oracle']</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['Microsoft', 'Apple', 'Yahoo', 'AOL', 'Excite', 'Oracle'];
+// 从索引2开始删除3个元素,然后再添加两个元素:
+arr.splice(2, 3, 'Google', 'Facebook'); // 返回删除的元素 ['Yahoo', 'AOL', 'Excite']
+arr; // ['Microsoft', 'Apple', 'Google', 'Facebook', 'Oracle']
+// 只删除,不添加:
+arr.splice(2, 2); // ['Google', 'Facebook']
+arr; // ['Microsoft', 'Apple', 'Oracle']
+// 只添加,不删除:
+arr.splice(2, 0, 'Google', 'Facebook'); // 返回[],因为没有删除任何元素
+arr; // ['Microsoft', 'Apple', 'Google', 'Facebook', 'Oracle']
+</code></pre>
 <ul>
 <li>直观感觉是，真tm灵活</li>
 </ul>
@@ -386,17 +397,20 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li>数组连接</li>
 <li>注意没有修改原数组，而是返回了新数组</li>
 </ul>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'A'</span><span class="pl-kos">,</span> <span class="pl-s">'B'</span><span class="pl-kos">,</span> <span class="pl-s">'C'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-k">var</span> <span class="pl-s1">added</span> <span class="pl-c1">=</span> <span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">concat</span><span class="pl-kos">(</span><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-s1">added</span><span class="pl-kos">;</span> <span class="pl-c">// ['A', 'B', 'C', 1, 2, 3]</span>
-<span class="pl-s1">arr</span><span class="pl-kos">;</span> <span class="pl-c">// ['A', 'B', 'C']</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['A', 'B', 'C'];
+var added = arr.concat([1, 2, 3]);
+added; // ['A', 'B', 'C', 1, 2, 3]
+arr; // ['A', 'B', 'C']
+</code></pre>
 <h3>join</h3>
 <p>把当前array的每个元素用指定的字符串连接，并返回连接后的字符串</p>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'A'</span><span class="pl-kos">,</span> <span class="pl-s">'B'</span><span class="pl-kos">,</span> <span class="pl-s">'C'</span><span class="pl-kos">,</span> <span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-s1">arr</span><span class="pl-kos">.</span><span class="pl-en">join</span><span class="pl-kos">(</span><span class="pl-s">'-'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'A-B-C-1-2-3'</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = ['A', 'B', 'C', 1, 2, 3];
+arr.join('-'); // 'A-B-C-1-2-3'
+</code></pre>
 <h3>多维数组</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">arr</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">,</span> <span class="pl-c1">2</span><span class="pl-kos">,</span> <span class="pl-c1">3</span><span class="pl-kos">]</span><span class="pl-kos">,</span> <span class="pl-kos">[</span><span class="pl-c1">400</span><span class="pl-kos">,</span> <span class="pl-c1">500</span><span class="pl-kos">,</span> <span class="pl-c1">600</span><span class="pl-kos">]</span><span class="pl-kos">,</span> <span class="pl-s">'-'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-<span class="pl-k">var</span> <span class="pl-s1">x</span> <span class="pl-c1">=</span> <span class="pl-s1">arr</span><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">]</span><span class="pl-kos">[</span><span class="pl-c1">1</span><span class="pl-kos">]</span><span class="pl-kos">;</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">var arr = [[1, 2, 3], [400, 500, 600], '-'];
+var x = arr[1][1];
+</code></pre>
 <h2></h2></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
@@ -422,7 +436,7 @@ if(""!=""){
 </script></div>
 </body>
 <script>
-var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
 var utterancesLoad=0;
 
 let themeSettings={
@@ -496,70 +510,7 @@ function iFrameLoading(){
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const createClipboardHTML = (codeContent, additionalClasses = '') => `
-        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
-        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
-            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
-                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
-                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
-            </clipboard-copy>
-            <div class="copy-feedback">Copied!</div>
-        </div>
-    `;
 
-    const handleCodeElements = (selector = '') => {
-        document.querySelectorAll(selector).forEach(codeElement => {
-            const codeContent = codeElement.innerHTML;
-            const newStructure = document.createElement('div');
-            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
-            newStructure.innerHTML = createClipboardHTML(codeContent);
-
-            const parentElement = codeElement.parentElement;
-            if (selector.includes('highlight')) {
-                parentElement.insertBefore(newStructure, codeElement.nextSibling);
-                parentElement.removeChild(codeElement);
-            } else {
-                parentElement.parentElement.replaceChild(newStructure, parentElement);
-            }
-        });
-    };
-
-    handleCodeElements('pre.notranslate > code.notranslate');
-    handleCodeElements('div.highlight > pre.notranslate');
-
-    let currentFeedback = null;
-    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
-        copyButton.addEventListener('click', () => {
-            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
-            const tempTextArea = document.createElement('textarea');
-            tempTextArea.value = codeContent;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextArea);
-
-            const copyIcon = copyButton.querySelector('.octicon-copy');
-            const checkIcon = copyButton.querySelector('.octicon-check');
-            const copyFeedback = copyButton.nextElementSibling;
-
-            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
-            currentFeedback = copyFeedback;
-
-            copyIcon.classList.add('d-none');
-            checkIcon.classList.remove('d-none');
-            copyFeedback.style.display = 'block';
-            copyButton.style.borderColor = 'var(--color-success-fg)';
-
-            setTimeout(() => {
-                copyIcon.classList.remove('d-none');
-                checkIcon.classList.add('d-none');
-                copyFeedback.style.display = 'none';
-                copyButton.style.borderColor = '';
-            }, 2000);
-        });
-    });
-});
 
 </script>
 
