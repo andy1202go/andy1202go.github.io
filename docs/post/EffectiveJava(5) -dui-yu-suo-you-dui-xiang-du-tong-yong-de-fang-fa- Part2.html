@@ -47,7 +47,7 @@
 <meta property="og:url" content="https://andy1202go.github.io/post/EffectiveJava%285%29%20-dui-yu-suo-you-dui-xiang-du-tong-yong-de-fang-fa-%20Part2.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>EffectiveJava(5) 对于所有对象都通用的方法 Part2</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -71,7 +71,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
-
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
 </style>
 
 
@@ -108,11 +118,10 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p>Object提供的toString方法，不好用，是类名@十六进制的展示，看不懂啥意思</p>
-<pre lang="java" class="notranslate"><code class="notranslate">//    * It is recommended that all subclasses override this method.    
-public String toString() {
-        return getClass().getName() + "@" + Integer.toHexString(hashCode());
-    }
-</code></pre>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//    * It is recommended that all subclasses override this method.    </span>
+<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span>() {
+        <span class="pl-k">return</span> <span class="pl-en">getClass</span>().<span class="pl-en">getName</span>() + <span class="pl-s">"@"</span> + <span class="pl-smi">Integer</span>.<span class="pl-en">toHexString</span>(<span class="pl-en">hashCode</span>());
+    }</pre></div>
 </li>
 <li>
 <p>官方都说，强烈建议，所有类都重写这个方法</p>
@@ -128,137 +137,135 @@ public String toString() {
 <ul>
 <li>
 <p>一般的类，参考源码去写，就把关键信息或者逻辑信息组织好就行了</p>
-<pre lang="java" class="notranslate"><code class="notranslate">//Timestamp
-   /**
-     * Formats a timestamp in JDBC timestamp escape format.
-     *         &lt;code&gt;yyyy-mm-dd hh:mm:ss.fffffffff&lt;/code&gt;,
-     * where &lt;code&gt;ffffffffff&lt;/code&gt; indicates nanoseconds.
-     * &lt;P&gt;
-     * @return a &lt;code&gt;String&lt;/code&gt; object in
-     *           &lt;code&gt;yyyy-mm-dd hh:mm:ss.fffffffff&lt;/code&gt; format
-     */
-    @SuppressWarnings("deprecation")
-    public String toString () {
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//Timestamp</span>
+   <span class="pl-c">/**</span>
+<span class="pl-c">     * Formats a timestamp in JDBC timestamp escape format.</span>
+<span class="pl-c">     *         &lt;code&gt;yyyy-mm-dd hh:mm:ss.fffffffff&lt;/code&gt;,</span>
+<span class="pl-c">     * where &lt;code&gt;ffffffffff&lt;/code&gt; indicates nanoseconds.</span>
+<span class="pl-c">     * &lt;P&gt;</span>
+<span class="pl-c">     * @return a &lt;code&gt;String&lt;/code&gt; object in</span>
+<span class="pl-c">     *           &lt;code&gt;yyyy-mm-dd hh:mm:ss.fffffffff&lt;/code&gt; format</span>
+<span class="pl-c">     */</span>
+    <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"deprecation"</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span> () {
 
-        int year = super.getYear() + 1900;
-        int month = super.getMonth() + 1;
-        int day = super.getDate();
-        int hour = super.getHours();
-        int minute = super.getMinutes();
-        int second = super.getSeconds();
-        String yearString;
-        String monthString;
-        String dayString;
-        String hourString;
-        String minuteString;
-        String secondString;
-        String nanosString;
-        String zeros = "000000000";
-        String yearZeros = "0000";
-        StringBuffer timestampBuf;
+        <span class="pl-smi">int</span> <span class="pl-s1">year</span> = <span class="pl-en">super</span>.<span class="pl-en">getYear</span>() + <span class="pl-c1">1900</span>;
+        <span class="pl-smi">int</span> <span class="pl-s1">month</span> = <span class="pl-en">super</span>.<span class="pl-en">getMonth</span>() + <span class="pl-c1">1</span>;
+        <span class="pl-smi">int</span> <span class="pl-s1">day</span> = <span class="pl-en">super</span>.<span class="pl-en">getDate</span>();
+        <span class="pl-smi">int</span> <span class="pl-s1">hour</span> = <span class="pl-en">super</span>.<span class="pl-en">getHours</span>();
+        <span class="pl-smi">int</span> <span class="pl-s1">minute</span> = <span class="pl-en">super</span>.<span class="pl-en">getMinutes</span>();
+        <span class="pl-smi">int</span> <span class="pl-s1">second</span> = <span class="pl-en">super</span>.<span class="pl-en">getSeconds</span>();
+        <span class="pl-smi">String</span> <span class="pl-s1">yearString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">monthString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">dayString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">hourString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">minuteString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">secondString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">nanosString</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">zeros</span> = <span class="pl-s">"000000000"</span>;
+        <span class="pl-smi">String</span> <span class="pl-s1">yearZeros</span> = <span class="pl-s">"0000"</span>;
+        <span class="pl-smi">StringBuffer</span> <span class="pl-s1">timestampBuf</span>;
 
-        if (year &lt; 1000) {
-            // Add leading zeros
-            yearString = "" + year;
-            yearString = yearZeros.substring(0, (4-yearString.length())) +
-                yearString;
-        } else {
-            yearString = "" + year;
+        <span class="pl-k">if</span> (<span class="pl-s1">year</span> &lt; <span class="pl-c1">1000</span>) {
+            <span class="pl-c">// Add leading zeros</span>
+            <span class="pl-s1">yearString</span> = <span class="pl-s">""</span> + <span class="pl-s1">year</span>;
+            <span class="pl-s1">yearString</span> = <span class="pl-s1">yearZeros</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>, (<span class="pl-c1">4</span>-<span class="pl-s1">yearString</span>.<span class="pl-en">length</span>())) +
+                <span class="pl-s1">yearString</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">yearString</span> = <span class="pl-s">""</span> + <span class="pl-s1">year</span>;
         }
-        if (month &lt; 10) {
-            monthString = "0" + month;
-        } else {
-            monthString = Integer.toString(month);
+        <span class="pl-k">if</span> (<span class="pl-s1">month</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">monthString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">month</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">monthString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">month</span>);
         }
-        if (day &lt; 10) {
-            dayString = "0" + day;
-        } else {
-            dayString = Integer.toString(day);
+        <span class="pl-k">if</span> (<span class="pl-s1">day</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">dayString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">day</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">dayString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">day</span>);
         }
-        if (hour &lt; 10) {
-            hourString = "0" + hour;
-        } else {
-            hourString = Integer.toString(hour);
+        <span class="pl-k">if</span> (<span class="pl-s1">hour</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">hourString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">hour</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">hourString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">hour</span>);
         }
-        if (minute &lt; 10) {
-            minuteString = "0" + minute;
-        } else {
-            minuteString = Integer.toString(minute);
+        <span class="pl-k">if</span> (<span class="pl-s1">minute</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">minuteString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">minute</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">minuteString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">minute</span>);
         }
-        if (second &lt; 10) {
-            secondString = "0" + second;
-        } else {
-            secondString = Integer.toString(second);
+        <span class="pl-k">if</span> (<span class="pl-s1">second</span> &lt; <span class="pl-c1">10</span>) {
+            <span class="pl-s1">secondString</span> = <span class="pl-s">"0"</span> + <span class="pl-s1">second</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">secondString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">second</span>);
         }
-        if (nanos == 0) {
-            nanosString = "0";
-        } else {
-            nanosString = Integer.toString(nanos);
+        <span class="pl-k">if</span> (<span class="pl-s1">nanos</span> == <span class="pl-c1">0</span>) {
+            <span class="pl-s1">nanosString</span> = <span class="pl-s">"0"</span>;
+        } <span class="pl-k">else</span> {
+            <span class="pl-s1">nanosString</span> = <span class="pl-smi">Integer</span>.<span class="pl-en">toString</span>(<span class="pl-s1">nanos</span>);
 
-            // Add leading zeros
-            nanosString = zeros.substring(0, (9-nanosString.length())) +
-                nanosString;
+            <span class="pl-c">// Add leading zeros</span>
+            <span class="pl-s1">nanosString</span> = <span class="pl-s1">zeros</span>.<span class="pl-en">substring</span>(<span class="pl-c1">0</span>, (<span class="pl-c1">9</span>-<span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>())) +
+                <span class="pl-s1">nanosString</span>;
 
-            // Truncate trailing zeros
-            char[] nanosChar = new char[nanosString.length()];
-            nanosString.getChars(0, nanosString.length(), nanosChar, 0);
-            int truncIndex = 8;
-            while (nanosChar[truncIndex] == '0') {
-                truncIndex--;
+            <span class="pl-c">// Truncate trailing zeros</span>
+            <span class="pl-smi">char</span>[] <span class="pl-s1">nanosChar</span> = <span class="pl-k">new</span> <span class="pl-smi">char</span>[<span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>()];
+            <span class="pl-s1">nanosString</span>.<span class="pl-en">getChars</span>(<span class="pl-c1">0</span>, <span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>(), <span class="pl-s1">nanosChar</span>, <span class="pl-c1">0</span>);
+            <span class="pl-smi">int</span> <span class="pl-s1">truncIndex</span> = <span class="pl-c1">8</span>;
+            <span class="pl-k">while</span> (<span class="pl-s1">nanosChar</span>[<span class="pl-s1">truncIndex</span>] == <span class="pl-s">'0'</span>) {
+                <span class="pl-s1">truncIndex</span>--;
             }
 
-            nanosString = new String(nanosChar, 0, truncIndex + 1);
+            <span class="pl-s1">nanosString</span> = <span class="pl-k">new</span> <span class="pl-smi">String</span>(<span class="pl-s1">nanosChar</span>, <span class="pl-c1">0</span>, <span class="pl-s1">truncIndex</span> + <span class="pl-c1">1</span>);
         }
 
-        // do a string buffer here instead.
-        timestampBuf = new StringBuffer(20+nanosString.length());
-        timestampBuf.append(yearString);
-        timestampBuf.append("-");
-        timestampBuf.append(monthString);
-        timestampBuf.append("-");
-        timestampBuf.append(dayString);
-        timestampBuf.append(" ");
-        timestampBuf.append(hourString);
-        timestampBuf.append(":");
-        timestampBuf.append(minuteString);
-        timestampBuf.append(":");
-        timestampBuf.append(secondString);
-        timestampBuf.append(".");
-        timestampBuf.append(nanosString);
+        <span class="pl-c">// do a string buffer here instead.</span>
+        <span class="pl-s1">timestampBuf</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuffer</span>(<span class="pl-c1">20</span>+<span class="pl-s1">nanosString</span>.<span class="pl-en">length</span>());
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">yearString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">"-"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">monthString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">"-"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">dayString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">" "</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">hourString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">":"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">minuteString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">":"</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">secondString</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s">"."</span>);
+        <span class="pl-s1">timestampBuf</span>.<span class="pl-en">append</span>(<span class="pl-s1">nanosString</span>);
 
-        return (timestampBuf.toString());
-    }
-</code></pre>
+        <span class="pl-k">return</span> (<span class="pl-s1">timestampBuf</span>.<span class="pl-en">toString</span>());
+    }</pre></div>
 </li>
 <li>
 <p>如果是抽象基类，可以把ToString方法写好，子类往往不需要专门覆盖了</p>
-<pre lang="java" class="notranslate"><code class="notranslate">//AbstractCollection
-    /**
-     * Returns a string representation of this collection.  The string
-     * representation consists of a list of the collection's elements in the
-     * order they are returned by its iterator, enclosed in square brackets
-     * (&lt;tt&gt;"[]"&lt;/tt&gt;).  Adjacent elements are separated by the characters
-     * &lt;tt&gt;", "&lt;/tt&gt; (comma and space).  Elements are converted to strings as
-     * by {@link String#valueOf(Object)}.
-     *
-     * @return a string representation of this collection
-     */
-    public String toString() {
-        Iterator&lt;E&gt; it = iterator();
-        if (! it.hasNext())
-            return "[]";
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">//AbstractCollection</span>
+    <span class="pl-c">/**</span>
+<span class="pl-c">     * Returns a string representation of this collection.  The string</span>
+<span class="pl-c">     * representation consists of a list of the collection's elements in the</span>
+<span class="pl-c">     * order they are returned by its iterator, enclosed in square brackets</span>
+<span class="pl-c">     * (&lt;tt&gt;"[]"&lt;/tt&gt;).  Adjacent elements are separated by the characters</span>
+<span class="pl-c">     * &lt;tt&gt;", "&lt;/tt&gt; (comma and space).  Elements are converted to strings as</span>
+<span class="pl-c">     * by {@link String#valueOf(Object)}.</span>
+<span class="pl-c">     *</span>
+<span class="pl-c">     * @return a string representation of this collection</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">toString</span>() {
+        <span class="pl-smi">Iterator</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">it</span> = <span class="pl-en">iterator</span>();
+        <span class="pl-k">if</span> (! <span class="pl-s1">it</span>.<span class="pl-en">hasNext</span>())
+            <span class="pl-k">return</span> <span class="pl-s">"[]"</span>;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        for (;;) {
-            E e = it.next();
-            sb.append(e == this ? "(this Collection)" : e);
-            if (! it.hasNext())
-                return sb.append(']').toString();
-            sb.append(',').append(' ');
+        <span class="pl-smi">StringBuilder</span> <span class="pl-s1">sb</span> = <span class="pl-k">new</span> <span class="pl-smi">StringBuilder</span>();
+        <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">'['</span>);
+        <span class="pl-k">for</span> (;;) {
+            <span class="pl-smi">E</span> <span class="pl-s1">e</span> = <span class="pl-s1">it</span>.<span class="pl-en">next</span>();
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s1">e</span> == <span class="pl-smi">this</span> ? <span class="pl-s">"(this Collection)"</span> : <span class="pl-s1">e</span>);
+            <span class="pl-k">if</span> (! <span class="pl-s1">it</span>.<span class="pl-en">hasNext</span>())
+                <span class="pl-k">return</span> <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">']'</span>).<span class="pl-en">toString</span>();
+            <span class="pl-s1">sb</span>.<span class="pl-en">append</span>(<span class="pl-s">','</span>).<span class="pl-en">append</span>(<span class="pl-s">' '</span>);
         }
-    }
-</code></pre>
+    }</pre></div>
 </li>
 <li>
 <p>可以指定格式化的输出，虽然有说可能根据toString的格式来解析，但我个人觉得，还是不要这么做比较好...toString本来也不应该担此重任</p>
@@ -273,8 +280,7 @@ public String toString() {
 <h2>13 谨慎的重写clone方法</h2>
 <h3>为什么</h3>
 <p>因为Object中的clone()方法，是受保护的，你不能，不借助反射 （详见第 65 条），仅仅因为它实现了 Cloneable 接口，就调用对象上的 clone 方法。</p>
-<pre lang="java" class="notranslate"><code class="notranslate">    protected native Object clone() throws CloneNotSupportedException;
-</code></pre>
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">protected</span> <span class="pl-k">native</span> <span class="pl-smi">Object</span> <span class="pl-en">clone</span>() <span class="pl-k">throws</span> <span class="pl-smi">CloneNotSupportedException</span>;</pre></div>
 <p>Cloneable 接口的目的，仅仅是做个标记</p>
 <blockquote>
 <p>既然 Cloneable 接口不包含任何方法，那它用来做什么？ 它决定了 Object 的受保护的 clone 方法实现的行为：如果一个类实现了 Cloneable 接口，那么 Object 的 clone 方法将返回该对象的逐个属性（field-by-field）拷贝；否则会抛出 <code class="notranslate">CloneNotSupportedException</code> 异常。这是一个非常反常的接口使用，而不应该被效仿。 通常情况下，实现一个接口用来表示可以为客户做什么。但对于 Cloneable 接口，它会修改父类上受保护方法的行为。</p>
@@ -287,17 +293,16 @@ public String toString() {
 </blockquote>
 <h3>实践配方</h3>
 <p>如果一定要实现clone方法，真诚的建议是：参考已有的类的实现！！！比如DateFormat中的</p>
-<pre lang="java" class="notranslate"><code class="notranslate">    /**
-     * Overrides Cloneable
-     */
-    public Object clone()
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-c">/**</span>
+<span class="pl-c">     * Overrides Cloneable</span>
+<span class="pl-c">     */</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">clone</span>()
     {
-        DateFormat other = (DateFormat) super.clone();
-        other.calendar = (Calendar) calendar.clone();
-        other.numberFormat = (NumberFormat) numberFormat.clone();
-        return other;
-    }
-</code></pre>
+        <span class="pl-smi">DateFormat</span> <span class="pl-s1">other</span> = (<span class="pl-smi">DateFormat</span>) <span class="pl-en">super</span>.<span class="pl-en">clone</span>();
+        <span class="pl-s1">other</span>.<span class="pl-s1">calendar</span> = (<span class="pl-smi">Calendar</span>) <span class="pl-s1">calendar</span>.<span class="pl-en">clone</span>();
+        <span class="pl-s1">other</span>.<span class="pl-s1">numberFormat</span> = (<span class="pl-smi">NumberFormat</span>) <span class="pl-s1">numberFormat</span>.<span class="pl-en">clone</span>();
+        <span class="pl-k">return</span> <span class="pl-s1">other</span>;
+    }</pre></div>
 <p>如果一定有步骤的话，大致如下</p>
 <ol>
 <li>调用super.clone()，并转类型为当前类，这个是Object类承诺的；</li>
@@ -306,23 +311,22 @@ public String toString() {
 <li>捕获CloneNotSupportedException</li>
 </ol>
 <p>比如HashSet中</p>
-<pre lang="java" class="notranslate"><code class="notranslate">    /**
-     * Returns a shallow copy of this &lt;tt&gt;HashSet&lt;/tt&gt; instance: the elements
-     * themselves are not cloned.
-     *
-     * @return a shallow copy of this set
-     */
-    @SuppressWarnings("unchecked")
-    public Object clone() {
-        try {
-            HashSet&lt;E&gt; newSet = (HashSet&lt;E&gt;) super.clone();
-            newSet.map = (HashMap&lt;E, Object&gt;) map.clone();
-            return newSet;
-        } catch (CloneNotSupportedException e) {
-            throw new InternalError(e);
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-c">/**</span>
+<span class="pl-c">     * Returns a shallow copy of this &lt;tt&gt;HashSet&lt;/tt&gt; instance: the elements</span>
+<span class="pl-c">     * themselves are not cloned.</span>
+<span class="pl-c">     *</span>
+<span class="pl-c">     * @return a shallow copy of this set</span>
+<span class="pl-c">     */</span>
+    <span class="pl-c1">@</span><span class="pl-c1">SuppressWarnings</span>(<span class="pl-s">"unchecked"</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">clone</span>() {
+        <span class="pl-k">try</span> {
+            <span class="pl-smi">HashSet</span>&lt;<span class="pl-smi">E</span>&gt; <span class="pl-s1">newSet</span> = (<span class="pl-smi">HashSet</span>&lt;<span class="pl-smi">E</span>&gt;) <span class="pl-en">super</span>.<span class="pl-en">clone</span>();
+            <span class="pl-s1">newSet</span>.<span class="pl-s1">map</span> = (<span class="pl-smi">HashMap</span>&lt;<span class="pl-smi">E</span>, <span class="pl-smi">Object</span>&gt;) <span class="pl-s1">map</span>.<span class="pl-en">clone</span>();
+            <span class="pl-k">return</span> <span class="pl-s1">newSet</span>;
+        } <span class="pl-k">catch</span> (<span class="pl-smi">CloneNotSupportedException</span> <span class="pl-s1">e</span>) {
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">InternalError</span>(<span class="pl-s1">e</span>);
         }
-    }
-</code></pre>
+    }</pre></div>
 <h3>特别提醒</h3>
 <p>谨慎的考虑提供clone方法，</p>
 <ol>
@@ -357,55 +361,52 @@ public String toString() {
 <h3>实践配方</h3>
 <p>编写方法也和equals类似，关键区别是对入参不用在意，允许抛出异常这样子。</p>
 <p>如果有多个属性，应该注意比较的顺序。</p>
-<pre lang="java" class="notranslate"><code class="notranslate">// Multiple-field `Comparable` with primitive fields
-public int compareTo(PhoneNumber pn) {
-    int result = Short.compare(areaCode, pn.areaCode);
-    if (result == 0) {
-        result = Short.compare(prefix, pn.prefix);
-        if (result == 0)
-            result = Short.compare(lineNum, pn.lineNum);
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Multiple-field `Comparable` with primitive fields</span>
+<span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compareTo</span>(<span class="pl-smi">PhoneNumber</span> <span class="pl-s1">pn</span>) {
+    <span class="pl-smi">int</span> <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">areaCode</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">areaCode</span>);
+    <span class="pl-k">if</span> (<span class="pl-s1">result</span> == <span class="pl-c1">0</span>) {
+        <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">prefix</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">prefix</span>);
+        <span class="pl-k">if</span> (<span class="pl-s1">result</span> == <span class="pl-c1">0</span>)
+            <span class="pl-s1">result</span> = <span class="pl-smi">Short</span>.<span class="pl-en">compare</span>(<span class="pl-s1">lineNum</span>, <span class="pl-s1">pn</span>.<span class="pl-s1">lineNum</span>);
     }
-    return result;
-}
-</code></pre>
+    <span class="pl-k">return</span> <span class="pl-s1">result</span>;
+}</pre></div>
 <p>注意不要使用符号进行比较</p>
 <blockquote>
 <p>　　　　在本书第二版中，曾经推荐如果比较整型基本类型的属性，使用关系运算符「&lt;」和 「&gt;」，对于浮点类型基本类型的属性，使用 <code class="notranslate">Double.compare</code> 和 <code class="notranslate">Float.compare</code> 静态方法。在 Java 7 中，静态比较方法被添加到 Java 的所有包装类中。 在 <code class="notranslate">compareTo</code> 方法中使用关系运算符「&lt;」和「&gt;」是冗长且容易出错的，不再推荐。</p>
 </blockquote>
 <h3>使用Comparator接口</h3>
 <p>类中使用，应先静态初始化Comparator，然后在方法中使用</p>
-<pre lang="java" class="notranslate"><code class="notranslate">    private static final Comparator&lt;EqualsTest&gt; COMPARATOR = Comparator
-    .comparingInt(EqualsTest::getValueInt);
+<div class="highlight highlight-source-java"><pre class="notranslate">    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">EqualsTest</span>&gt; <span class="pl-c1">COMPARATOR</span> = <span class="pl-smi">Comparator</span>
+    .<span class="pl-en">comparingInt</span>(<span class="pl-smi">EqualsTest</span>::<span class="pl-s1">getValueInt</span>);
 
-    @Override
-    public int compareTo(Object o) {
-       try {
-            return COMPARATOR.compare(this, (EqualsTest) o);
-        } catch (Exception e) {
-            // TODO: handle exception
-            throw new UnsupportedOperationException("Unimplemented method 'compareTo'");
+    <span class="pl-c1">@</span><span class="pl-c1">Override</span>
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compareTo</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o</span>) {
+       <span class="pl-k">try</span> {
+            <span class="pl-k">return</span> <span class="pl-c1">COMPARATOR</span>.<span class="pl-en">compare</span>(<span class="pl-smi">this</span>, (<span class="pl-smi">EqualsTest</span>) <span class="pl-s1">o</span>);
+        } <span class="pl-k">catch</span> (<span class="pl-smi">Exception</span> <span class="pl-s1">e</span>) {
+            <span class="pl-c">// TODO: handle exception</span>
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">UnsupportedOperationException</span>(<span class="pl-s">"Unimplemented method 'compareTo'"</span>);
         }
-    }
-</code></pre>
+    }</pre></div>
 <p>代码中直接使用的话，可以是静态构造，或者上面示例</p>
-<pre lang="java" class="notranslate"><code class="notranslate">// Comparator based on static compare method
-static Comparator&lt;Object&gt; hashCodeOrder = new Comparator&lt;&gt;() {
-    public int compare(Object o1, Object o2) {
-        return Integer.compare(o1.hashCode(), o2.hashCode());
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Comparator based on static compare method</span>
+<span class="pl-k">static</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">Object</span>&gt; <span class="pl-s1">hashCodeOrder</span> = <span class="pl-k">new</span> <span class="pl-smi">Comparator</span>&lt;&gt;() {
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compare</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o1</span>, <span class="pl-smi">Object</span> <span class="pl-s1">o2</span>) {
+        <span class="pl-k">return</span> <span class="pl-smi">Integer</span>.<span class="pl-en">compare</span>(<span class="pl-s1">o1</span>.<span class="pl-en">hashCode</span>(), <span class="pl-s1">o2</span>.<span class="pl-en">hashCode</span>());
     }
 };
-// Comparator based on Comparator construction method
-static Comparator&lt;Object&gt; hashCodeOrder =
-        Comparator.comparingInt(o -&gt; o.hashCode());
+<span class="pl-c">// Comparator based on Comparator construction method</span>
+<span class="pl-k">static</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">Object</span>&gt; <span class="pl-s1">hashCodeOrder</span> =
+        <span class="pl-smi">Comparator</span>.<span class="pl-en">comparingInt</span>(<span class="pl-s1">o</span> -&gt; <span class="pl-s1">o</span>.<span class="pl-en">hashCode</span>());
 
-// BROKEN difference-based comparator - violates transitivity!
+<span class="pl-c">// BROKEN difference-based comparator - violates transitivity!</span>
 
-static Comparator&lt;Object&gt; hashCodeOrder = new Comparator&lt;&gt;() {
-    public int compare(Object o1, Object o2) {
-        return o1.hashCode() - o2.hashCode();
+<span class="pl-k">static</span> <span class="pl-smi">Comparator</span>&lt;<span class="pl-smi">Object</span>&gt; <span class="pl-s1">hashCodeOrder</span> = <span class="pl-k">new</span> <span class="pl-smi">Comparator</span>&lt;&gt;() {
+    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">compare</span>(<span class="pl-smi">Object</span> <span class="pl-s1">o1</span>, <span class="pl-smi">Object</span> <span class="pl-s1">o2</span>) {
+        <span class="pl-k">return</span> <span class="pl-s1">o1</span>.<span class="pl-en">hashCode</span>() - <span class="pl-s1">o2</span>.<span class="pl-en">hashCode</span>();
     }
-};
-</code></pre>
+};</pre></div>
 <p>尽量不要使用上面第三个示例，会破坏传递性</p>
 <blockquote>
 <p>不要使用这种技术！它可能会导致整数最大长度溢出和 IEEE 754 浮点运算失真的危险[JLS 15.20.1,15.21.1]。 此外，由此产生的方法不可能比使用上述技术编写的方法快得多</p>
@@ -454,7 +455,7 @@ if(""!=""){
 </script></div>
 </body>
 <script>
-var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
 var utterancesLoad=0;
 
 let themeSettings={
@@ -528,7 +529,70 @@ function iFrameLoading(){
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
 
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
 
 </script>
 
