@@ -1,5 +1,3 @@
-## nohup命令的**&**
-
 今天配置一个监控服务，在Linux上面使用docker部署后，怎么配置服务连接都是Connection Failure。
 
 一直以为是网络问题，尝试切换过host网络，尝试在容器内安装ping工具测试，发现网络其实是通的。
@@ -24,6 +22,7 @@
 > nohup Command [ Arg … ] [　& ]
 > nohup java -jar xxx.jar > system.log 2>&1 &
 > ```
+> &：让命令在后台执行，终端退出后命令仍旧执行。
 >
 > **2>&1** 解释：
 >
