@@ -21,7 +21,7 @@
 <meta property="og:url" content="https://andy1202go.github.io/post/Linux-ru-men-%20Part1.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>Linux入门 Part1</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -142,8 +142,9 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </li>
 </ul>
 <h3>1.3 linux系统启动过程</h3>
-<div class="highlight highlight-source-mermaid"><pre class="notranslate"><span class="pl-k">graph</span> <span class="pl-c1">TB</span>
-    操作系统<span class="pl-k">--&gt;</span>/<span class="pl-ent">boot</span><span class="pl-k">--&gt;</span><span class="pl-ent">init</span>进程<span class="pl-k">--&gt;</span>运行级别<span class="pl-k">--&gt;</span>/<span class="pl-ent">etc</span>/<span class="pl-ent">init</span>.<span class="pl-ent">d</span><span class="pl-k">--&gt;</span>用户登录<span class="pl-k">--&gt;</span><span class="pl-ent">LoginShell</span></pre></div>
+<pre lang="mermaid" class="notranslate"><code class="notranslate">graph TB
+    操作系统--&gt;/boot--&gt;init进程--&gt;运行级别--&gt;/etc/init.d--&gt;用户登录--&gt;LoginShell
+</code></pre>
 <ul>
 <li>
 <p>BIOS开机自检，启动硬盘；</p>

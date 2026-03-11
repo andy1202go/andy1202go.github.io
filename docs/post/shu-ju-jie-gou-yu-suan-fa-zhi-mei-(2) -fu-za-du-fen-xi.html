@@ -29,7 +29,7 @@
 <meta property="og:url" content="https://andy1202go.github.io/post/shu-ju-jie-gou-yu-suan-fa-zhi-mei-%282%29%20-fu-za-du-fen-xi.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>数据结构与算法之美(2) 复杂度分析</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -53,17 +53,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
-.copy-feedback {
-    display: none;
-    position: absolute;
-    top: 10px;
-    right: 50px;
-    color: var(--color-fg-on-emphasis);
-    background-color: var(--color-fg-muted);
-    border-radius: 3px;
-    padding: 5px 8px;
-    font-size: 12px;
-}
+
 </style>
 
 
@@ -107,19 +97,20 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <h2>2 大O复杂度表示法</h2>
 <p>复杂度分析，就是不运行代码，但是能够评估出代码的性能。</p>
 <p>举例来说</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-smi">int</span> <span class="pl-en">cal</span>(<span class="pl-smi">int</span> <span class="pl-s1">n</span>){
-    <span class="pl-smi">int</span> <span class="pl-s1">sum</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-    <span class="pl-smi">int</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-    <span class="pl-smi">int</span> <span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-    <span class="pl-k">for</span> (; <span class="pl-s1">i</span> &lt;= <span class="pl-s1">n</span>; <span class="pl-c1">++</span><span class="pl-s1">i</span>)
+<pre lang="c" class="notranslate"><code class="notranslate">int cal(int n){
+    int sum = 0;
+    int i = 1;
+    int j = 1;
+    for (; i &lt;= n; ++i)
     {
-        <span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-        <span class="pl-k">for</span> (; <span class="pl-s1">j</span> &lt;= <span class="pl-s1">n</span>; <span class="pl-c1">++</span><span class="pl-s1">j</span>)
+        j = 1;
+        for (; j &lt;= n; ++j)
         {
-            <span class="pl-s1">sum</span> <span class="pl-c1">=</span> <span class="pl-s1">sum</span> <span class="pl-c1">+</span> <span class="pl-s1">i</span> <span class="pl-c1">*</span> <span class="pl-s1">j</span>;
+            sum = sum + i * j;
         }
     }
-}</pre></div>
+}
+</code></pre>
 <p>如何评估这段代码的耗时情况呢？</p>
 <p>假设每行代码执行一次都是一个单位时间，记为unit_time。那么上面代码总的执行次数就是3+2n+2n<sup>2</sup>，即2,3,4行执行1次，5,6行各执行n次，7,8行各执行n*n次。</p>
 <p>那么总时间就是<br>
@@ -142,14 +133,15 @@ $$<br>
 <ul>
 <li>
 <p>只关注循环执行次数最多的一段代码</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-smi">int</span> <span class="pl-en">cal</span>(<span class="pl-smi">int</span> <span class="pl-s1">n</span>){
-    <span class="pl-smi">int</span> <span class="pl-s1">sum</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-    <span class="pl-smi">int</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-    <span class="pl-k">for</span> (; <span class="pl-s1">i</span> &lt;= <span class="pl-s1">n</span>; <span class="pl-c1">++</span><span class="pl-s1">i</span>){
-        <span class="pl-s1">sum</span> <span class="pl-c1">=</span> <span class="pl-s1">sum</span> <span class="pl-c1">+</span> <span class="pl-s1">i</span>;
+<pre lang="c" class="notranslate"><code class="notranslate">int cal(int n){
+    int sum = 0;
+    int i = 1;
+    for (; i &lt;= n; ++i){
+        sum = sum + i;
     }
-    <span class="pl-k">return</span> <span class="pl-s1">sum</span>;
-}</pre></div>
+    return sum;
+}
+</code></pre>
 </li>
 <li>
 <p>加法法则：即把代码执行次数都计算后相加，就如定义的那个case一样的计算，用公式表达就是<br>
@@ -188,10 +180,11 @@ $$</p>
 <h4>3.2.2 O(logn) O(nlogn)</h4>
 <p>这种称为对数阶时间复杂度，是最难分析的一种时间复杂度。</p>
 <p>举例来说</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-<span class="pl-k">while</span> (<span class="pl-s1">i</span> &lt;= <span class="pl-s1">n</span>){
-    <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-s1">i</span> <span class="pl-c1">*</span> <span class="pl-c1">2</span>;
-}</pre></div>
+<pre lang="c" class="notranslate"><code class="notranslate">i = 1;
+while (i &lt;= n){
+    i = i * 2;
+}
+</code></pre>
 <p>看到i的增长速度，是乘以2的；所以理想情况下<br>
 $$<br>
 i=2^x=n，其中x为i=i*2的执行次数<br>
@@ -205,31 +198,33 @@ $$<br>
 T(n)=(1+2log_2n)*unit_time=O(f(2log_2n))=O(logn)<br>
 $$<br>
 变化一下的话，比如</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-<span class="pl-k">for</span> (<span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-s1">j</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">n</span>; <span class="pl-s1">j</span><span class="pl-c1">++</span>){
-    <span class="pl-k">while</span> (<span class="pl-s1">i</span> &lt;= <span class="pl-s1">n</span>){
-        <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-s1">i</span> <span class="pl-c1">*</span> <span class="pl-c1">3</span>;
+<pre lang="c" class="notranslate"><code class="notranslate">i = 1;
+for (j = 0; j &lt; n; j++){
+    while (i &lt;= n){
+        i = i * 3;
     }
-}</pre></div>
+}
+</code></pre>
 <p>$$
 T(n)=O(f(nlog_3n))=O(nlogn)
 $$</p>
 <p>这里的3和2的对数，因为是可以转换的，所以就忽略了。</p>
 <h4>3.2.3 O(m+n) O(m*n)</h4>
 <p>当一段代码，同时由多个数据的规模决定的时候，就是上述的表达式了，比如</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-smi">int</span> <span class="pl-en">cal</span>(<span class="pl-smi">int</span> <span class="pl-s1">m</span>, <span class="pl-smi">int</span> <span class="pl-s1">n</span>){
-    <span class="pl-smi">int</span> <span class="pl-s1">sum_1</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-    <span class="pl-smi">int</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-    <span class="pl-k">for</span> (; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">m</span>; <span class="pl-c1">++</span><span class="pl-s1">i</span>){
-        <span class="pl-s1">sum_1</span> <span class="pl-c1">=</span> <span class="pl-s1">sum_1</span> <span class="pl-c1">+</span> <span class="pl-s1">i</span>;
+<pre lang="c" class="notranslate"><code class="notranslate">int cal(int m, int n){
+    int sum_1 = 0;
+    int i = 1;
+    for (; i &lt; m; ++i){
+        sum_1 = sum_1 + i;
     }
-    <span class="pl-smi">int</span> <span class="pl-s1">sum_2</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-    <span class="pl-smi">int</span> <span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
-    <span class="pl-k">for</span> (; <span class="pl-s1">j</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">n</span>; <span class="pl-c1">++</span><span class="pl-s1">j</span>){
-        <span class="pl-s1">sum_2</span> <span class="pl-c1">=</span> <span class="pl-s1">sum_2</span> <span class="pl-c1">+</span> <span class="pl-s1">j</span>;
+    int sum_2 = 0;
+    int j = 1;
+    for (; j &lt; n; ++j){
+        sum_2 = sum_2 + j;
     }
-    <span class="pl-k">return</span> <span class="pl-s1">sum_1</span> <span class="pl-c1">+</span> <span class="pl-s1">sum_2</span>;
-}</pre></div>
+    return sum_1 + sum_2;
+}
+</code></pre>
 <h2>4 空间复杂度</h2>
 <p>类似时间复杂度的定义，表达的是耗时的趋势，空间复杂度也是占用空间的趋势。</p>
 <blockquote>
@@ -239,18 +234,19 @@ $$</p>
 <p>常见的空间复杂度就是 O(1)、O(n)、O(n<sup>2</sup>)，像 O(logn)、O(nlogn) 这样的对数阶复杂度平时都用不到。而且，空间复杂度分析比时间复杂度分析要简单很多。</p>
 <h2>5 最好、最坏情况时间复杂度</h2>
 <p>有些代码的情况比较复杂，存在不同情况下，复杂度不同的情况。</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-c">// n 表示数组 array 的长度</span>
-<span class="pl-smi">int</span> <span class="pl-en">find</span>(<span class="pl-smi">int</span>[] <span class="pl-s1">array</span>, <span class="pl-smi">int</span> <span class="pl-s1">n</span>, <span class="pl-smi">int</span> <span class="pl-s1">x</span>){
-    <span class="pl-smi">int</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-    <span class="pl-smi">int</span> <span class="pl-s1">pos</span> <span class="pl-c1">=</span> <span class="pl-c1">-1</span>;
-    <span class="pl-k">for</span> (; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">n</span>; <span class="pl-c1">++</span><span class="pl-s1">i</span>){
-        <span class="pl-k">if</span> (<span class="pl-s1">array</span>[<span class="pl-s1">i</span>] <span class="pl-c1">==</span> <span class="pl-s1">x</span>){
-            <span class="pl-s1">pos</span> <span class="pl-c1">=</span> <span class="pl-s1">i</span>;
-            <span class="pl-k">break</span>;
+<pre lang="c" class="notranslate"><code class="notranslate">// n 表示数组 array 的长度
+int find(int[] array, int n, int x){
+    int i = 0;
+    int pos = -1;
+    for (; i &lt; n; ++i){
+        if (array[i] == x){
+            pos = i;
+            break;
         }
     }
-    <span class="pl-k">return</span> <span class="pl-s1">pos</span>;
-}</pre></div>
+    return pos;
+}
+</code></pre>
 <p>array[i]的值的情况不同，导致pos=i这些代码的执行次数，可能从1次到n次不等。</p>
 <blockquote>
 <p>为了表示代码在不同情况下的不同时间复杂度，我们需要引入三个概念：最好情况时间复杂度、最坏情况时间复杂度和平均情况时间复杂度。</p>
@@ -268,22 +264,23 @@ $$<br>
 <h2>7 均摊时间复杂度</h2>
 <p>相比于上述三个特殊的时间复杂度，这个更特殊，特殊在使用场景上。</p>
 <p>case：</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-c">// array 表示一个长度为 n 的数组</span>
-<span class="pl-c">// 代码中的 array.length 就等于 n</span>
-<span class="pl-smi">int</span><span class="pl-s1"></span>[] <span class="pl-s1">array</span> <span class="pl-c1">=</span> <span class="pl-s1">new</span> <span class="pl-s1">int</span>[<span class="pl-s1">n</span>];
-<span class="pl-smi">int</span> <span class="pl-s1">count</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-<span class="pl-smi">void</span> <span class="pl-en">insert</span>(<span class="pl-smi">int</span> <span class="pl-s1">val</span>){
-    <span class="pl-k">if</span> (<span class="pl-s1">count</span> <span class="pl-c1">==</span> <span class="pl-s1">array</span>.<span class="pl-c1">length</span>){
-        <span class="pl-smi">int</span> <span class="pl-s1">sum</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-        <span class="pl-k">for</span> (<span class="pl-smi">int</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">array</span>.<span class="pl-c1">length</span>; <span class="pl-c1">++</span><span class="pl-s1">i</span>){
-            <span class="pl-s1">sum</span> <span class="pl-c1">=</span> <span class="pl-s1">sum</span> <span class="pl-c1">+</span> <span class="pl-s1">array</span>[<span class="pl-s1">i</span>];
+<pre lang="c" class="notranslate"><code class="notranslate">// array 表示一个长度为 n 的数组
+// 代码中的 array.length 就等于 n
+int[] array = new int[n];
+int count = 0;
+void insert(int val){
+    if (count == array.length){
+        int sum = 0;
+        for (int i = 0; i &lt; array.length; ++i){
+            sum = sum + array[i];
         }
-        <span class="pl-s1">array</span>[<span class="pl-c1">0</span>] <span class="pl-c1">=</span> <span class="pl-s1">sum</span>;
-        <span class="pl-s1">count</span> <span class="pl-c1">=</span> <span class="pl-c1">1</span>;
+        array[0] = sum;
+        count = 1;
     }
-    <span class="pl-s1">array</span>[<span class="pl-s1">count</span>] <span class="pl-c1">=</span> <span class="pl-s1">val</span>;
-    <span class="pl-c1">++</span><span class="pl-s1">count</span>;
-}</pre></div>
+    array[count] = val;
+    ++count;
+}
+</code></pre>
 <p>上述代码的时间复杂度，也是概率性变动的。</p>
 <p>简单理解下，就是持续向array中写入数据，当写满时，sum所有数据写入array[0]，然后重复。</p>
 <p>时间复杂度，直接看是O(n)；最好是O(1)，最好情况是数组还有位置的时候；最差是O(n)，是写入的时候刚好满了；平均是O(1)，即<br>
@@ -305,27 +302,28 @@ $$<br>
 <p>均摊时间复杂度就是一种特殊的平均时间复杂度，我们没必要花太多精力去区分它们。你最应该掌握的是它的分析方法，摊还分析。至于分析出来的结果是叫平均还是叫均摊，这只是个说法，并不重要。</p>
 </blockquote>
 <h2>8 练习</h2>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-c">// 全局变量，大小为 10 的数组 array，长度 len，下标 i。</span>
-<span class="pl-smi">int</span> <span class="pl-s1">array</span>[] <span class="pl-c1">=</span> <span class="pl-s1">new</span> <span class="pl-s1">int</span>[<span class="pl-c1">10</span>];
-<span class="pl-smi">int</span> <span class="pl-s1">len</span> <span class="pl-c1">=</span> <span class="pl-c1">10</span>;
-<span class="pl-smi">int</span> <span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>;
-<span class="pl-c">// 往数组中添加一个元素</span>
-<span class="pl-smi">void</span> <span class="pl-en">add</span>(<span class="pl-smi">int</span> <span class="pl-s1">element</span>){
-    <span class="pl-k">if</span> (<span class="pl-s1">i</span> &gt;= <span class="pl-s1">len</span>){ <span class="pl-c">// 数组空间不够了</span>
-        <span class="pl-c">// 重新申请一个 2 倍大小的数组空间</span>
-        <span class="pl-smi">int</span> <span class="pl-s1">new_array</span>[] <span class="pl-c1">=</span> <span class="pl-s1">new</span> <span class="pl-s1">int</span>[<span class="pl-s1">len</span> <span class="pl-c1">*</span> <span class="pl-c1">2</span>];
-        <span class="pl-c">// 把原来 array 数组中的数据依次 copy 到 new_array</span>
-        <span class="pl-k">for</span> (<span class="pl-smi">int</span> <span class="pl-s1">j</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span>; <span class="pl-s1">j</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">len</span>; <span class="pl-c1">++</span><span class="pl-s1">j</span>){
-            <span class="pl-s1">new_array</span>[<span class="pl-s1">j</span>] <span class="pl-c1">=</span> <span class="pl-s1">array</span>[<span class="pl-s1">j</span>];
+<pre lang="c" class="notranslate"><code class="notranslate">// 全局变量，大小为 10 的数组 array，长度 len，下标 i。
+int array[] = new int[10];
+int len = 10;
+int i = 0;
+// 往数组中添加一个元素
+void add(int element){
+    if (i &gt;= len){ // 数组空间不够了
+        // 重新申请一个 2 倍大小的数组空间
+        int new_array[] = new int[len * 2];
+        // 把原来 array 数组中的数据依次 copy 到 new_array
+        for (int j = 0; j &lt; len; ++j){
+            new_array[j] = array[j];
         }
-        <span class="pl-c">// new_array 复制给 array，array 现在大小就是 2 倍 len 了</span>
-        <span class="pl-s1">array</span> <span class="pl-c1">=</span> <span class="pl-s1">new_array</span>;
-        <span class="pl-s1">len</span> <span class="pl-c1">=</span> <span class="pl-c1">2</span> <span class="pl-c1">*</span> <span class="pl-s1">len</span>;
+        // new_array 复制给 array，array 现在大小就是 2 倍 len 了
+        array = new_array;
+        len = 2 * len;
     }
-    <span class="pl-c">// 将 element 放到下标为 i 的位置，下标 i 加一</span>
-    <span class="pl-s1">array</span>[<span class="pl-s1">i</span>] <span class="pl-c1">=</span> <span class="pl-s1">element</span>;
-    <span class="pl-c1">++</span><span class="pl-s1">i</span>;
-}</pre></div>
+    // 将 element 放到下标为 i 的位置，下标 i 加一
+    array[i] = element;
+    ++i;
+}
+</code></pre>
 <p>最好O(1)，直接添加进去了；</p>
 <p>最差O(n)，n=len，数据空间不够的情况；</p>
 <p>平均，先直接认为是O(1)，毕竟大多数操作是最好情况的。</p>
@@ -354,7 +352,7 @@ if(""!=""){
 </script></div>
 </body>
 <script>
-var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
 var utterancesLoad=0;
 
 let themeSettings={
@@ -428,70 +426,7 @@ function iFrameLoading(){
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const createClipboardHTML = (codeContent, additionalClasses = '') => `
-        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
-        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
-            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
-                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
-                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
-            </clipboard-copy>
-            <div class="copy-feedback">Copied!</div>
-        </div>
-    `;
 
-    const handleCodeElements = (selector = '') => {
-        document.querySelectorAll(selector).forEach(codeElement => {
-            const codeContent = codeElement.innerHTML;
-            const newStructure = document.createElement('div');
-            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
-            newStructure.innerHTML = createClipboardHTML(codeContent);
-
-            const parentElement = codeElement.parentElement;
-            if (selector.includes('highlight')) {
-                parentElement.insertBefore(newStructure, codeElement.nextSibling);
-                parentElement.removeChild(codeElement);
-            } else {
-                parentElement.parentElement.replaceChild(newStructure, parentElement);
-            }
-        });
-    };
-
-    handleCodeElements('pre.notranslate > code.notranslate');
-    handleCodeElements('div.highlight > pre.notranslate');
-
-    let currentFeedback = null;
-    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
-        copyButton.addEventListener('click', () => {
-            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
-            const tempTextArea = document.createElement('textarea');
-            tempTextArea.value = codeContent;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextArea);
-
-            const copyIcon = copyButton.querySelector('.octicon-copy');
-            const checkIcon = copyButton.querySelector('.octicon-check');
-            const copyFeedback = copyButton.nextElementSibling;
-
-            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
-            currentFeedback = copyFeedback;
-
-            copyIcon.classList.add('d-none');
-            checkIcon.classList.remove('d-none');
-            copyFeedback.style.display = 'block';
-            copyButton.style.borderColor = 'var(--color-success-fg)';
-
-            setTimeout(() => {
-                copyIcon.classList.remove('d-none');
-                checkIcon.classList.add('d-none');
-                copyFeedback.style.display = 'none';
-                copyButton.style.borderColor = '';
-            }, 2000);
-        });
-    });
-});
 
 </script>
 <script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
