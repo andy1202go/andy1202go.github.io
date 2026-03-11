@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Tue, 10 Mar 2026 08:47:57 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>PG核心配置参数_Basic_2_内存设置</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_2_-nei-cun-she-zhi.html</link><description>## shard_buffers 共享缓冲区
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Wed, 11 Mar 2026 02:50:52 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>理解Linux的标准流</title><link>https://andy1202go.github.io/post/li-jie-Linux-de-biao-zhun-liu.html</link><description>## 标准流
+
+&gt; 在 Linux 系统中，'标准流'（Standard Streams）是程序与外部环境进行数据交互的核心机制，标准流主要包括以下三种类型：
+&gt;
+&gt; 1. 标准输入（stdin）：这是程序或shell接收数据的通道。</description><guid isPermaLink="true">https://andy1202go.github.io/post/li-jie-Linux-de-biao-zhun-liu.html</guid><pubDate>Wed, 11 Mar 2026 02:50:17 +0000</pubDate></item><item><title>PG核心配置参数_Basic_2_内存设置</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_2_-nei-cun-she-zhi.html</link><description>## shard_buffers 共享缓冲区
 
 默认值：128MB
 
