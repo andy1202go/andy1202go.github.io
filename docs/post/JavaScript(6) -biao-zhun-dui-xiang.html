@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://andy1202go.github.io/post/JavaScript%286%29%20-biao-zhun-dui-xiang.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>JavaScript(6) 标准对象</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -41,7 +41,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
-
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
 </style>
 
 
@@ -75,33 +85,31 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     <div id="content">
 <div class="markdown-body" id="postBody"><p>在JavaScript的世界里，一切都是对象。</p>
 <p>但是某些对象还是和其他对象不太一样。为了区分对象的类型，我们用<code class="notranslate">typeof</code>操作符获取对象的类型，它总是返回一个字符串：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">typeof 123; // 'number'
-typeof NaN; // 'number'
-typeof 'str'; // 'string'
-typeof true; // 'boolean'
-typeof undefined; // 'undefined'
-typeof Math.abs; // 'function'
-typeof null; // 'object'
-typeof []; // 'object'
-typeof {}; // 'object'
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">typeof</span> <span class="pl-c1">123</span><span class="pl-kos">;</span> <span class="pl-c">// 'number'</span>
+<span class="pl-k">typeof</span> <span class="pl-v">NaN</span><span class="pl-kos">;</span> <span class="pl-c">// 'number'</span>
+<span class="pl-k">typeof</span> <span class="pl-s">'str'</span><span class="pl-kos">;</span> <span class="pl-c">// 'string'</span>
+<span class="pl-k">typeof</span> <span class="pl-c1">true</span><span class="pl-kos">;</span> <span class="pl-c">// 'boolean'</span>
+<span class="pl-k">typeof</span> <span class="pl-c1">undefined</span><span class="pl-kos">;</span> <span class="pl-c">// 'undefined'</span>
+<span class="pl-k">typeof</span> <span class="pl-v">Math</span><span class="pl-kos">.</span><span class="pl-c1">abs</span><span class="pl-kos">;</span> <span class="pl-c">// 'function'</span>
+<span class="pl-k">typeof</span> <span class="pl-c1">null</span><span class="pl-kos">;</span> <span class="pl-c">// 'object'</span>
+<span class="pl-k">typeof</span> <span class="pl-kos">[</span><span class="pl-kos">]</span><span class="pl-kos">;</span> <span class="pl-c">// 'object'</span>
+<span class="pl-k">typeof</span> <span class="pl-kos">{</span><span class="pl-kos">}</span><span class="pl-kos">;</span> <span class="pl-c">// 'object'</span></pre></div>
 <p>可见，<code class="notranslate">number</code>、<code class="notranslate">string</code>、<code class="notranslate">boolean</code>、<code class="notranslate">function</code>和<code class="notranslate">undefined</code>有别于其他类型。特别注意<code class="notranslate">null</code>的类型是<code class="notranslate">object</code>，<code class="notranslate">Array</code>的类型也是<code class="notranslate">object</code>，如果我们用<code class="notranslate">typeof</code>将无法区分出<code class="notranslate">null</code>、<code class="notranslate">Array</code>和通常意义上的object——<code class="notranslate">{}</code>。</p>
 <h3>包装对象</h3>
 <p>类似Java，JavaScript提供了基础类型的包装对象。</p>
 <p>不一样的在于，JavaScript中string都有包装类。</p>
 <p>先上结论：<strong>不要使用包装类！！！</strong></p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var n = new Number(123); // 123,生成了新的包装类型
-var b = new Boolean(true); // true,生成了新的包装类型
-var s = new String('str'); // 'str',生成了新的包装类型
-typeof new Number(123); // 'object'
-new Number(123) === 123; // false
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">n</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Number</span><span class="pl-kos">(</span><span class="pl-c1">123</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 123,生成了新的包装类型</span>
+<span class="pl-k">var</span> <span class="pl-s1">b</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Boolean</span><span class="pl-kos">(</span><span class="pl-c1">true</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// true,生成了新的包装类型</span>
+<span class="pl-k">var</span> <span class="pl-s1">s</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">String</span><span class="pl-kos">(</span><span class="pl-s">'str'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'str',生成了新的包装类型</span>
+<span class="pl-k">typeof</span> <span class="pl-k">new</span> <span class="pl-v">Number</span><span class="pl-kos">(</span><span class="pl-c1">123</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'object'</span>
+<span class="pl-k">new</span> <span class="pl-v">Number</span><span class="pl-kos">(</span><span class="pl-c1">123</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-c1">123</span><span class="pl-kos">;</span> <span class="pl-c">// false</span>
 
-typeof new Boolean(true); // 'object'
-new Boolean(true) === true; // false
+<span class="pl-k">typeof</span> <span class="pl-k">new</span> <span class="pl-v">Boolean</span><span class="pl-kos">(</span><span class="pl-c1">true</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'object'</span>
+<span class="pl-k">new</span> <span class="pl-v">Boolean</span><span class="pl-kos">(</span><span class="pl-c1">true</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-c1">true</span><span class="pl-kos">;</span> <span class="pl-c">// false</span>
 
-typeof new String('str'); // 'object'
-new String('str') === 'str'; // false
-</code></pre>
+<span class="pl-k">typeof</span> <span class="pl-k">new</span> <span class="pl-v">String</span><span class="pl-kos">(</span><span class="pl-s">'str'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'object'</span>
+<span class="pl-k">new</span> <span class="pl-v">String</span><span class="pl-kos">(</span><span class="pl-s">'str'</span><span class="pl-kos">)</span> <span class="pl-c1">===</span> <span class="pl-s">'str'</span><span class="pl-kos">;</span> <span class="pl-c">// false</span></pre></div>
 <p>如果我们在使用<code class="notranslate">Number</code>、<code class="notranslate">Boolean</code>和<code class="notranslate">String</code>时，没有写<code class="notranslate">new</code>会发生什么情况？</p>
 <p>此时，<code class="notranslate">Number()</code>、<code class="notranslate">Boolean</code>和<code class="notranslate">String()</code>被当做普通函数，把任何类型的数据转换为<code class="notranslate">number</code>、<code class="notranslate">boolean</code>和<code class="notranslate">string</code>类型（注意不是其包装类型）</p>
 <p>反正就是吐血...</p>
@@ -139,10 +147,9 @@ new String('str') === 'str'; // false
 </li>
 <li>
 <p>number的toString，要注意小数点问题</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">123.toString(); // SyntaxError
-123..toString(); // '123', 注意是两个点！
-(123).toString(); // '123'
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">123.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// SyntaxError</span>
+<span class="pl-c1">123.</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// '123', 注意是两个点！</span>
+<span class="pl-kos">(</span><span class="pl-c1">123</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// '123'</span></pre></div>
 </li>
 </ul>
 <h2>1Date</h2>
@@ -150,37 +157,34 @@ new String('str') === 'str'; // false
 <ol>
 <li>
 <p>要获取系统当前时间，用：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var now = new Date();
-now; // Wed Jun 24 2015 19:49:22 GMT+0800 (CST)
-now.getFullYear(); // 2015, 年份
-now.getMonth(); // 5, 月份，注意月份范围是0~11，5表示六月
-now.getDate(); // 24, 表示24号
-now.getDay(); // 3, 表示星期三
-now.getHours(); // 19, 24小时制
-now.getMinutes(); // 49, 分钟
-now.getSeconds(); // 22, 秒
-now.getMilliseconds(); // 875, 毫秒数
-now.getTime(); // 1435146562875, 以number形式表示的时间戳
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">now</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Date</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">now</span><span class="pl-kos">;</span> <span class="pl-c">// Wed Jun 24 2015 19:49:22 GMT+0800 (CST)</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getFullYear</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 2015, 年份</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getMonth</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 5, 月份，注意月份范围是0~11，5表示六月</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getDate</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 24, 表示24号</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getDay</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 3, 表示星期三</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getHours</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 19, 24小时制</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getMinutes</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 49, 分钟</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getSeconds</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 22, 秒</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getMilliseconds</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 875, 毫秒数</span>
+<span class="pl-s1">now</span><span class="pl-kos">.</span><span class="pl-en">getTime</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 1435146562875, 以number形式表示的时间戳</span></pre></div>
 <p>注意，当前时间是浏览器从本机操作系统获取的时间，所以不一定准确，因为用户可以把当前时间设定为任何值。</p>
 </li>
 <li>
 <p>创建Date</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var d = new Date(2015, 5, 19, 20, 15, 30, 123);
-d; // Fri Jun 19 2015 20:15:30 GMT+0800 (CST)
-var d = Date.parse('2015-06-24T19:49:22.875+08:00');
-d; // 1435146562875
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">d</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Date</span><span class="pl-kos">(</span><span class="pl-c1">2015</span><span class="pl-kos">,</span> <span class="pl-c1">5</span><span class="pl-kos">,</span> <span class="pl-c1">19</span><span class="pl-kos">,</span> <span class="pl-c1">20</span><span class="pl-kos">,</span> <span class="pl-c1">15</span><span class="pl-kos">,</span> <span class="pl-c1">30</span><span class="pl-kos">,</span> <span class="pl-c1">123</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">d</span><span class="pl-kos">;</span> <span class="pl-c">// Fri Jun 19 2015 20:15:30 GMT+0800 (CST)</span>
+<span class="pl-k">var</span> <span class="pl-s1">d</span> <span class="pl-c1">=</span> <span class="pl-v">Date</span><span class="pl-kos">.</span><span class="pl-en">parse</span><span class="pl-kos">(</span><span class="pl-s">'2015-06-24T19:49:22.875+08:00'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">d</span><span class="pl-kos">;</span> <span class="pl-c">// 1435146562875</span></pre></div>
 <blockquote>
 <p>你可能观察到了一个<em>非常非常坑爹</em>的地方，就是JavaScript的月份范围用整数表示是0~11，<code class="notranslate">0</code>表示一月，<code class="notranslate">1</code>表示二月……，所以要表示6月，我们传入的是<code class="notranslate">5</code>！这绝对是JavaScript的设计者当时脑抽了一下，但是现在要修复已经不可能了。</p>
 </blockquote>
 </li>
 <li>
 <p>时区</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var d = new Date(1435146562875);
-d.toLocaleString(); // '2015/6/24 下午7:49:22'，本地时间（北京时区+8:00），显示的字符串与操作系统设定的格式有关
-d.toUTCString(); // 'Wed, 24 Jun 2015 11:49:22 GMT'，UTC时间，与本地时间相差8小时
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">d</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">Date</span><span class="pl-kos">(</span><span class="pl-c1">1435146562875</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-s1">d</span><span class="pl-kos">.</span><span class="pl-en">toLocaleString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// '2015/6/24 下午7:49:22'，本地时间（北京时区+8:00），显示的字符串与操作系统设定的格式有关</span>
+<span class="pl-s1">d</span><span class="pl-kos">.</span><span class="pl-en">toUTCString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 'Wed, 24 Jun 2015 11:49:22 GMT'，UTC时间，与本地时间相差8小时</span></pre></div>
 </li>
 </ol>
 <h2>2 RegExp</h2>
@@ -217,122 +221,114 @@ d.toUTCString(); // 'Wed, 24 Jun 2015 11:49:22 GMT'，UTC时间，与本地时�
 </li>
 <li>
 <p>new RegExp('正则表达式');</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var re1 = /ABC\-001/;
-var re2 = new RegExp('ABC\\-001');
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">re1</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-s">A</span><span class="pl-s">B</span><span class="pl-s">C</span><span class="pl-cce">\-</span><span class="pl-s">0</span><span class="pl-s">0</span><span class="pl-s">1</span><span class="pl-c1">/</span></span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">re2</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">RegExp</span><span class="pl-kos">(</span><span class="pl-s">'ABC\\-001'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
 
-re1; // /ABC\-001/
-re2; // /ABC\-001/
-</code></pre>
+<span class="pl-s1">re1</span><span class="pl-kos">;</span> <span class="pl-c">// /ABC\-001/</span>
+<span class="pl-s1">re2</span><span class="pl-kos">;</span> <span class="pl-c">// /ABC\-001/</span></pre></div>
 </li>
 </ol>
 </li>
 <li>
 <p>判断字符串是否匹配</p>
 <p>test()方法，用RegExp的test方法</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var re = /^\d{3}\-\d{3,8}$/;
-re.test('010-12345'); // true
-re.test('010-1234x'); // false
-re.test('010 12345'); // false
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">re</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-cce">^</span><span class="pl-cce">\d</span><span class="pl-kos">{</span><span class="pl-c1">3</span><span class="pl-kos">}</span><span class="pl-cce">\-</span><span class="pl-cce">\d</span><span class="pl-kos">{</span><span class="pl-c1">3</span><span class="pl-kos">,</span><span class="pl-c1">8</span><span class="pl-kos">}</span><span class="pl-cce">$</span><span class="pl-c1">/</span></span><span class="pl-kos">;</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">test</span><span class="pl-kos">(</span><span class="pl-s">'010-12345'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">test</span><span class="pl-kos">(</span><span class="pl-s">'010-1234x'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// false</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">test</span><span class="pl-kos">(</span><span class="pl-s">'010 12345'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// false</span></pre></div>
 </li>
 <li>
 <p>匹配后提取信息</p>
 <p>除了简单地判断是否匹配之外，正则表达式还有提取子串的强大功能。用<code class="notranslate">()</code>表示的就是要提取的分组（Group）</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var re = /^(\d{3})-(\d{3,8})$/;
-re.exec('010-12345'); // ['010-12345', '010', '12345']
-re.exec('010 12345'); // null
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">re</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-cce">^</span><span class="pl-kos">(</span><span class="pl-cce">\d</span><span class="pl-kos">{</span><span class="pl-c1">3</span><span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-s">-</span><span class="pl-kos">(</span><span class="pl-cce">\d</span><span class="pl-kos">{</span><span class="pl-c1">3</span><span class="pl-kos">,</span><span class="pl-c1">8</span><span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-cce">$</span><span class="pl-c1">/</span></span><span class="pl-kos">;</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s">'010-12345'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['010-12345', '010', '12345']</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s">'010 12345'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// null</span></pre></div>
 <p>exec方法在匹配失败时返回null</p>
 </li>
 <li>
 <p>切分字符串</p>
 <p>属于不务正业的用法</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">'a b   c'.split(' '); // ['a', 'b', '', '', 'c']
-'a b   c'.split(/\s+/); // ['a', 'b', 'c']
-'a,b, c  d'.split(/[\s\,]+/); // ['a', 'b', 'c', 'd']
-'a,b;; c  d'.split(/[\s\,\;]+/); // ['a', 'b', 'c', 'd']
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'a b   c'</span><span class="pl-kos">.</span><span class="pl-en">split</span><span class="pl-kos">(</span><span class="pl-s">' '</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['a', 'b', '', '', 'c']</span>
+<span class="pl-s">'a b   c'</span><span class="pl-kos">.</span><span class="pl-en">split</span><span class="pl-kos">(</span><span class="pl-pds"><span class="pl-c1">/</span><span class="pl-cce">\s</span><span class="pl-c1">+</span><span class="pl-c1">/</span></span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['a', 'b', 'c']</span>
+<span class="pl-s">'a,b, c  d'</span><span class="pl-kos">.</span><span class="pl-en">split</span><span class="pl-kos">(</span><span class="pl-pds"><span class="pl-c1">/</span><span class="pl-kos">[</span><span class="pl-cce">\s</span><span class="pl-cce">\,</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-c1">/</span></span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['a', 'b', 'c', 'd']</span>
+<span class="pl-s">'a,b;; c  d'</span><span class="pl-kos">.</span><span class="pl-en">split</span><span class="pl-kos">(</span><span class="pl-pds"><span class="pl-c1">/</span><span class="pl-kos">[</span><span class="pl-cce">\s</span><span class="pl-cce">\,</span><span class="pl-cce">\;</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-c1">/</span></span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['a', 'b', 'c', 'd']</span></pre></div>
 </li>
 <li>
 <p>贪婪匹配</p>
 <p>默认是贪婪匹配，就是匹配到后会尽可能延长字符串。</p>
 <p>如果不想这么匹配，就要加上?</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var re = /^(\d+)(0*)$/;
-re.exec('102300'); // ['102300', '102300', '']
-var re = /^(\d+?)(0*)$/;
-re.exec('102300'); // ['102300', '1023', '00']
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">re</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-cce">^</span><span class="pl-kos">(</span><span class="pl-cce">\d</span><span class="pl-c1">+</span><span class="pl-kos">)</span><span class="pl-kos">(</span><span class="pl-s">0</span><span class="pl-c1">*</span><span class="pl-kos">)</span><span class="pl-cce">$</span><span class="pl-c1">/</span></span><span class="pl-kos">;</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s">'102300'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['102300', '102300', '']</span>
+<span class="pl-k">var</span> <span class="pl-s1">re</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-cce">^</span><span class="pl-kos">(</span><span class="pl-cce">\d</span><span class="pl-c1">+</span>?<span class="pl-kos">)</span><span class="pl-kos">(</span><span class="pl-s">0</span><span class="pl-c1">*</span><span class="pl-kos">)</span><span class="pl-cce">$</span><span class="pl-c1">/</span></span><span class="pl-kos">;</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s">'102300'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['102300', '1023', '00']</span></pre></div>
 </li>
 <li>
 <p>全局搜索</p>
 <p>JavaScript的正则表达式还有几个特殊的标志，最常用的是<code class="notranslate">g</code>，表示全局匹配。</p>
 <p>所谓全局匹配是多次匹配，或者说匹配到第一个之后，可以继续往后匹配下一个。</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var r1 = /test/g;
-// 等价于:
-var r2 = new RegExp('test', 'g');
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">r1</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-s">t</span><span class="pl-s">e</span><span class="pl-s">s</span><span class="pl-s">t</span><span class="pl-c1">/</span>g</span><span class="pl-kos">;</span>
+<span class="pl-c">// 等价于:</span>
+<span class="pl-k">var</span> <span class="pl-s1">r2</span> <span class="pl-c1">=</span> <span class="pl-k">new</span> <span class="pl-v">RegExp</span><span class="pl-kos">(</span><span class="pl-s">'test'</span><span class="pl-kos">,</span> <span class="pl-s">'g'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
 
-ar s = 'JavaScript, VBScript, JScript and ECMAScript';
-var re=/[a-zA-Z]+Script/g;
+<span class="pl-s1">ar</span> <span class="pl-s1">s</span> <span class="pl-c1">=</span> <span class="pl-s">'JavaScript, VBScript, JScript and ECMAScript'</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">re</span><span class="pl-c1">=</span><span class="pl-pds"><span class="pl-c1">/</span><span class="pl-kos">[</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-s">S</span><span class="pl-s">c</span><span class="pl-s">r</span><span class="pl-s">i</span><span class="pl-s">p</span><span class="pl-s">t</span><span class="pl-c1">/</span>g</span><span class="pl-kos">;</span>
 
-// 使用全局匹配:
-re.exec(s); // ['JavaScript']
-re.lastIndex; // 10
+<span class="pl-c">// 使用全局匹配:</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['JavaScript']</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-c1">lastIndex</span><span class="pl-kos">;</span> <span class="pl-c">// 10</span>
 
-re.exec(s); // ['VBScript']
-re.lastIndex; // 20
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['VBScript']</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-c1">lastIndex</span><span class="pl-kos">;</span> <span class="pl-c">// 20</span>
 
-re.exec(s); // ['JScript']
-re.lastIndex; // 29
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['JScript']</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-c1">lastIndex</span><span class="pl-kos">;</span> <span class="pl-c">// 29</span>
 
-re.exec(s); // ['ECMAScript']
-re.lastIndex; // 44
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// ['ECMAScript']</span>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-c1">lastIndex</span><span class="pl-kos">;</span> <span class="pl-c">// 44</span>
 
-re.exec(s); // null，直到结束仍没有匹配到
-</code></pre>
+<span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// null，直到结束仍没有匹配到</span></pre></div>
 <p>全局匹配类似搜索，因此不能使用<code class="notranslate">/^...$/</code>，那样只会最多匹配一次。</p>
 <p>正则表达式还可以指定<code class="notranslate">i</code>标志，表示忽略大小写，<code class="notranslate">m</code>标志，表示执行多行匹配。</p>
 </li>
 </ol>
 <h3>练习</h3>
 <p>请尝试写一个验证Email地址的正则表达式。版本一应该可以验证出类似的Email：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">'use strict';
-var re = /^[0-9a-zA-Z.]+@[0-9a-zA-Z]+\.[0-9a-zA-Z]+$/;
-// 测试:
-var
-    i,
-    success = true,
-    should_pass = ['someone@gmail.com', 'bill.gates@microsoft.com', 'tom@voyager.org', 'bob2015@163.com'],
-    should_fail = ['test#gmail.com', 'bill@microsoft', 'bill%gates@ms.com', '@voyager.org'];
-for (i = 0; i &lt; should_pass.length; i++) {
-    if (!re.test(should_pass[i])) {
-        console.log('测试失败: ' + should_pass[i]);
-        success = false;
-        break;
-    }
-}
-for (i = 0; i &lt; should_fail.length; i++) {
-    if (re.test(should_fail[i])) {
-        console.log('测试失败: ' + should_fail[i]);
-        success = false;
-        break;
-    }
-}
-if (success) {
-    console.log('测试通过!');
-}
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">re</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-cce">^</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-c1">-</span><span class="pl-c1">9</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-c1">.</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-s">@</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-c1">-</span><span class="pl-c1">9</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-cce">\.</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-c1">-</span><span class="pl-c1">9</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-cce">$</span><span class="pl-c1">/</span></span><span class="pl-kos">;</span>
+<span class="pl-c">// 测试:</span>
+<span class="pl-k">var</span>
+    <span class="pl-s1">i</span><span class="pl-kos">,</span>
+    <span class="pl-s1">success</span> <span class="pl-c1">=</span> <span class="pl-c1">true</span><span class="pl-kos">,</span>
+    <span class="pl-s1">should_pass</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'someone@gmail.com'</span><span class="pl-kos">,</span> <span class="pl-s">'bill.gates@microsoft.com'</span><span class="pl-kos">,</span> <span class="pl-s">'tom@voyager.org'</span><span class="pl-kos">,</span> <span class="pl-s">'bob2015@163.com'</span><span class="pl-kos">]</span><span class="pl-kos">,</span>
+    <span class="pl-s1">should_fail</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-s">'test#gmail.com'</span><span class="pl-kos">,</span> <span class="pl-s">'bill@microsoft'</span><span class="pl-kos">,</span> <span class="pl-s">'bill%gates@ms.com'</span><span class="pl-kos">,</span> <span class="pl-s">'@voyager.org'</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
+<span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">should_pass</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-s1">i</span><span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-c1">!</span><span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">test</span><span class="pl-kos">(</span><span class="pl-s1">should_pass</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败: '</span> <span class="pl-c1">+</span> <span class="pl-s1">should_pass</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-s1">success</span> <span class="pl-c1">=</span> <span class="pl-c1">false</span><span class="pl-kos">;</span>
+        <span class="pl-k">break</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span>
+<span class="pl-k">for</span> <span class="pl-kos">(</span><span class="pl-s1">i</span> <span class="pl-c1">=</span> <span class="pl-c1">0</span><span class="pl-kos">;</span> <span class="pl-s1">i</span> <span class="pl-c1">&lt;</span> <span class="pl-s1">should_fail</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">;</span> <span class="pl-s1">i</span><span class="pl-c1">++</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">test</span><span class="pl-kos">(</span><span class="pl-s1">should_fail</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败: '</span> <span class="pl-c1">+</span> <span class="pl-s1">should_fail</span><span class="pl-kos">[</span><span class="pl-s1">i</span><span class="pl-kos">]</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        <span class="pl-s1">success</span> <span class="pl-c1">=</span> <span class="pl-c1">false</span><span class="pl-kos">;</span>
+        <span class="pl-k">break</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span>
+<span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">success</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试通过!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
 <p>版本二可以验证并提取出带名字的Email地址：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">'use strict';
-var re = /^&lt;([A-Za-z]+\s[A-Za-z]+)&gt;\s?([0-9a-zA-Z.]+@[0-9a-zA-Z]+\.[0-9a-zA-Z]+)$/;
-// 测试:
-var r = re.exec('&lt;Tom Paris&gt; tom@voyager.org');
-if (r === null || r.toString() !== ['&lt;Tom Paris&gt; tom@voyager.org', 'Tom Paris', 'tom@voyager.org'].toString()) {
-    console.log('测试失败!');
-}
-else {
-    console.log('测试成功!');
-}
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">re</span> <span class="pl-c1">=</span> <span class="pl-pds"><span class="pl-c1">/</span><span class="pl-cce">^</span><span class="pl-s">&lt;</span><span class="pl-kos">(</span><span class="pl-kos">[</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-cce">\s</span><span class="pl-kos">[</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-kos">)</span><span class="pl-s">&gt;</span><span class="pl-cce">\s</span><span class="pl-c1">?</span><span class="pl-kos">(</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-c1">-</span><span class="pl-c1">9</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-c1">.</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-s">@</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-c1">-</span><span class="pl-c1">9</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-cce">\.</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-c1">-</span><span class="pl-c1">9</span><span class="pl-c1">a</span><span class="pl-c1">-</span><span class="pl-c1">z</span><span class="pl-c1">A</span><span class="pl-c1">-</span><span class="pl-c1">Z</span><span class="pl-kos">]</span><span class="pl-c1">+</span><span class="pl-kos">)</span><span class="pl-cce">$</span><span class="pl-c1">/</span></span><span class="pl-kos">;</span>
+<span class="pl-c">// 测试:</span>
+<span class="pl-k">var</span> <span class="pl-s1">r</span> <span class="pl-c1">=</span> <span class="pl-s1">re</span><span class="pl-kos">.</span><span class="pl-en">exec</span><span class="pl-kos">(</span><span class="pl-s">'&lt;Tom Paris&gt; tom@voyager.org'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">r</span> <span class="pl-c1">===</span> <span class="pl-c1">null</span> <span class="pl-c1">||</span> <span class="pl-s1">r</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-c1">!==</span> <span class="pl-kos">[</span><span class="pl-s">'&lt;Tom Paris&gt; tom@voyager.org'</span><span class="pl-kos">,</span> <span class="pl-s">'Tom Paris'</span><span class="pl-kos">,</span> <span class="pl-s">'tom@voyager.org'</span><span class="pl-kos">]</span><span class="pl-kos">.</span><span class="pl-en">toString</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试失败!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
+<span class="pl-k">else</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s">'测试成功!'</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span></pre></div>
 <h2>3 JSON</h2>
 <h3>创造JSON的历史</h3>
 <p>为了替代冗长复杂的xml来传递数据</p>
@@ -359,94 +355,85 @@ else {
 <ul>
 <li>
 <p>把对象转为JSON并输出</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">'use strict';
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-s">'use strict'</span><span class="pl-kos">;</span>
 
-var xiaoming = {
-    name: '小明',
-    age: 14,
-    gender: true,
-    height: 1.65,
-    grade: null,
-    'middle-school': '\"W3C\" Middle School',
-    skills: ['JavaScript', 'Java', 'Python', 'Lisp']
-};
-var s = JSON.stringify(xiaoming);
-console.log(s);
-</code></pre>
+<span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'小明'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">age</span>: <span class="pl-c1">14</span><span class="pl-kos">,</span>
+    <span class="pl-c1">gender</span>: <span class="pl-c1">true</span><span class="pl-kos">,</span>
+    <span class="pl-c1">height</span>: <span class="pl-c1">1.65</span><span class="pl-kos">,</span>
+    <span class="pl-c1">grade</span>: <span class="pl-c1">null</span><span class="pl-kos">,</span>
+    <span class="pl-s">'middle-school'</span>: <span class="pl-s">'\"W3C\" Middle School'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">skills</span>: <span class="pl-kos">[</span><span class="pl-s">'JavaScript'</span><span class="pl-kos">,</span> <span class="pl-s">'Java'</span><span class="pl-kos">,</span> <span class="pl-s">'Python'</span><span class="pl-kos">,</span> <span class="pl-s">'Lisp'</span><span class="pl-kos">]</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
+<span class="pl-k">var</span> <span class="pl-s1">s</span> <span class="pl-c1">=</span> <span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">stringify</span><span class="pl-kos">(</span><span class="pl-s1">xiaoming</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-s1">s</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <p>要输出得好看一些，可以加上参数，按缩进输出：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">JSON.stringify(xiaoming, null, '  ');
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">stringify</span><span class="pl-kos">(</span><span class="pl-s1">xiaoming</span><span class="pl-kos">,</span> <span class="pl-c1">null</span><span class="pl-kos">,</span> <span class="pl-s">'  '</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 </li>
 <li>
 <p>第二个参数可以控制输出内容的范围和格式</p>
 <p>比如只输出name和age字段</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">JSON.stringify(xiaoming,['name','age'],' ');
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">stringify</span><span class="pl-kos">(</span><span class="pl-s1">xiaoming</span><span class="pl-kos">,</span><span class="pl-kos">[</span><span class="pl-s">'name'</span><span class="pl-kos">,</span><span class="pl-s">'age'</span><span class="pl-kos">]</span><span class="pl-kos">,</span><span class="pl-s">' '</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <p>比如string类型字段要大写</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">function convert(key, value) {
-    if (typeof value === 'string') {
-        return value.toUpperCase();
-    }
-    return value;
-}
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">function</span> <span class="pl-en">convert</span><span class="pl-kos">(</span><span class="pl-s1">key</span><span class="pl-kos">,</span> <span class="pl-s1">value</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-k">typeof</span> <span class="pl-s1">value</span> <span class="pl-c1">===</span> <span class="pl-s">'string'</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">return</span> <span class="pl-s1">value</span><span class="pl-kos">.</span><span class="pl-en">toUpperCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+    <span class="pl-k">return</span> <span class="pl-s1">value</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
 
-JSON.stringify(xiaoming, convert, '  ');
-</code></pre>
+<span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">stringify</span><span class="pl-kos">(</span><span class="pl-s1">xiaoming</span><span class="pl-kos">,</span> <span class="pl-s1">convert</span><span class="pl-kos">,</span> <span class="pl-s">'  '</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 </li>
 <li>
 <p>在对象中，用toJSON()方法来精确控制，返回name和skill并且skill大写</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var xiaoming = {
-    name: '小明',
-    age: 14,
-    gender: true,
-    height: 1.65,
-    grade: null,
-    'middle-school': '\"W3C\" Middle School',
-    skills: ['JavaScript', 'Java', 'Python', 'Lisp'],
-    toJSON: function(){
-        return {
-            'Name':this.name,
-            'Skills':this.skills
-        }
-    }
-};
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">xiaoming</span> <span class="pl-c1">=</span> <span class="pl-kos">{</span>
+    <span class="pl-c1">name</span>: <span class="pl-s">'小明'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">age</span>: <span class="pl-c1">14</span><span class="pl-kos">,</span>
+    <span class="pl-c1">gender</span>: <span class="pl-c1">true</span><span class="pl-kos">,</span>
+    <span class="pl-c1">height</span>: <span class="pl-c1">1.65</span><span class="pl-kos">,</span>
+    <span class="pl-c1">grade</span>: <span class="pl-c1">null</span><span class="pl-kos">,</span>
+    <span class="pl-s">'middle-school'</span>: <span class="pl-s">'\"W3C\" Middle School'</span><span class="pl-kos">,</span>
+    <span class="pl-c1">skills</span>: <span class="pl-kos">[</span><span class="pl-s">'JavaScript'</span><span class="pl-kos">,</span> <span class="pl-s">'Java'</span><span class="pl-kos">,</span> <span class="pl-s">'Python'</span><span class="pl-kos">,</span> <span class="pl-s">'Lisp'</span><span class="pl-kos">]</span><span class="pl-kos">,</span>
+    <span class="pl-en">toJSON</span>: <span class="pl-k">function</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">{</span>
+        <span class="pl-k">return</span> <span class="pl-kos">{</span>
+            <span class="pl-s">'Name'</span>:<span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">name</span><span class="pl-kos">,</span>
+            <span class="pl-s">'Skills'</span>:<span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">skills</span>
+        <span class="pl-kos">}</span>
+    <span class="pl-kos">}</span>
+<span class="pl-kos">}</span><span class="pl-kos">;</span>
 
-function convert(key, value) {
-    if (typeof value === 'string') {
-        return value.toUpperCase();
-    }
-    return value;
-}
+<span class="pl-k">function</span> <span class="pl-en">convert</span><span class="pl-kos">(</span><span class="pl-s1">key</span><span class="pl-kos">,</span> <span class="pl-s1">value</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-k">typeof</span> <span class="pl-s1">value</span> <span class="pl-c1">===</span> <span class="pl-s">'string'</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">return</span> <span class="pl-s1">value</span><span class="pl-kos">.</span><span class="pl-en">toUpperCase</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+    <span class="pl-k">return</span> <span class="pl-s1">value</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span>
 
-console.log(JSON.stringify(xiaoming, convert, '  '));
-</code></pre>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">stringify</span><span class="pl-kos">(</span><span class="pl-s1">xiaoming</span><span class="pl-kos">,</span> <span class="pl-s1">convert</span><span class="pl-kos">,</span> <span class="pl-s">'  '</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 </li>
 </ul>
 <h3>反序列化</h3>
 <p>我们直接用<code class="notranslate">JSON.parse()</code>把它变成一个JavaScript对象</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">JSON.parse('[1,2,3,true]'); // [1, 2, 3, true]
-JSON.parse('{"name":"小明","age":14}'); // Object {name: '小明', age: 14}
-JSON.parse('true'); // true
-JSON.parse('123.45'); // 123.45
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">parse</span><span class="pl-kos">(</span><span class="pl-s">'[1,2,3,true]'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// [1, 2, 3, true]</span>
+<span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">parse</span><span class="pl-kos">(</span><span class="pl-s">'{"name":"小明","age":14}'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// Object {name: '小明', age: 14}</span>
+<span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">parse</span><span class="pl-kos">(</span><span class="pl-s">'true'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// true</span>
+<span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">parse</span><span class="pl-kos">(</span><span class="pl-s">'123.45'</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// 123.45</span></pre></div>
 <p><code class="notranslate">JSON.parse()</code>还可以接收一个函数，用来转换解析出的属性：</p>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var obj = JSON.parse('{"name":"小明","age":14}', function (key, value) {
-    if (key === 'name') {
-        return value + '同学';
-    }
-    return value;
-});
-console.log(JSON.stringify(obj)); // {name: '小明同学', age: 14}
-</code></pre>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">obj</span> <span class="pl-c1">=</span> <span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">parse</span><span class="pl-kos">(</span><span class="pl-s">'{"name":"小明","age":14}'</span><span class="pl-kos">,</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">key</span><span class="pl-kos">,</span> <span class="pl-s1">value</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">key</span> <span class="pl-c1">===</span> <span class="pl-s">'name'</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+        <span class="pl-k">return</span> <span class="pl-s1">value</span> <span class="pl-c1">+</span> <span class="pl-s">'同学'</span><span class="pl-kos">;</span>
+    <span class="pl-kos">}</span>
+    <span class="pl-k">return</span> <span class="pl-s1">value</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">stringify</span><span class="pl-kos">(</span><span class="pl-s1">obj</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span> <span class="pl-c">// {name: '小明同学', age: 14}</span></pre></div>
 <h3>练习</h3>
 <p>用浏览器访问OpenWeatherMap的<a href="https://api.openweathermap.org/data/2.5/forecast?q=Beijing,cn&amp;appid=800f49846586c3ba6e7052cfc89af16c" rel="nofollow">天气API</a>，查看返回的JSON数据，然后返回城市、天气预报等信息</p>
-<pre lang="html" class="notranslate"><code class="notranslate">&lt;script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"&gt;&lt;/script&gt;
-</code></pre>
-<pre lang="javascript" class="notranslate"><code class="notranslate">var url = 'https://api.openweathermap.org/data/2.5/forecast?q=Beijing,cn&amp;appid=800f49846586c3ba6e7052cfc89af16c';
-$.getJSON(url, function (data) {
-    console.log(JSON.stringify(data,null,' '));
-});
-</code></pre>
+<div class="highlight highlight-text-html-basic"><pre class="notranslate"><span class="pl-kos">&lt;</span><span class="pl-ent">script</span> <span class="pl-c1">src</span>="<span class="pl-s">https://code.jquery.com/jquery-3.3.1.js</span>" <span class="pl-c1">integrity</span>="<span class="pl-s">sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=</span>" <span class="pl-c1">crossorigin</span>="<span class="pl-s">anonymous</span>"<span class="pl-kos">&gt;</span><span class="pl-kos">&lt;/</span><span class="pl-ent">script</span><span class="pl-kos">&gt;</span></pre></div>
+<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-k">var</span> <span class="pl-s1">url</span> <span class="pl-c1">=</span> <span class="pl-s">'https://api.openweathermap.org/data/2.5/forecast?q=Beijing,cn&amp;appid=800f49846586c3ba6e7052cfc89af16c'</span><span class="pl-kos">;</span>
+<span class="pl-s1">$</span><span class="pl-kos">.</span><span class="pl-en">getJSON</span><span class="pl-kos">(</span><span class="pl-s1">url</span><span class="pl-kos">,</span> <span class="pl-k">function</span> <span class="pl-kos">(</span><span class="pl-s1">data</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
+    <span class="pl-smi">console</span><span class="pl-kos">.</span><span class="pl-en">log</span><span class="pl-kos">(</span><span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">stringify</span><span class="pl-kos">(</span><span class="pl-s1">data</span><span class="pl-kos">,</span><span class="pl-c1">null</span><span class="pl-kos">,</span><span class="pl-s">' '</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
 <h2>参考资料</h2>
 <ol>
 <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_expressions" rel="nofollow">正则表达式- JavaScript - MDN Web Docs</a></li>
@@ -475,7 +462,7 @@ if(""!=""){
 </script></div>
 </body>
 <script>
-var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
 var utterancesLoad=0;
 
 let themeSettings={
@@ -549,7 +536,70 @@ function iFrameLoading(){
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
 
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
 
 </script>
 
