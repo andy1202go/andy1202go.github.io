@@ -53,7 +53,7 @@
 <meta property="og:url" content="https://andy1202go.github.io/post/Linux%20-ru-men-%20Part2.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/11980041">
 <title>Linux 入门 Part2</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -436,12 +436,13 @@ CentOS release 6.4 (Final)
 [root@www ~]# tail -n 20 /etc/man.config
 </code></pre>
 <h4>总结-最常用的命令及选项含义</h4>
-<div class="highlight highlight-source-shell"><pre class="notranslate">ls -al 全部文件及具体信息
-<span class="pl-c1">cd</span> 
-<span class="pl-c1">pwd</span>
+<pre lang="bash" class="notranslate"><code class="notranslate">ls -al 全部文件及具体信息
+cd 
+pwd
 cat -b 显示行号
 more less 空格间向下翻看；/搜索
-tail -200f 尾部且持续输出</pre></div>
+tail -200f 尾部且持续输出
+</code></pre>
 <h3>1.7 文件基本属性</h3>
 <ul>
 <li>
@@ -455,11 +456,12 @@ tail -200f 尾部且持续输出</pre></div>
 </li>
 <li>
 <p>使用ll查看文件详细信息</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate">[root@www /]<span class="pl-c"><span class="pl-c">#</span> ls -l</span>
+<pre lang="bash" class="notranslate"><code class="notranslate">[root@www /]# ls -l
 total 64
 dr-xr-xr-x   2 root root 4096 Dec 14  2012 bin
 dr-xr-xr-x   4 root root 4096 Apr 19  2012 boot
-……</pre></div>
+……
+</code></pre>
 </li>
 <li>
 <p>十位数标识文件类型和不同用户对文件的权限</p>
@@ -499,14 +501,15 @@ dr-xr-xr-x   4 root root 4096 Apr 19  2012 boot
 </li>
 </ul>
 <h4>更改文件属性</h4>
-<div class="highlight highlight-source-shell"><pre class="notranslate">chown root test1
+<pre lang="bash" class="notranslate"><code class="notranslate">chown root test1
 chown root:service test1 更改test1文件的属主为root，属组为service
 chgrp root test1
 chmod 777 test1 更改test1的权限属性，每个组都设置为7
 chmod u=rwx,g=rw,o=r test1 属主权限为rwx，属组权限为rw，其他为r
 chmod a=rwx test1 所有用户权限为rwx
 chmod a+x test1 所有用户增加执行权限
-chmod a-x test1 所有用户减少执行权限</pre></div>
+chmod a-x test1 所有用户减少执行权限
+</code></pre>
 <h3>1.8 用户和用户组管理</h3>
 <p>略</p>
 <h3>1.9 磁盘管理</h3>
@@ -526,10 +529,11 @@ chmod a-x test1 所有用户减少执行权限</pre></div>
 <p>通用命令</p>
 </li>
 </ul>
-<div class="highlight highlight-source-shell"><pre class="notranslate">df -hTa 文件名 全部文件系统，显示文件系统类型，以较易阅读形式展示
+<pre lang="bash" class="notranslate"><code class="notranslate">df -hTa 文件名 全部文件系统，显示文件系统类型，以较易阅读形式展示
 du -h 文件名 以较易阅读形式展示
 du -h
-df -h 当前位置情况</pre></div>
+df -h 当前位置情况
+</code></pre>
 <h4>磁盘分区等操作</h4>
 <p>fdisk</p>
 <p>其他略</p>
