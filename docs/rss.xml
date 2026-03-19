@@ -1,5 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Wed, 11 Mar 2026 02:50:52 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>理解Linux的标准流</title><link>https://andy1202go.github.io/post/li-jie-Linux-de-biao-zhun-liu.html</link><description>## 标准流
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 19 Mar 2026 06:44:32 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>PG核心配置参数_Basic_3_日志</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_3_-ri-zhi.html</link><description>## logging_collector 日志收集器
+
+默认值：off
+
+建议：on
+
+&gt; 一个服务器参数，用于确定是否启用日志收集器。</description><guid isPermaLink="true">https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_3_-ri-zhi.html</guid><pubDate>Thu, 19 Mar 2026 06:44:03 +0000</pubDate></item><item><title>理解Linux的标准流</title><link>https://andy1202go.github.io/post/li-jie-Linux-de-biao-zhun-liu.html</link><description>## 标准流
 
 &gt; 在 Linux 系统中，'标准流'（Standard Streams）是程序与外部环境进行数据交互的核心机制，标准流主要包括以下三种类型：
 &gt;
