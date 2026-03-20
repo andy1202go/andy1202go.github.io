@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Thu, 19 Mar 2026 06:44:32 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>PG核心配置参数_Basic_3_日志</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_3_-ri-zhi.html</link><description>## logging_collector 日志收集器
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Fri, 20 Mar 2026 08:00:04 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>PG核心配置参数_Basic_4_检查点</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_4_-jian-cha-dian.html</link><description>## min_wal_size
+
+默认：80MB
+
+建议：大一些，1GB
+
+首先需要理解wal日志，这个是pg的一个核心功能的保障：
+
+&gt; WAL（Write-Ahead Logging）是PostgreSQL的核心机制，它确保**任何数据修改都必须先写入日志，然后才能写入实际数据文件**。</description><guid isPermaLink="true">https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_4_-jian-cha-dian.html</guid><pubDate>Fri, 20 Mar 2026 07:59:30 +0000</pubDate></item><item><title>PG核心配置参数_Basic_3_日志</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_3_-ri-zhi.html</link><description>## logging_collector 日志收集器
 
 默认值：off
 
