@@ -1,5 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Fri, 20 Mar 2026 08:00:04 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>PG核心配置参数_Basic_4_检查点</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_4_-jian-cha-dian.html</link><description>## min_wal_size
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Andy's Blog</title><link>https://andy1202go.github.io</link><description>Tech Experience Learn Think</description><copyright>Andy's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/11980041</url><title>avatar</title><link>https://andy1202go.github.io</link></image><lastBuildDate>Tue, 24 Mar 2026 07:12:53 +0000</lastBuildDate><managingEditor>Andy's Blog</managingEditor><ttl>60</ttl><webMaster>Andy's Blog</webMaster><item><title>PG核心配置参数_Basic_5_副本</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_5_-fu-ben.html</link><description>## max_replication_slots
+
+默认：10
+
+推荐：每个从库默认给一个物理副本，逻辑副本按计划预留，再冗余1-2个
+
+&gt; **max_replication_slots** 是 PostgreSQL 的一个配置参数，它定义了**数据库集群中可以创建的最大复制槽数量**。</description><guid isPermaLink="true">https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_5_-fu-ben.html</guid><pubDate>Tue, 24 Mar 2026 07:12:19 +0000</pubDate></item><item><title>PG核心配置参数_Basic_4_检查点</title><link>https://andy1202go.github.io/post/PG-he-xin-pei-zhi-can-shu-_Basic_4_-jian-cha-dian.html</link><description>## min_wal_size
 
 默认：80MB
 
